@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Kelas 11 DPIB 2 — SMKN 1 KOTA KEDIRI</title>
+  <meta name="description" content="Showcase & memories Kelas 11 DPIB 2 SMKN 1 Kota Kediri. Foto, event, berita dan kenangan.">
+
+  <!-- Open Graph placeholders -->
+  <meta property="og:title" content="Kelas 11 DPIB 2 — SMKN 1 KOTA KEDIRI">
+  <meta property="og:description" content="Showcase & memories Kelas 11 DPIB 2">
+  <meta property="og:image" content="/assets/og-hero.jpg">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Feather icons (script will be executed in script.js with feather.replace()) -->
+  <script src="https://unpkg.com/feather-icons"></script>
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="style.css">
+
+  <!-- Environment/config (Netlify will inject actual values into this block or script.js will read window.__CONFIG__) -->
+  <script id="env-config" type="application/json">
+  {
+    "SUPABASE_URL": "",
+    "SUPABASE_ANON_KEY": "",
+    "CLOUDINARY_CLOUD_NAME": "",
+    "CLOUDINARY_UPLOAD_PRESET": ""
+  }
+  </script>
+
+  <meta name="theme-color" content="#7C5CFF66">
+</head>
+<body class="theme-neon">
+
+  <!-- =========================
+       HEADER + HERO (full-width photo)
+       ========================= -->
+  <header id="site-header" class="site-header">
+    <div class="hero">
+      <img id="hero-img" src="/assets/hero.jpg" alt="Kelas 11 DPIB 2 — SMKN 1 KOTA KEDIRI" class="hero-image" />
+      <div class="hero-overlay glass">
+        <div class="hero-content">
+          <h1 id="site-title" class="site-title">Kelas 11 DPIB 2 — SMKN 1 KOTA KEDIRI</h1>
+        </div>
+
+        <!-- Floating navigation inside hero overlay -->
+        <nav id="floating-nav" class="floating-nav" role="navigation" aria-label="Main navigation">
+          <button class="nav-btn" data-target="#profil" aria-label="Profil"><i data-feather="users"></i></button>
+          <button class="nav-btn" data-target="#gallery" aria-label="Gallery"><i data-feather="grid"></i></button>
+          <button class="nav-btn" data-target="#motto" aria-label="Motto"><i data-feather="award"></i></button>
+          <button class="nav-btn" data-target="#messages" aria-label="Pesan"><i data-feather="mail"></i></button>
+          <button class="nav-btn" data-target="#event" aria-label="Event"><i data-feather="clock"></i></button>
+          <button class="nav-btn" data-target="#memories" aria-label="Memories"><i data-feather="film"></i></button>
+        </nav>
+      </div>
+    </div>
+  </header>
+
+  <!-- =========================
+       MAIN
+       ========================= -->
+  <main id="main" class="site-main">
+
+    <!-- =========================
+         PROFIL KELAS
+         ========================= -->
+    <section id="profil" class="section section-profil">
+      <div class="container">
+        <div class="section-header">
+          <h2 class="section-title"><i data-feather="user"></i> Profil Kelas</h2>
+        </div>
+
+        <div id="profil-grid" class="profil-grid" aria-live="polite">
+          <!-- Profil cards injected by JS. Structure example below -->
+          <!--
+          <article class="profil-card" data-person="ketua" data-id="p-1">
+            <div class="pc-body">
+              <div class="pc-name" id="p-1-name">Nama Ketua</div>
+              <div class="pc-role">Ketua</div>
+              <div class="pc-meta">Jumlah siswa: <span class="pc-count">XX</span></div>
+              <div class="pc-socials">
+                <a class="pc-social" href="#" target="_blank" rel="noopener" aria-label="Instagram Ketua"><i data-feather="instagram"></i></a>
+              </div>
+            </div>
+          </article>
+          -->
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================
+         GALLERY
+         ========================= -->
+    <section id="gallery" class="section section-gallery">
+      <div class="container">
+        <div class="section-header">
+          <h2 class="section-title"><i data-feather="image"></i> Gallery</h2>
+          <div class="gallery-controls">
+            <input id="gallery-search" class="input-search" type="search" placeholder="Cari tag atau caption..." aria-label="Cari foto">
+            <label for="gallery-perpage" class="sr-only">Foto per halaman</label>
+            <select id="gallery-perpage" class="select-perpage" aria-label="Foto per halaman">
+              <option value="12">12</option>
+              <option value="24">24</option>
+              <option value="48">48</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Masonry (full-fluid) -->
+        <div id="gallery-masonry" class="masonry" aria-live="polite">
+          <!-- Items rendered by JS -->
+        </div>
+
+        <!-- Pagination controls -->
+        <div class="gallery-pagination" aria-label="Gallery pagination">
+          <button id="gallery-prev" class="btn secondary">Prev</button>
+          <span id="gallery-pageinfo" class="pageinfo">Page 1</span>
+          <button id="gallery-next" class="btn secondary">Next</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================
+         MOTTO
+         ========================= -->
+    <section id="motto" class="section section-motto">
+      <div class="motto-wrap">
+        <div class="motto-inner glass" role="region" aria-label="Motto kelas">
+          <h2 id="motto-text" class="motto-text">[Motto Kelas]</h2>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================
+         PESAN UNTUK KELAS
+         ========================= -->
+    <section id="messages" class="section section-messages">
+      <div class="container">
+        <div class="section-header">
+          <h2 class="section-title"><i data-feather="mail"></i> Pesan untuk Kelas</h2>
+        </div>
+
+        <div id="messages-list" class="messages-list">
+          <!-- Cards injected by JS. Example:
+            <article class="message-card" data-id="m-1">
+              <header>
+                <h3 class="msg-title">Judul</h3>
+                <div class="msg-author">oleh: Nama</div>
+              </header>
+              <div class="msg-body">Isi pesan singkat... klik untuk detail</div>
+            </article>
+          -->
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================
+         EVENT (Neareast event only on homepage)
+         ========================= -->
+    <section id="event" class="section section-event">
+      <div class="container">
+        <div class="section-header">
+          <h2 class="section-title"><i data-feather="calendar"></i> Event Terdekat</h2>
+        </div>
+
+        <div id="event-box" class="event-box glass" aria-live="polite" data-has-event="false">
+          <div class="event-left">
+            <h3 id="event-title">Tidak ada event</h3>
+            <div id="event-datetime" class="event-datetime"></div>
+            <p id="event-desc" class="event-desc"></p>
+          </div>
+          <div class="event-countdown" aria-hidden="true">
+            <div class="count-item"><span id="cd-days">00</span><small>Days</small></div>
+            <div class="count-item"><span id="cd-hours">00</span><small>Hours</small></div>
+            <div class="count-item"><span id="cd-mins">00</span><small>Minutes</small></div>
+            <div class="count-item"><span id="cd-secs">00</span><small>Seconds</small></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================
+         PLUGIN SLOT (Game) - initially hidden
+         ========================= -->
+    <section id="plugin" class="section section-plugin">
+      <div class="container">
+        <div id="plugin-slot" class="plugin-slot" aria-hidden="true" data-enabled="false" data-plugin-url="">
+          <!-- When enabled, script.js injects: <iframe src="..." /> -->
+          <div class="plugin-placeholder">
+            <div class="plugin-note">Plugin belum aktif</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================
+         MEMORIES - roll-film vertical (bottom)
+         ========================= -->
+    <section id="memories" class="section section-memories">
+      <div class="container">
+        <div class="section-header">
+          <h2 class="section-title"><i data-feather="film"></i> Memories</h2>
+          <div class="memories-controls">
+            <button id="mem-auto-toggle" class="btn primary" aria-pressed="false">Start Auto-Scroll</button>
+          </div>
+        </div>
+
+        <div id="memories-viewport" class="memories-viewport" aria-label="Memories timeline">
+          <div class="memories-roll" role="list" aria-live="polite">
+            <!-- Memory items rendered by JS.
+                 Example:
+            <article class="memory-item" data-id="mem-1" data-photos='["https://...", "..."]' data-date="2025-11-25" data-title="Judul Memory">
+              <div class="film-frame">
+                <div class="film-thumb">
+                  <img loading="lazy" src="/assets/thumb-placeholder.jpg" alt="Thumbnail">
+                </div>
+              </div>
+              <div class="memory-info">
+                <h3 class="memory-title">Judul Memory</h3>
+                <time class="memory-date">25 Nov 2025</time>
+                <p class="memory-excerpt">Keterangan singkat</p>
+              </div>
+            </article>
+            -->
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- =========================
+       FOOTER
+       ========================= -->
+  <footer id="site-footer" class="site-footer glass">
+    <div class="container footer-inner">
+      <small id="footer-text">© <span id="footer-year"></span> Kelas 11 DPIB 2 — SMKN 1 KOTA KEDIRI</small>
+    </div>
+  </footer>
+
+  <!-- =========================
+       LIGHTBOX (hidden by default)
+       ========================= -->
+  <div id="lightbox" class="lightbox" aria-hidden="true" role="dialog" aria-modal="true">
+    <button id="lightbox-close" class="lightbox-close" aria-label="Close (Esc)"><i data-feather="x"></i></button>
+    <button id="lightbox-prev" class="lightbox-nav prev" aria-label="Previous"><i data-feather="chevron-left"></i></button>
+    <div id="lightbox-inner" class="lightbox-inner" tabindex="-1">
+      <img id="lightbox-img" class="lightbox-img" src="" alt="">
+      <div id="lightbox-meta" class="lightbox-meta" aria-live="polite"></div>
+    </div>
+    <button id="lightbox-next" class="lightbox-nav next" aria-label="Next"><i data-feather="chevron-right"></i></button>
+  </div>
+
+  <!-- Scripts (script.js will be provided next) -->
+  <script defer src="script.js"></script>
+</body>
+</html>

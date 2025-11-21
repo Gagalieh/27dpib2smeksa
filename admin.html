@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Admin — Kelas 11 DPIB 2</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <main class="container" style="padding-top:40px">
+    <h1>Admin Panel</h1>
+    <div id="auth-area">
+      <form id="login-form">
+        <label>Email<br><input id="email" type="email"></label><br>
+        <label>Password<br><input id="password" type="password"></label><br>
+        <button id="login-btn" class="btn">Masuk</button>
+      </form>
+    </div>
+
+    <div id="admin-ui" class="hidden">
+      <h2>Dashboard</h2>
+      <div id="admin-stats"></div>
+      <section>
+        <h3>Tambah Photo (drag & drop)</h3>
+        <input id="photo-input" type="file" multiple accept="image/*">
+        <div id="upload-status"></div>
+      </section>
+
+      <section>
+        <h3>Tambah Memory</h3>
+        <form id="add-memory-form">
+          <input id="mem-title" placeholder="Judul"><br>
+          <input id="mem-date" type="date"><br>
+          <textarea id="mem-desc" placeholder="Deskripsi singkat"></textarea><br>
+          <button id="mem-add" class="btn">Tambah Memory</button>
+        </form>
+      </section>
+
+      <section>
+        <h3>Edit / Daftar (bagian bawah)</h3>
+        <div id="admin-list"></div>
+      </section>
+    </div>
+
+  </main>
+  <script src="/admin.js" defer></script>
+</body>
+</html>
