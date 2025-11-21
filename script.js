@@ -1,244 +1,274 @@
-/* script.js — FINAL
-   Comprehensive client script for Kelas 11 DPIB 2 site.
-
-   Features:
-   - Read config from #env-config or window.__CONFIG__
-   - Supabase minimal REST fetch wrapper for public reads
-   - Cloudinary URL builder
-   - Demo fallback data
-   - Render: site config, profil, gallery (masonry Pinterest-like), messages, event, plugin slot, memories (roll-film)
-   - Gallery: search + tag-filter popup (checklist) + pagination (prev/next + per-page)
-   - Masonry JS layout (column-based) for consistent Pinterest-like placement
-   - Lazy-load images via IntersectionObserver
-   - Lightbox (fullscreen) with prev/next, keyboard support, accessibility
-   - Header: floating navigation that follows screen on scroll (compact glass when scrolled)
-   - Memories: IntersectionObserver center-detection, auto-scroll toggle persist, mini-slideshow when centered
-   - Plugin iframe mount/unmount
-   - Robust error handling and debug mode
-   - Respects prefers-reduced-motion
+/* script.js — Final implementation
+   - Connects to Supabase REST (public reads) using env config in #env-config
+   - Uses Cloudinary public_id / secure_url to render images
+   - Implements floating nav, masonry gallery with tag-filter popup,
+     lightbox, memories roll-film with auto-scroll + center highlight,
+     event countdown, messages, motto pointer glow, plugin iframe mount
+   - No demo fallback — expects Supabase & Cloudinary config available
+   - Robust error handling and accessibility considerations
 */
 
-(() => {
+/* global fetch, requestAnimationFrame, cancelAnimationFrame */
+(function () {
   'use strict';
 
-  /* ======================
-     CONFIG & GLOBALS
-     ====================== */
+  //////////////////////
+  // Configuration & Globals
+  //////////////////////
 
+  // DEBUG toggle
   const DEBUG = false;
   const log = (...args) => { if (DEBUG) console.log(...args); };
 
-  // short helpers
-  const $ = (s, r = document) => r.querySelector(s);
-  const $$ = (s, r = document) => Array.from((r || document).querySelectorAll(s));
+  // Helpers to query DOM
+  const $ = (sel, root = document) => (root || document).querySelector(sel);
+  const $$ = (sel, root = document) => Array.from((root || document).querySelectorAll(sel));
 
-  // Read env-config JSON, fallback to window.__CONFIG__
+  // Read env-config block
   function readConfig() {
     try {
       const el = document.getElementById('env-config');
-      if (el && el.textContent.trim()) return JSON.parse(el.textContent);
+      if (el && el.textContent.trim()) {
+        return JSON.parse(el.textContent);
+      }
     } catch (e) {
-      console.warn('env-config parse failed', e);
+      console.warn('Failed parse env-config', e);
     }
     return window.__CONFIG__ || {};
   }
 
   const CONFIG = readConfig();
-  const SUPABASE_URL = CONFIG.SUPABASE_URL || '';
+  const SUPABASE_URL = (CONFIG.SUPABASE_URL || '').replace(/\/$/, '');
   const SUPABASE_ANON = CONFIG.SUPABASE_ANON_KEY || '';
   const CLOUD_NAME = CONFIG.CLOUDINARY_CLOUD_NAME || '';
   const CLOUD_PRESET = CONFIG.CLOUDINARY_UPLOAD_PRESET || '';
 
+  // Validate config early
+  function assertConfig() {
+    const msgs = [];
+    if (!SUPABASE_URL) msgs.push('SUPABASE_URL kosong — isi env di Netlify atau env-config.');
+    if (!SUPABASE_ANON) msgs.push('SUPABASE_ANON_KEY kosong — isi env di Netlify atau env-config.');
+    if (!CLOUD_NAME) msgs.push('CLOUDINARY_CLOUD_NAME kosong — isi env di Netlify atau env-config.');
+    if (!CLOUD_PRESET) msgs.push('CLOUDINARY_UPLOAD_PRESET kosong — isi env di Netlify atau env-config (unsigned preset).');
+    if (msgs.length) {
+      console.error('CONFIG ERROR:', msgs.join(' | '));
+      showGlobalNotice('Konfigurasi belum lengkap. Silakan isi environment variables di Netlify: SUPABASE_URL, SUPABASE_ANON_KEY, CLOUDINARY_CLOUD_NAME, CLOUDINARY_UPLOAD_PRESET.');
+    }
+    return msgs.length === 0;
+  }
+
+  function showGlobalNotice(msg) {
+    // insert a visible banner at top if possible
+    try {
+      const existing = document.getElementById('global-notice');
+      if (existing) { existing.textContent = msg; return; }
+      const b = document.createElement('div');
+      b.id = 'global-notice';
+      b.style.position = 'fixed';
+      b.style.left = '8px';
+      b.style.right = '8px';
+      b.style.top = '8px';
+      b.style.zIndex = 99999;
+      b.style.padding = '10px 14px';
+      b.style.background = 'linear-gradient(90deg, rgba(255,170,170,0.12), rgba(255,230,200,0.06))';
+      b.style.border = '1px solid rgba(255,255,255,0.06)';
+      b.style.color = '#fff';
+      b.style.borderRadius = '10px';
+      b.style.fontWeight = '600';
+      b.style.backdropFilter = 'blur(6px)';
+      b.textContent = msg;
+      document.body.appendChild(b);
+      setTimeout(() => { if (b && b.parentNode) b.parentNode.removeChild(b); }, 12000);
+    } catch (e) {
+      console.warn('Could not show global notice', e);
+    }
+  }
+
+  // Safe JSON parse
+  function safeJSONParse(s, fallback = []) {
+    try { return JSON.parse(s); } catch (e) { return fallback; }
+  }
+
+  // Cloudinary URL builder
+  function cloudinaryURLPublic(public_id_or_url, opts = {}) {
+    if (!public_id_or_url) return '';
+    if (/^https?:\/\//.test(public_id_or_url)) return public_id_or_url;
+    const cloud = CLOUD_NAME || '{CLOUD_NAME}';
+    // default transforms
+    const parts = [];
+    const w = opts.w || 'auto';
+    const h = opts.h ? `,h_${opts.h}` : '';
+    const crop = opts.crop ? `,c_${opts.crop}` : '';
+    const dpr = opts.dpr === 'auto' ? ',dpr_auto' : '';
+    parts.push(`w_${w}${h}${crop}${dpr}`);
+    parts.push('f_auto');
+    parts.push('q_auto');
+    const trans = parts.join(',');
+    const pub = public_id_or_url.replace(/^\/+/, '');
+    return `https://res.cloudinary.com/${cloud}/image/upload/${trans}/${pub}`;
+  }
+
+  // Supabase REST small wrapper (GET)
+  async function supabaseGet(table, params = {}) {
+    if (!SUPABASE_URL || !SUPABASE_ANON) {
+      console.warn('supabaseGet aborted — missing config');
+      return null;
+    }
+    try {
+      const headers = {
+        apikey: SUPABASE_ANON,
+        Authorization: `Bearer ${SUPABASE_ANON}`
+      };
+      let url = `${SUPABASE_URL}/rest/v1/${table}?select=*`;
+      // params: filter, order, limit, offset
+      if (params.filter) url += `&${params.filter}`;
+      if (params.order) url += `&order=${encodeURIComponent(params.order)}`;
+      if (params.limit) url += `&limit=${params.limit}`;
+      if (params.offset) url += `&offset=${params.offset}`;
+      // Request
+      const r = await fetch(url, { headers });
+      if (!r.ok) throw new Error(`Supabase request ${table} failed ${r.status}`);
+      const json = await r.json();
+      return json;
+    } catch (err) {
+      console.error('supabaseGet error', err);
+      return null;
+    }
+  }
+
+  // Utility: format date
+  function fmtDate(iso) {
+    if (!iso) return '';
+    const d = new Date(iso);
+    if (isNaN(d)) return iso;
+    return d.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
+  }
+
+  // clamp
+  function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
+
+  // Respect reduced motion
   const PREFERS_REDUCED_MOTION = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  /* ======================
-     SAFE DECLARATIONS
-     ====================== */
-
-  // LIGHTBOX must exist before handlers reference it — declared upfront
+  //////////////////////
+  // LIGHTBOX declaration (must be available early)
+  //////////////////////
   let LIGHTBOX = {
     container: null,
     inner: null,
     img: null,
     meta: null,
-    index: 0,
+    prevBtn: null,
+    nextBtn: null,
+    closeBtn: null,
     images: [],
-    metaList: []
+    metaList: [],
+    index: 0,
+    open: false
   };
 
-  // State containers
+  //////////////////////
+  // STATE objects
+  //////////////////////
   const STATE = {
-    gallery: {
-      items: [],
-      filtered: [],
-      page: 1,
-      perPage: 12,
-      totalPages: 1,
-      tagList: [], // available tags
-      selectedTags: new Set(),
-      observer: null
-    },
-    memories: {
-      items: [],
-      io: null,
-      centerInterval: null,
-      autoScrolling: false,
-      autoScrollRAF: null,
-      autoScrollSpeed: 0.6,
-      miniSlides: new Map()
-    },
     profiles: [],
+    photos: [], // all photos from Supabase
+    photosById: new Map(),
+    memories: [],
     events: [],
     messages: [],
-    siteConfig: {}
+    tags: new Set(),
+    galleryFiltered: [],
+    galleryPage: 1,
+    galleryPerPage: 12,
+    galleryTotalPages: 1,
+    galleryObserver: null,
+    memoriesObserver: null,
+    autoScroll: false,
+    autoScrollRAF: null,
+    plugin: { enabled: false, url: '' }
   };
 
-  /* ======================
-     UTILS
-     ====================== */
-
-  function safeJSON(s, fallback = null) {
-    try { return JSON.parse(s); } catch (e) { return fallback; }
-  }
-
-  function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
-
-  function escapeHtml(s) {
-    if (s == null) return '';
-    return String(s).replace(/[&<>"']/g, m => ({ '&': '&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' })[m]);
-  }
-
-  function fmtDate(iso) {
-    if (!iso) return '';
-    const d = new Date(iso);
-    if (Number.isNaN(d.getTime())) return iso;
-    return d.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
-  }
-
-  // Cloudinary URL builder — robust: accept public_id or absolute url or object
-  function cloudinaryURL(src, opts = {}) {
-    // src may be: { public_id, secure_url } or string (public_id or url)
-    if (!src) return '';
-    if (typeof src === 'object') {
-      if (src.secure_url && typeof src.secure_url === 'string' && src.secure_url.startsWith('http')) return src.secure_url;
-      src = src.public_id || src.public_id_cloudinary || src.secure_url || '';
-    }
-    if (!src) return '';
-    if (/^https?:\/\//.test(src)) return src;
-    const cloud = CLOUD_NAME || '{CLOUD_NAME}';
-    // transformations
-    const t = [];
-    if (opts.crop) t.push(`c_${opts.crop}`);
-    if (opts.w) t.push(`w_${opts.w}`);
-    if (opts.h) t.push(`h_${opts.h}`);
-    t.push('f_auto');
-    t.push('q_auto');
-    if (opts.dpr === 'auto') t.push('dpr_auto');
-    const trans = t.join(',');
-    const pub = src.replace(/^\/+/, '');
-    return `https://res.cloudinary.com/${cloud}/image/upload/${trans}/${pub}`;
-  }
-
-  // simple supabase GET using REST endpoint (public reads only)
-  async function supabaseGet(table, params = {}) {
-    if (!SUPABASE_URL || !SUPABASE_ANON) return null;
-    const headers = {
-      apikey: SUPABASE_ANON,
-      Authorization: `Bearer ${SUPABASE_ANON}`
-    };
-    let url = `${SUPABASE_URL.replace(/\/$/, '')}/rest/v1/${table}?select=*`;
-    if (params.filter) url += `&${params.filter}`;
-    if (params.order) url += `&order=${encodeURIComponent(params.order)}`;
-    if (params.limit) url += `&limit=${params.limit}`;
-    try {
-      const r = await fetch(url, { headers });
-      if (!r.ok) throw new Error(`Supabase GET ${table} ${r.status}`);
-      const json = await r.json();
-      return json;
-    } catch (err) {
-      console.warn('supabaseGet error', err.message || err);
-      return null;
-    }
-  }
-
-  /* ======================
-     BOOTSTRAP
-     ====================== */
-
+  //////////////////////
+  // BOOTSTRAP
+  //////////////////////
   async function initSite() {
-    try {
-      if (window.feather) window.feather.replace();
-    } catch (e) {}
-
-    initHeaderBehavior();        // floating nav + compact state
-    initFloatingNavClicks();     // nav click behavior
-    initFooterYear();
-    initLightbox();              // setup lightbox handlers & state
-    initMottoPointer();
-    initGalleryControls();       // search, perpage, prev/next
-    initTagFilterUI();           // tag filter popup UI
-    initPluginSlot();            // plugin slot placeholder
-
-    // fetch (supabase) or fallback demo
-    const [
-      cfg,
-      profiles,
-      photos,
-      memories,
-      events,
-      messages
-    ] = await Promise.all([
-      fetchSiteConfig(),
-      supabaseGet('profiles', { limit: 200 }).catch(() => null),
-      supabaseGet('photos', { filter: 'public=eq.true', order: 'id.desc', limit: 400 }).catch(() => null),
-      supabaseGet('memories', { filter: 'public=eq.true', order: 'date.desc', limit: 400 }).catch(() => null),
-      supabaseGet('events', { filter: 'is_public=eq.true', order: 'start_datetime.asc', limit: 20 }).catch(() => null),
-      supabaseGet('messages', { order: 'id.desc', limit: 100 }).catch(() => null)
-    ]);
-
-    const demo = demoData();
-    STATE.siteConfig = cfg || demo.siteConfig;
-    STATE.profiles = profiles || demo.profiles;
-    STATE.gallery.items = normalizePhotos(photos || demo.photos);
-    STATE.memories.items = normalizeMemories(memories || demo.memories);
-    STATE.events = events || demo.events;
-    STATE.messages = messages || demo.messages;
-
-    renderSiteConfig(STATE.siteConfig);
-    renderProfiles(STATE.profiles);
-    buildTagListFromPhotos();
-    renderGalleryPage(); // will compute filtered = all initially
-    renderMessages(STATE.messages);
-    renderEventNearest(STATE.events);
-    renderMemories();
-
-    // Init feather again in case dynamic icons added
+    // feather icons (will replace icons in DOM)
     try { if (window.feather) window.feather.replace(); } catch (e) {}
 
-    // Accessibility: if reduced motion, disable auto-scroll
-    if (PREFERS_REDUCED_MOTION) {
-      // ensure toggle disabled
-      const memToggle = document.getElementById('mem-auto-toggle');
-      if (memToggle) { memToggle.style.display = 'none'; }
+    // Setup handlers that don't rely on data
+    initHeaderFloating();
+    initFloatingNavClicks();
+    initFooterYear();
+    initMottoPointer();
+    initLightboxHandlers();
+    initGalleryUIControls();
+    initPluginSlotUI();
+    // Validate config
+    const ok = assertConfig();
+    if (!ok) {
+      // stop further tries to fetch; still allow UI to load but empty
+      return;
     }
+
+    // fetch all data needed in parallel
+    const [siteConfig, profiles, photos, memories, events, messages] = await Promise.all([
+      supabaseGet('site_config'),
+      supabaseGet('profiles'),
+      supabaseGet('photos'),
+      supabaseGet('memories'),
+      supabaseGet('events'),
+      supabaseGet('messages')
+    ]);
+
+    // If any required dataset is null -> log & show notice
+    if (!siteConfig || !profiles || !photos || !memories) {
+      console.error('One or more required datasets returned null from Supabase. Ensure Supabase tables exist and anon key has read access.');
+      showGlobalNotice('Data belum tersedia di Supabase — cek tabel & anon key.');
+      // continue rendering what we can (we don't crash)
+    }
+
+    // Normalize & render
+    STATE.siteConfig = normalizeSiteConfig(siteConfig || []);
+    STATE.profiles = normalizeProfiles(profiles || []);
+    STATE.photos = normalizePhotos(photos || []);
+    STATE.memories = normalizeMemories(memories || []);
+    STATE.events = normalizeEvents(events || []);
+    STATE.messages = normalizeMessages(messages || []);
+
+    // Build tag set
+    STATE.tags = new Set();
+    STATE.photos.forEach(p => (p.tags || []).forEach(t => STATE.tags.add(String(t).trim()).valueOf()));
+    // render all sections
+    renderSiteConfig(STATE.siteConfig);
+    renderProfiles(STATE.profiles);
+    renderGalleryInitial();
+    renderMessages(STATE.messages);
+    renderEventNearest(STATE.events);
+    renderMemories(STATE.memories);
+
+    // apply feather icons again after dynamic DOM
+    try { if (window.feather) window.feather.replace(); } catch (e) {}
+
+    // ensure handlers for new DOM wired
+    attachGalleryLazyLoader();
+    attachMemoriesObservers();
   }
 
-  // start
+  // DOM ready
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initSite);
   } else {
     initSite();
   }
 
-  /* ======================
-     SITE CONFIG / PROFILES RENDER
-     ====================== */
-
-  async function fetchSiteConfig() {
-    const rows = await supabaseGet('site_config', { limit: 200 }).catch(() => null);
-    if (!rows) return null;
-    if (Array.isArray(rows) && rows.length) {
-      // convert key/value rows to object if applicable
+  //////////////////////
+  // Normalizers
+  //////////////////////
+  function normalizeSiteConfig(rows) {
+    // site_config may be rows of {key, value} or single row
+    if (!rows) return {};
+    if (Array.isArray(rows)) {
       const obj = {};
       rows.forEach(r => {
         if (r.key) obj[r.key] = r.value;
@@ -248,709 +278,825 @@
     return rows;
   }
 
-  function renderSiteConfig(cfg = {}) {
-    // title
-    const titleEl = $('#site-title');
-    if (titleEl && cfg.site_title) titleEl.textContent = cfg.site_title;
-    // motto
-    const mEl = $('#motto-text');
-    if (mEl) mEl.textContent = cfg.motto_text || cfg.motto || '[Motto Kelas]';
-    // hero
-    const hero = $('#hero-img');
-    if (hero && cfg.hero_public_id) {
-      hero.src = cloudinaryURL(cfg.hero_public_id, { w: 1600, crop: 'fill' });
-    }
-    // footer
-    const footer = $('#footer-text');
-    if (footer) footer.innerHTML = (cfg.footer_text || '© {{year}} Kelas 11 DPIB 2 — SMKN 1 KOTA KEDIRI').replace('{{year}}', new Date().getFullYear());
+  function normalizeProfiles(rows) {
+    if (!Array.isArray(rows)) return [];
+    return rows.map(r => ({
+      id: r.id || (r.user_id || Math.random().toString(36).slice(2,8)),
+      name: r.name || r.title || '',
+      role: r.role || r.position || '',
+      jumlah_siswa: r.jumlah_siswa || r.count || null,
+      social: r.social ? (typeof r.social === 'string' ? safeJSONParse(r.social, {}) : r.social) : {},
+      raw: r
+    }));
   }
 
-  function renderProfiles(list = []) {
-    const grid = $('#profil-grid');
-    if (!grid) return;
-    grid.innerHTML = '';
-    // ensure mandatory entries if list is empty/insufficient
-    if (!Array.isArray(list) || !list.length) {
-      const defaults = [
-        { role: 'Ketua', name: 'Ketua Kelas', social: {} },
-        { role: 'Wakil Ketua', name: 'Wakil Ketua', social: {} },
-        { role: 'Wali Kelas', name: 'Wali Kelas', social: {} },
-        { role: 'Asal Sekolah', name: 'SMKN 1 KOTA KEDIRI', social: {} },
-        { role: 'Jumlah Siswa', name: '36', social: {} }
-      ];
-      list = defaults;
-    }
-    // map and render
-    list.forEach(p => {
-      const art = document.createElement('article');
-      art.className = 'profil-card';
-      art.setAttribute('data-person', (p.role || p.label || '').toString().toLowerCase().replace(/\s+/g,'-'));
-      art.innerHTML = `
-        <div class="pc-body">
-          <div class="pc-name">${escapeHtml(p.name || p.role || p.label || '')}</div>
-          <div class="pc-role">${escapeHtml(p.role || p.label || '')}</div>
-          <div class="pc-meta">${p.jumlah_siswa ? 'Jumlah siswa: ' + escapeHtml(p.jumlah_siswa) : (p.school || p.asal_sekolah ? escapeHtml(p.school || p.asal_sekolah) : '')}</div>
-        </div>
-      `;
-      // socials
-      if (p.social && typeof p.social === 'object') {
-        const socials = document.createElement('div');
-        socials.className = 'pc-socials';
-        Object.entries(p.social).slice(0,4).forEach(([k,v]) => {
-          if (!v) return;
-          const a = document.createElement('a');
-          a.className = 'pc-social';
-          a.href = v;
-          a.target = '_blank';
-          a.rel = 'noopener';
-          a.title = `${p.name} ${k}`;
-          // feather icon name mapping
-          const icon = (k === 'instagram' || k === 'ig') ? 'instagram' : (k === 'facebook' ? 'facebook' : (k === 'twitter' ? 'twitter' : 'link'));
-          a.innerHTML = `<i data-feather="${icon}"></i>`;
-          socials.appendChild(a);
-        });
-        art.querySelector('.pc-body').appendChild(socials);
-      }
-      grid.appendChild(art);
+  function normalizePhotos(rows) {
+    if (!Array.isArray(rows)) return [];
+    const arr = rows.map(r => {
+      const tags = r.tags ? (Array.isArray(r.tags) ? r.tags : safeJSONParse(r.tags, [])) : [];
+      const public_id = r.public_id || r.public_id_cloudinary || (r.public_id_str || '');
+      const secure_url = r.secure_url || r.url || '';
+      const obj = {
+        id: r.id || Math.random().toString(36).slice(2,8),
+        caption: r.caption || r.title || r.alt_text || '',
+        public_id,
+        secure_url,
+        tags,
+        date_taken: r.date_taken || r.created_at || null,
+        memory_id: r.memory_id || null,
+        raw: r
+      };
+      return obj;
     });
-    try { if (window.feather) window.feather.replace(); } catch (e) {}
+    // index by id for quick lookup
+    STATE.photosById = new Map(arr.map(i => [String(i.id), i]));
+    return arr;
   }
 
-  /* ======================
-     GALLERY (Masonry + Filter + Pagination)
-     ====================== */
-
-  // Normalize photos from Supabase or demo
-  function normalizePhotos(arr = []) {
-    if (!Array.isArray(arr)) return [];
-    return arr.map((p, idx) => {
-      const tags = Array.isArray(p.tags) ? p.tags : (typeof p.tags === 'string' ? safeJSON(p.tags, []) || [] : []);
+  function normalizeMemories(rows) {
+    if (!Array.isArray(rows)) return [];
+    return rows.map(r => {
+      // photos may be stored as array of objects or array of public_ids or JSON string
+      let photos = [];
+      if (Array.isArray(r.photos)) photos = r.photos;
+      else if (typeof r.photos === 'string') photos = safeJSONParse(r.photos, []);
+      // unify to array of {public_id, secure_url}
+      const normalizedPhotos = photos.map(p => {
+        if (typeof p === 'string') return { public_id: p, secure_url: p };
+        return { public_id: p.public_id || p.public_id_cloudinary || '', secure_url: p.secure_url || p.url || '' };
+      });
       return {
-        id: p.id || `photo-${idx}-${Date.now()}`,
-        caption: p.caption || p.title || '',
-        public_id: p.public_id || p.public_id_cloudinary || '',
-        secure_url: p.secure_url || p.url || '',
-        tags: tags.map(t => String(t).trim()).filter(Boolean),
-        date_taken: p.date_taken || p.created_at || p.date || null,
-        raw: p
+        id: r.id || Math.random().toString(36).slice(2,8),
+        title: r.title || '',
+        date: r.date || r.date_taken || r.created_at || null,
+        description: r.description || r.excerpt || '',
+        thumbnail_public_id: r.thumbnail_public_id || (normalizedPhotos[0] ? (normalizedPhotos[0].public_id || normalizedPhotos[0].secure_url) : ''),
+        photos: normalizedPhotos,
+        raw: r
       };
     });
   }
 
-  // Build tag list from photos
-  function buildTagListFromPhotos() {
-    const set = new Set();
-    STATE.gallery.items.forEach(it => (it.tags || []).forEach(t => set.add(t)));
-    STATE.gallery.tagList = Array.from(set).sort((a,b) => a.localeCompare(b));
-    renderTagFilterBadgeCount();
+  function normalizeEvents(rows) {
+    if (!Array.isArray(rows)) return [];
+    return rows.map(r => ({
+      id: r.id,
+      title: r.title,
+      start_datetime: r.start_datetime || r.start || r.date || null,
+      description: r.description || r.desc || '',
+      cover_public_id: r.cover_public_id || r.cover || '',
+      raw: r
+    }));
   }
 
-  function renderTagFilterBadgeCount() {
-    // placeholder: could update UI to show number of tags
-    const badge = document.getElementById('gallery-tagcount-badge');
-    if (badge) badge.textContent = STATE.gallery.tagList.length;
+  function normalizeMessages(rows) {
+    if (!Array.isArray(rows)) return [];
+    return rows.map(r => ({
+      id: r.id,
+      title: r.title || r.headline || '',
+      author_name: r.author_name || r.author || '',
+      content: r.content || r.body || '',
+      raw: r
+    }));
   }
 
-  // Controls: search, perpage, prev/next
-  function initGalleryControls() {
+  //////////////////////
+  // RENDER: Site config, profiles
+  //////////////////////
+  function renderSiteConfig(cfg = {}) {
+    const title = cfg.site_title || cfg.title || document.title;
+    const titleEl = $('#site-title');
+    if (titleEl && title) titleEl.textContent = title;
+    const mottoText = cfg.motto_text || cfg.motto || '';
+    const motto = $('#motto-text');
+    if (motto && mottoText) motto.textContent = mottoText;
+    const heroImg = $('#hero-img');
+    if (heroImg && (cfg.hero_public_id || cfg.hero_url)) {
+      const url = cfg.hero_url || cloudinaryURLPublic(cfg.hero_public_id, { w: 1600, h: 900, crop: 'fill', dpr: 'auto' });
+      heroImg.src = url;
+    }
+    // footer
+    const f = $('#footer-text');
+    if (f) {
+      const ft = cfg.footer_text || `© {{year}} ${title}`;
+      f.innerHTML = ft.replace('{{year}}', new Date().getFullYear());
+    }
+  }
+
+  function renderProfiles(list = []) {
+    const container = $('#profil-grid');
+    if (!container) return;
+    container.innerHTML = '';
+    // we must show Ketua, Wakil, Wali, Jumlah, Asal — but data may vary
+    // if list contains specific roles, map accordingly. Otherwise, render whatever exists.
+    if (list.length === 0) {
+      // empty placeholders
+      const names = ['Ketua', 'Wakil Ketua', 'Jumlah Siswa', 'Wali Kelas', 'Asal Sekolah'];
+      names.forEach((n,i) => {
+        const card = buildProfileCard({ id: `p-${i}`, name: n, role: n, jumlah_siswa: ''});
+        container.appendChild(card);
+      });
+      return;
+    }
+    // if roles present, keep grid order: Ketua, Wakil, Wali, Jumlah, Asal
+    const orderKeys = ['ketua', 'wakil', 'wali', 'jumlah', 'asal'];
+    const byRole = {};
+    list.forEach(p => {
+      const r = String(p.role || '').toLowerCase();
+      byRole[r] = p;
+    });
+    // attempt to pick items by role names, else fallback to list
+    if (byRole.ketua || byRole.wakil || byRole.wali) {
+      const wanted = [
+        byRole.ketua || list[0],
+        byRole.wakil || list[1] || list[0],
+        byRole.wali || list[2] || list[0],
+        // jumlah siswa & asal may be stored in site_config, but try to create placeholder
+        { id: 'p-jumlah', name: `Jumlah Siswa: ${list[0]?.jumlah_siswa || ''}`, role: 'Jumlah Siswa' },
+        { id: 'p-asal', name: `Asal Sekolah`, role: 'Asal Sekolah' }
+      ];
+      wanted.forEach(p => container.appendChild(buildProfileCard(p)));
+    } else {
+      // generic mapping
+      list.slice(0,5).forEach(p => container.appendChild(buildProfileCard(p)));
+    }
+  }
+
+  function buildProfileCard(p) {
+    const article = document.createElement('article');
+    article.className = 'profil-card';
+    article.setAttribute('data-person', (p.role || p.name || '').toLowerCase().replace(/\s+/g, '-'));
+    article.setAttribute('data-id', p.id || '');
+    const body = document.createElement('div');
+    body.className = 'pc-body';
+    const name = document.createElement('div'); name.className = 'pc-name'; name.textContent = p.name || p.role || '—';
+    const role = document.createElement('div'); role.className = 'pc-role'; role.textContent = p.role || '';
+    const meta = document.createElement('div'); meta.className = 'pc-meta';
+    if (p.jumlah_siswa != null) meta.textContent = `Jumlah siswa: ${p.jumlah_siswa}`;
+    else if (p.jumlah_siswa === undefined && p.role && p.role.toLowerCase().includes('jumlah')) meta.textContent = p.name || '';
+    else meta.textContent = p.school || p.asal_sekolah || '';
+    body.appendChild(name); body.appendChild(role); body.appendChild(meta);
+
+    // socials (editable in admin). Render icons if exists
+    const socials = document.createElement('div'); socials.className = 'pc-socials';
+    const s = p.social || {};
+    ['instagram','facebook','twitter','youtube','link'].forEach(key => {
+      if (s && s[key]) {
+        const a = document.createElement('a'); a.className = 'pc-social'; a.href = s[key]; a.target = '_blank'; a.rel = 'noopener';
+        a.setAttribute('aria-label', `${p.name || ''} ${key}`);
+        a.innerHTML = `<i data-feather="${key==='link'?'link':key}"></i>`;
+        socials.appendChild(a);
+      }
+    });
+    if (socials.children.length) body.appendChild(socials);
+    article.appendChild(body);
+    return article;
+  }
+
+  //////////////////////
+  // GALLERY (masonry, pagination, tag filter popup)
+  //////////////////////
+
+  function initGalleryUIControls() {
+    // Search
     const search = $('#gallery-search');
-    const perpage = $('#gallery-perpage');
-    const prev = $('#gallery-prev');
-    const next = $('#gallery-next');
-
     if (search) {
       search.addEventListener('input', () => {
-        STATE.gallery.page = 1;
+        STATE.galleryPage = 1;
         applyGalleryFilterAndRender();
       });
     }
+    // perpage
+    const perpage = $('#gallery-perpage');
     if (perpage) {
       perpage.addEventListener('change', () => {
-        STATE.gallery.perPage = parseInt(perpage.value,10) || 12;
-        STATE.gallery.page = 1;
-        renderGalleryPage();
+        STATE.galleryPerPage = parseInt(perpage.value, 10) || 12;
+        STATE.galleryPage = 1;
+        applyGalleryFilterAndRender();
       });
     }
-    if (prev) prev.addEventListener('click', () => {
-      if (STATE.gallery.page > 1) {
-        STATE.gallery.page--;
+    // prev/next
+    $('#gallery-prev')?.addEventListener('click', () => {
+      if (STATE.galleryPage > 1) {
+        STATE.galleryPage--;
         renderGalleryPage();
         scrollTo('#gallery');
       }
     });
-    if (next) next.addEventListener('click', () => {
-      if (STATE.gallery.page < STATE.gallery.totalPages) {
-        STATE.gallery.page++;
+    $('#gallery-next')?.addEventListener('click', () => {
+      if (STATE.galleryPage < STATE.galleryTotalPages) {
+        STATE.galleryPage++;
         renderGalleryPage();
         scrollTo('#gallery');
       }
     });
 
-    // Create Tag Filter button (inject next to search)
-    const controls = $('.gallery-controls');
-    if (controls && !$('#tag-filter-btn')) {
-      const btn = document.createElement('button');
-      btn.id = 'tag-filter-btn';
-      btn.className = 'btn secondary';
-      btn.type = 'button';
-      btn.innerHTML = '<span>Filter Tag</span>';
-      btn.addEventListener('click', openTagFilterPopup);
-      controls.appendChild(btn);
-    }
+    // Tag filter button (create)
+    createTagFilterButton();
   }
 
-  // Apply filter (search text + selected tags)
-  function applyGalleryFilterAndRender() {
-    const q = ($('#gallery-search')?.value || '').trim().toLowerCase();
-    const tags = Array.from(STATE.gallery.selectedTags || []);
-    // filter logic: item matches if (no tags selected OR item.tags includes all selected tags?) — we'll treat as "includes any selected tag"
-    STATE.gallery.filtered = STATE.gallery.items.filter(it => {
-      const matchesQuery = !q || (it.caption || '').toLowerCase().includes(q) || (it.tags || []).some(t => t.toLowerCase().includes(q));
-      const matchesTags = !tags.length || (it.tags || []).some(t => tags.includes(t));
-      return matchesQuery && matchesTags;
-    });
-    STATE.gallery.page = 1;
-    renderGalleryPage();
-  }
-
-  // Render Gallery page (with masonry layout)
-  function renderGalleryPage() {
-    const container = $('#gallery-masonry');
-    if (!container) return;
-    const per = STATE.gallery.perPage || 12;
-    const items = STATE.gallery.filtered && STATE.gallery.filtered.length ? STATE.gallery.filtered : STATE.gallery.items;
-    const total = items.length;
-    STATE.gallery.totalPages = Math.max(1, Math.ceil(total / per));
-    const start = (STATE.gallery.page - 1) * per;
-    const pageItems = items.slice(start, start + per);
-
-    // Clear container
-    container.innerHTML = '';
-
-    // Build item elements
-    const elems = pageItems.map(it => {
-      const fig = document.createElement('figure');
-      fig.className = 'masonry-item';
-      fig.setAttribute('data-id', it.id);
-      fig.setAttribute('data-tags', JSON.stringify(it.tags || []));
-      fig.setAttribute('tabindex', '0');
-      const img = document.createElement('img');
-      img.className = 'masonry-img';
-      img.alt = it.caption || '';
-      img.loading = 'lazy';
-      img.dataset.src = cloudinaryURL(it.public_id || it.secure_url || it.raw?.public_id || it.raw?.secure_url, { w: 900, dpr: 'auto' }) || (it.secure_url || '');
-      img.src = '/assets/thumb-placeholder.jpg';
-      fig.appendChild(img);
-      if (it.caption) {
-        const cap = document.createElement('figcaption');
-        cap.className = 'masonry-caption';
-        cap.textContent = it.caption;
-        fig.appendChild(cap);
+  function createTagFilterButton() {
+    // insert a button near controls
+    try {
+      const controls = document.querySelector('.gallery-controls');
+      if (!controls) return;
+      let btn = document.getElementById('gallery-filter-btn');
+      if (!btn) {
+        btn = document.createElement('button');
+        btn.id = 'gallery-filter-btn';
+        btn.className = 'btn';
+        btn.type = 'button';
+        btn.textContent = 'Filter Tag';
+        btn.style.marginLeft = '8px';
+        controls.appendChild(btn);
+        btn.addEventListener('click', openTagFilterPopup);
       }
-      // click opens lightbox with the filtered set as images
-      fig.addEventListener('click', () => openLightboxFromGalleryItem(it, items));
-      return fig;
-    });
-
-    // Place elements into masonry columns (JS-based Pinterest style)
-    layoutMasonry(container, elems);
-
-    // update page info
-    const info = $('#gallery-pageinfo');
-    if (info) info.textContent = `Page ${STATE.gallery.page} / ${STATE.gallery.totalPages}`;
-
-    // lazy-load images
-    setupImageLazyLoad(container);
-  }
-
-  // Layout masonry algorithm: create N columns and append items in shortest column order
-  function layoutMasonry(container, items) {
-    // determine columns by container width and desired column width
-    const containerWidth = container.clientWidth || container.getBoundingClientRect().width || window.innerWidth;
-    const desiredColWidth = 260; // px target
-    let cols = Math.max(1, Math.floor(containerWidth / desiredColWidth));
-    // responsive limits
-    cols = clamp(cols, 1, 6);
-
-    // create column elements
-    container.innerHTML = '';
-    const colEls = [];
-    for (let i=0;i<cols;i++) {
-      const col = document.createElement('div');
-      col.className = 'masonry-col';
-      col.style.width = `${(100/cols).toFixed(4)}%`;
-      col.style.display = 'inline-block';
-      col.style.verticalAlign = 'top';
-      col.style.padding = '0 6px';
-      col.style.boxSizing = 'border-box';
-      colEls.push(col);
-      container.appendChild(col);
+    } catch (e) {
+      console.warn('createTagFilterButton failed', e);
     }
-
-    // track heights approximation by using image aspect or fixed heights; for simplicity, place sequentially into shortest column
-    const heights = new Array(cols).fill(0);
-    // We don't know image heights until loaded; we approximate by count distribution: append to shortest
-    items.forEach(el => {
-      // find index of shortest column
-      let idx = 0;
-      for (let i=1;i<heights.length;i++) if (heights[i] < heights[idx]) idx = i;
-      colEls[idx].appendChild(el);
-      // increment estimated height: base item height ~ 240 (approx) — this ensures even distribution
-      heights[idx] += 260;
-    });
-
-    // Add gutter clearing
-    const clear = document.createElement('div');
-    clear.style.clear = 'both';
-    container.appendChild(clear);
-  }
-
-  // Lazy-load images within a root element
-  function setupImageLazyLoad(root) {
-    const imgs = Array.from((root || document).querySelectorAll('img[data-src]'));
-    if (!imgs.length) return;
-    const io = new IntersectionObserver((entries, obs) => {
-      entries.forEach(en => {
-        if (en.isIntersecting) {
-          const img = en.target;
-          const src = img.dataset.src;
-          if (src) img.src = src;
-          obs.unobserve(img);
-        }
-      });
-    }, { rootMargin: '300px 0px', threshold: 0.01 });
-    imgs.forEach(i => io.observe(i));
-  }
-
-  function openLightboxFromGalleryItem(item, itemsSet) {
-    // construct images from the itemsSet (the current filtered set or all)
-    const images = (itemsSet || STATE.gallery.items).map(it => cloudinaryURL(it.public_id || it.secure_url || it.raw?.public_id, { w: 1600, dpr: 'auto' }) || (it.secure_url || ''));
-    const metaList = (itemsSet || STATE.gallery.items).map(it => ({ caption: it.caption, date: it.date_taken }));
-    const startIndex = Math.max(0, (itemsSet || STATE.gallery.items).findIndex(it => it.id === item.id));
-    openLightbox({ images, startIndex, metaList });
-  }
-
-  /* ======================
-     TAG FILTER POPUP UI
-     ====================== */
-
-  // create popup DOM if not exists
-  function ensureTagFilterPopup() {
-    if ($('#tag-filter-popup')) return $('#tag-filter-popup');
-    const popup = document.createElement('div');
-    popup.id = 'tag-filter-popup';
-    popup.className = 'tag-filter-popup glass';
-    popup.style.position = 'fixed';
-    popup.style.left = '50%';
-    popup.style.top = '50%';
-    popup.style.transform = 'translate(-50%,-50%)';
-    popup.style.zIndex = '2000';
-    popup.style.padding = '18px';
-    popup.style.maxWidth = '480px';
-    popup.style.width = '90%';
-    popup.style.display = 'none';
-    popup.innerHTML = `
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-        <strong>Pilih Tag</strong>
-        <button id="tag-filter-close" class="btn secondary" aria-label="Tutup filter">Tutup</button>
-      </div>
-      <div id="tag-filter-list" style="max-height:320px;overflow:auto;display:flex;flex-direction:column;gap:8px;padding-right:6px"></div>
-      <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px">
-        <button id="tag-filter-clear" class="btn secondary">Bersihkan</button>
-        <button id="tag-filter-apply" class="btn primary">Terapkan</button>
-      </div>
-    `;
-    document.body.appendChild(popup);
-    $('#tag-filter-close').addEventListener('click', closeTagFilterPopup);
-    $('#tag-filter-clear').addEventListener('click', () => {
-      STATE.gallery.selectedTags.clear();
-      renderTagFilterCheckboxes();
-    });
-    $('#tag-filter-apply').addEventListener('click', () => {
-      applyGalleryFilterAndRender();
-      closeTagFilterPopup();
-    });
-    return popup;
   }
 
   function openTagFilterPopup() {
-    const popup = ensureTagFilterPopup();
-    renderTagFilterCheckboxes();
-    popup.style.display = 'block';
-    // trap focus simple: focus first checkbox or close button
-    const first = popup.querySelector('input[type="checkbox"]');
-    (first || $('#tag-filter-close', popup)).focus();
+    // build popup overlay with checklist of STATE.tags
+    const existing = document.getElementById('tag-filter-popup');
+    if (existing) { existing.remove(); return; }
+
+    const popup = document.createElement('div');
+    popup.id = 'tag-filter-popup';
+    popup.style.position = 'fixed';
+    popup.style.zIndex = 20000;
+    popup.style.left = '50%';
+    popup.style.top = '50%';
+    popup.style.transform = 'translate(-50%,-50%)';
+    popup.style.background = 'rgba(6,8,12,0.9)';
+    popup.style.border = '1px solid rgba(255,255,255,0.06)';
+    popup.style.backdropFilter = 'blur(8px)';
+    popup.style.padding = '18px';
+    popup.style.borderRadius = '12px';
+    popup.style.maxWidth = '420px';
+    popup.style.width = '92%';
+    popup.style.color = '#fff';
+    popup.addEventListener('click', (e) => e.stopPropagation());
+
+    const title = document.createElement('div');
+    title.style.fontWeight = '700';
+    title.style.marginBottom = '8px';
+    title.textContent = 'Filter menurut tag';
+    popup.appendChild(title);
+
+    const tagList = document.createElement('div');
+    tagList.style.display = 'grid';
+    tagList.style.gridTemplateColumns = 'repeat(2,1fr)';
+    tagList.style.gap = '8px';
+    tagList.style.maxHeight = '250px';
+    tagList.style.overflow = 'auto';
+    // sort tags alphabetically
+    const tagsArr = Array.from(STATE.tags).map(t => String(t).trim()).filter(Boolean).sort((a,b) => a.localeCompare(b));
+    // build checkboxes
+    tagsArr.forEach(t => {
+      const id = `tagchk-${t.replace(/\s+/g,'_')}`;
+      const wrap = document.createElement('label');
+      wrap.style.display = 'flex';
+      wrap.style.alignItems = 'center';
+      wrap.style.gap = '8px';
+      wrap.style.cursor = 'pointer';
+      const input = document.createElement('input');
+      input.type = 'checkbox';
+      input.id = id;
+      input.value = t;
+      input.name = 'tagfilter';
+      input.style.transform = 'scale(1.05)';
+      const span = document.createElement('span');
+      span.textContent = t;
+      wrap.appendChild(input);
+      wrap.appendChild(span);
+      tagList.appendChild(wrap);
+    });
+    popup.appendChild(tagList);
+
+    // actions
+    const actions = document.createElement('div');
+    actions.style.display = 'flex';
+    actions.style.justifyContent = 'flex-end';
+    actions.style.gap = '8px';
+    actions.style.marginTop = '12px';
+    const btnCancel = document.createElement('button');
+    btnCancel.className = 'btn secondary';
+    btnCancel.textContent = 'Batal';
+    btnCancel.addEventListener('click', () => popup.remove());
+    const btnApply = document.createElement('button');
+    btnApply.className = 'btn primary';
+    btnApply.textContent = 'Terapkan';
+    btnApply.addEventListener('click', () => {
+      const chosen = Array.from(popup.querySelectorAll('input[name="tagfilter"]:checked')).map(i => i.value);
+      applyTagFilter(chosen);
+      popup.remove();
+    });
+    actions.appendChild(btnCancel);
+    actions.appendChild(btnApply);
+    popup.appendChild(actions);
+
+    // overlay close on click outside
+    const overlay = document.createElement('div');
+    overlay.id = 'tag-filter-overlay';
+    overlay.style.position = 'fixed';
+    overlay.style.left = '0';
+    overlay.style.top = '0';
+    overlay.style.right = '0';
+    overlay.style.bottom = '0';
+    overlay.style.zIndex = 19999;
+    overlay.style.background = 'rgba(0,0,0,0.35)';
+    overlay.addEventListener('click', () => { popup.remove(); overlay.remove(); });
+    document.body.appendChild(overlay);
+    document.body.appendChild(popup);
   }
 
-  function closeTagFilterPopup() {
-    const popup = $('#tag-filter-popup');
-    if (popup) popup.style.display = 'none';
+  function applyTagFilter(tags = []) {
+    // tags = [] means clear tag filter
+    STATE.activeTagFilter = Array.isArray(tags) ? tags.map(t => String(t)) : [];
+    STATE.galleryPage = 1;
+    applyGalleryFilterAndRender();
   }
 
-  function renderTagFilterCheckboxes() {
-    const container = $('#tag-filter-list');
+  function applyGalleryFilterAndRender() {
+    const q = ($('#gallery-search')?.value || '').trim().toLowerCase();
+    const selectedTags = STATE.activeTagFilter || [];
+    // filter
+    STATE.galleryFiltered = STATE.photos.filter(p => {
+      // check tag filter first
+      if (selectedTags.length) {
+        const photoTags = (p.tags || []).map(t => String(t).toLowerCase());
+        const ok = selectedTags.every(st => photoTags.includes(String(st).toLowerCase()));
+        if (!ok) return false;
+      }
+      if (!q) return true;
+      const inCaption = (p.caption || '').toLowerCase().includes(q);
+      const inTags = (p.tags || []).some(t => String(t).toLowerCase().includes(q));
+      return inCaption || inTags;
+    });
+    STATE.galleryPage = clamp(STATE.galleryPage, 1, Math.max(1, Math.ceil(STATE.galleryFiltered.length / STATE.galleryPerPage)));
+    renderGalleryPage();
+  }
+
+  function renderGalleryInitial() {
+    // initialize photos list
+    STATE.galleryFiltered = STATE.photos.slice();
+    STATE.galleryPage = 1;
+    renderGalleryPage();
+  }
+
+  function renderGalleryPage() {
+    const container = $('#gallery-masonry');
     if (!container) return;
+    // compute pagination
+    const per = STATE.galleryPerPage || 12;
+    const total = STATE.galleryFiltered.length;
+    STATE.galleryTotalPages = Math.max(1, Math.ceil(total / per));
+    const start = (STATE.galleryPage - 1) * per;
+    const end = start + per;
+    const pageItems = STATE.galleryFiltered.slice(start, end);
+
+    // clear container, then append items in column flow
     container.innerHTML = '';
-    const tags = STATE.gallery.tagList || [];
-    if (!tags.length) {
-      container.innerHTML = '<div style="color:var(--muted)">Tidak ada tag tersedia</div>';
-      return;
-    }
-    tags.forEach(tag => {
-      const id = `tag-${tag.replace(/\s+/g,'_')}`;
-      const row = document.createElement('label');
-      row.style.display = 'flex';
-      row.style.alignItems = 'center';
-      row.style.gap = '8px';
-      row.style.cursor = 'pointer';
-      row.innerHTML = `<input type="checkbox" id="${id}" data-tag="${escapeHtml(tag)}"> <span>${escapeHtml(tag)}</span>`;
-      container.appendChild(row);
-      const cb = row.querySelector('input[type="checkbox"]');
-      cb.checked = STATE.gallery.selectedTags.has(tag);
-      cb.addEventListener('change', (e) => {
-        if (e.target.checked) STATE.gallery.selectedTags.add(tag);
-        else STATE.gallery.selectedTags.delete(tag);
+    pageItems.forEach(item => {
+      const fig = document.createElement('figure');
+      fig.className = 'masonry-item';
+      fig.setAttribute('data-id', item.id);
+      fig.setAttribute('data-tags', JSON.stringify(item.tags || []));
+      fig.style.opacity = '0';
+      // image
+      const img = document.createElement('img');
+      img.loading = 'lazy';
+      img.alt = item.caption || '';
+      img.dataset.src = item.secure_url || cloudinaryURLPublic(item.public_id || '', { w: 800, dpr: 'auto' });
+      img.src = '/assets/thumb-placeholder.jpg';
+      img.className = 'masonry-img';
+      fig.appendChild(img);
+      // caption overlay (show on hover)
+      if (item.caption) {
+        const cap = document.createElement('figcaption');
+        cap.className = 'masonry-caption';
+        cap.textContent = item.caption;
+        fig.appendChild(cap);
+      }
+      // click opens lightbox for the filtered list at the right index
+      fig.addEventListener('click', () => openLightboxFromGallery(item));
+      container.appendChild(fig);
+      // small reveal after image loads
+      img.addEventListener('load', () => {
+        fig.style.opacity = '1';
       });
     });
+
+    $('#gallery-pageinfo').textContent = `Page ${STATE.galleryPage} / ${STATE.galleryTotalPages}`;
+    // attach lazy loader
+    attachGalleryLazyLoader();
   }
 
-  /* ======================
-     LIGHTBOX (full featured)
-     ====================== */
+  function attachGalleryLazyLoader() {
+    const container = $('#gallery-masonry');
+    if (!container) return;
+    // disconnect previous
+    if (STATE.galleryObserver) {
+      try { STATE.galleryObserver.disconnect(); } catch (e) {}
+    }
+    const imgs = Array.from(container.querySelectorAll('img[data-src]'));
+    const io = new IntersectionObserver((entries, obs) => {
+      entries.forEach(en => {
+        if (!en.isIntersecting) return;
+        const img = en.target;
+        const src = img.dataset.src;
+        if (src) {
+          img.src = src;
+          img.removeAttribute('data-src');
+        }
+        obs.unobserve(img);
+      });
+    }, { root: null, rootMargin: '200px 0px', threshold: 0.01 });
+    imgs.forEach(i => io.observe(i));
+    STATE.galleryObserver = io;
+  }
 
-  function initLightbox() {
+  function openLightboxFromGallery(item) {
+    // create images list from current filtered set (STATE.galleryFiltered)
+    const imgs = STATE.galleryFiltered.map(p => p.secure_url || cloudinaryURLPublic(p.public_id || '', { w: 1600, dpr: 'auto' }));
+    const metaList = STATE.galleryFiltered.map(p => ({ caption: p.caption, date: p.date_taken }));
+    const idx = STATE.galleryFiltered.findIndex(p => String(p.id) === String(item.id));
+    openLightbox({ images: imgs, metaList, index: idx >= 0 ? idx : 0 });
+  }
+
+  //////////////////////
+  // LIGHTBOX implementations
+  //////////////////////
+
+  function initLightboxHandlers() {
+    // assign DOM references to LIGHTBOX
     LIGHTBOX.container = $('#lightbox');
     LIGHTBOX.inner = $('#lightbox-inner');
     LIGHTBOX.img = $('#lightbox-img');
     LIGHTBOX.meta = $('#lightbox-meta');
+    LIGHTBOX.prevBtn = $('#lightbox-prev');
+    LIGHTBOX.nextBtn = $('#lightbox-next');
+    LIGHTBOX.closeBtn = $('#lightbox-close');
 
     if (!LIGHTBOX.container) {
-      // Defensive: create a minimal lightbox if missing
-      const lb = document.createElement('div');
-      lb.id = 'lightbox';
-      lb.className = 'lightbox';
-      lb.setAttribute('aria-hidden', 'true');
-      lb.innerHTML = `
-        <button id="lightbox-close" class="lightbox-close" aria-label="Close"><i data-feather="x"></i></button>
-        <button id="lightbox-prev" class="lightbox-nav prev" aria-label="Previous"><i data-feather="chevron-left"></i></button>
-        <div id="lightbox-inner" class="lightbox-inner" tabindex="-1">
-          <img id="lightbox-img" />
-          <div id="lightbox-meta" class="lightbox-meta"></div>
-        </div>
-        <button id="lightbox-next" class="lightbox-nav next" aria-label="Next"><i data-feather="chevron-right"></i></button>
-      `;
-      document.body.appendChild(lb);
-      try { if (window.feather) window.feather.replace(); } catch (e) {}
-      LIGHTBOX.container = $('#lightbox');
-      LIGHTBOX.inner = $('#lightbox-inner');
-      LIGHTBOX.img = $('#lightbox-img');
-      LIGHTBOX.meta = $('#lightbox-meta');
+      console.warn('Lightbox container missing in DOM');
+      return;
     }
 
-    // bind handlers
-    $('#lightbox-close')?.addEventListener('click', closeLightbox);
-    $('#lightbox-prev')?.addEventListener('click', prevLightbox);
-    $('#lightbox-next')?.addEventListener('click', nextLightbox);
+    // buttons
+    LIGHTBOX.prevBtn?.addEventListener('click', () => lightboxPrev());
+    LIGHTBOX.nextBtn?.addEventListener('click', () => lightboxNext());
+    LIGHTBOX.closeBtn?.addEventListener('click', () => closeLightbox());
 
+    // keyboard navigation
     document.addEventListener('keydown', (e) => {
-      if (!LIGHTBOX.container || LIGHTBOX.container.getAttribute('aria-hidden') === 'true') return;
+      if (!LIGHTBOX.open) return;
       if (e.key === 'Escape') closeLightbox();
-      if (e.key === 'ArrowLeft') prevLightbox();
-      if (e.key === 'ArrowRight') nextLightbox();
+      if (e.key === 'ArrowLeft') lightboxPrev();
+      if (e.key === 'ArrowRight') lightboxNext();
     });
 
-    // click outside image closes
+    // click outside closes
     LIGHTBOX.container.addEventListener('click', (ev) => {
       if (ev.target === LIGHTBOX.container) closeLightbox();
     });
   }
 
-  function openLightbox({ images = [], startIndex = 0, metaList = [] } = {}) {
+  function openLightbox({ images = [], metaList = [], index = 0 } = {}) {
+    if (!LIGHTBOX.container) return;
     LIGHTBOX.images = images || [];
     LIGHTBOX.metaList = metaList || [];
-    LIGHTBOX.index = clamp(startIndex || 0, 0, Math.max(0, LIGHTBOX.images.length - 1));
-    if (LIGHTBOX.img) {
-      const src = LIGHTBOX.images[LIGHTBOX.index] || '';
-      LIGHTBOX.img.style.display = src ? '' : 'none';
-      LIGHTBOX.img.src = src || '';
-      LIGHTBOX.img.alt = (LIGHTBOX.metaList[LIGHTBOX.index]?.caption || '') || '';
-    }
-    updateLightboxMeta();
-    if (LIGHTBOX.container) {
-      LIGHTBOX.container.setAttribute('aria-hidden', 'false');
-      LIGHTBOX.container.style.display = 'flex';
-      // focus management
-      try { LIGHTBOX.inner.focus(); } catch (e) {}
-    }
+    LIGHTBOX.index = clamp(index || 0, 0, Math.max(0, LIGHTBOX.images.length - 1));
+    renderLightbox();
+    LIGHTBOX.container.setAttribute('aria-hidden', 'false');
+    LIGHTBOX.open = true;
+    LIGHTBOX.container.style.display = 'flex';
+    // focus
+    LIGHTBOX.inner?.focus();
   }
 
-  function updateLightboxMeta() {
-    if (!LIGHTBOX.meta) return;
+  function renderLightbox() {
+    if (!LIGHTBOX.img) return;
+    const src = LIGHTBOX.images[LIGHTBOX.index] || '';
+    LIGHTBOX.img.src = src;
+    LIGHTBOX.img.style.display = src ? '' : 'none';
+    // update meta
     const meta = LIGHTBOX.metaList[LIGHTBOX.index] || {};
-    const title = escapeHtml(meta.caption || meta.title || '');
-    const date = meta.date ? escapeHtml(fmtDate(meta.date)) : '';
-    LIGHTBOX.meta.innerHTML = `<div style="font-weight:700">${title}</div><div style="color:var(--muted);font-size:.9rem">${date}</div>`;
+    LIGHTBOX.meta.innerHTML = `<div style="font-weight:700">${escapeHtml(meta.caption || '')}</div><div style="color:var(--muted);font-size:0.9rem">${escapeHtml(fmtDate(meta.date || ''))}</div>`;
   }
 
   function closeLightbox() {
     if (!LIGHTBOX.container) return;
+    LIGHTBOX.open = false;
     LIGHTBOX.container.setAttribute('aria-hidden', 'true');
-    try { LIGHTBOX.container.style.display = 'none'; } catch (e) {}
-    if (LIGHTBOX.img) { LIGHTBOX.img.src = ''; LIGHTBOX.img.alt = ''; LIGHTBOX.img.style.display = ''; }
+    LIGHTBOX.container.style.display = 'none';
+    LIGHTBOX.img.src = '';
     LIGHTBOX.images = [];
     LIGHTBOX.metaList = [];
   }
 
-  function prevLightbox() {
+  function lightboxPrev() {
     if (!LIGHTBOX.images.length) return;
     LIGHTBOX.index = (LIGHTBOX.index - 1 + LIGHTBOX.images.length) % LIGHTBOX.images.length;
-    LIGHTBOX.img.src = LIGHTBOX.images[LIGHTBOX.index];
-    updateLightboxMeta();
+    renderLightbox();
   }
 
-  function nextLightbox() {
+  function lightboxNext() {
     if (!LIGHTBOX.images.length) return;
     LIGHTBOX.index = (LIGHTBOX.index + 1) % LIGHTBOX.images.length;
-    LIGHTBOX.img.src = LIGHTBOX.images[LIGHTBOX.index];
-    updateLightboxMeta();
+    renderLightbox();
   }
 
-  /* ======================
-     MEMORIES (Roll Film)
-     ====================== */
-
-  function normalizeMemories(raw = []) {
-    if (!Array.isArray(raw)) return [];
-    return raw.map((m, idx) => {
-      const photosRaw = Array.isArray(m.photos) ? m.photos : (typeof m.photos === 'string' ? safeJSON(m.photos, []) : []);
-      const photos = photosRaw.map(p => {
-        if (typeof p === 'string') return { public_id: p, secure_url: p };
-        return { public_id: p.public_id || p.public_id_cloudinary, secure_url: p.secure_url || p.url || '' };
-      });
-      return {
-        id: m.id || `mem-${idx}-${Date.now()}`,
-        title: m.title || `Memory #${idx+1}`,
-        date: m.date || m.created_at || '',
-        description: m.description || m.excerpt || '',
-        thumbnail: m.thumbnail_public_id || (photos[0] && (photos[0].secure_url || photos[0].public_id)) || '',
-        photos,
-        raw: m
-      };
-    });
+  function escapeHtml(s) {
+    if (!s) return '';
+    return String(s).replace(/[&<>"']/g, m => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' })[m]);
   }
 
-  function renderMemories() {
-    const roll = $('.memories-roll');
-    const viewport = $('#memories-viewport');
-    if (!roll || !viewport) return;
-    roll.innerHTML = '';
-    STATE.memories.items.forEach(mem => {
-      const art = document.createElement('article');
-      art.className = 'memory-item';
-      art.dataset.id = mem.id;
-      art.dataset.photos = JSON.stringify(mem.photos.map(p => p.secure_url || p.public_id));
-      art.dataset.title = mem.title;
-      art.dataset.date = mem.date;
-      const frame = document.createElement('div'); frame.className = 'film-frame';
-      const thumbWrap = document.createElement('div'); thumbWrap.className = 'film-thumb';
-      const img = document.createElement('img');
-      img.alt = mem.title || 'thumbnail';
-      img.loading = 'lazy';
-      img.src = mem.thumbnail ? cloudinaryURL(mem.thumbnail, { w: 360, h: 240, crop: 'fill' }) : (mem.photos[0] ? cloudify(mem.photos[0], { w: 360, h: 240, crop: 'fill' }) : '/assets/thumb-placeholder.jpg');
-      thumbWrap.appendChild(img);
+  //////////////////////
+  // MEMORIES: render, observer center highlight, mini slideshow, auto-scroll
+  //////////////////////
 
-      // indicator dots
-      const indicator = document.createElement('div');
-      indicator.className = 'thumb-indicator';
-      mem.photos.forEach((p, i) => {
-        const dot = document.createElement('div');
-        dot.className = 'thumb-dot' + (i === 0 ? ' active' : '');
-        indicator.appendChild(dot);
-      });
-      thumbWrap.appendChild(indicator);
-
-      frame.appendChild(thumbWrap);
-      art.appendChild(frame);
-
-      const info = document.createElement('div'); info.className = 'memory-info';
-      info.innerHTML = `<h3 class="memory-title">${escapeHtml(mem.title)}</h3>
-                        <time class="memory-date">${escapeHtml(fmtDate(mem.date))}</time>
-                        <p class="memory-excerpt">${escapeHtml(mem.description)}</p>`;
-      art.appendChild(info);
-
-      art.addEventListener('click', (e) => {
-        openMemoryLightbox(mem);
-      });
-
-      roll.appendChild(art);
-    });
-
-    setupMemoriesObserver();
-    setupAutoScrollControl();
-  }
-
-  function openMemoryLightbox(mem) {
-    const imgs = (mem.photos || []).map(p => cloudify(p, { w:1600, dpr:'auto' }));
-    const meta = (mem.photos || []).map(p => ({ caption: mem.title, date: mem.date }));
-    openLightbox({ images: imgs, startIndex: 0, metaList: meta });
-  }
-
-  // IntersectionObserver for center detection
-  function setupMemoriesObserver() {
+  function renderMemories(list = []) {
     const roll = document.querySelector('.memories-roll');
     if (!roll) return;
-    if (STATE.memories.io) STATE.memories.io.disconnect();
+    roll.innerHTML = '';
+    list.forEach(mem => {
+      const art = document.createElement('article');
+      art.className = 'memory-item';
+      art.setAttribute('data-id', mem.id);
+      art.setAttribute('data-photos', JSON.stringify(mem.photos.map(p => p.secure_url || p.public_id)));
+      art.setAttribute('data-title', mem.title || '');
+      art.setAttribute('data-date', mem.date || '');
+      // film frame
+      const frame = document.createElement('div'); frame.className = 'film-frame';
+      const thumb = document.createElement('div'); thumb.className = 'film-thumb';
+      const img = document.createElement('img');
+      img.alt = mem.title || 'thumbnail';
+      const thumbUrl = mem.thumbnail_public_id ? cloudinaryURLPublic(mem.thumbnail_public_id, { w: 360, h: 240, crop: 'fill' }) : (mem.photos[0] ? (mem.photos[0].secure_url || mem.photos[0].public_id) : '/assets/thumb-placeholder.jpg');
+      img.src = thumbUrl;
+      img.loading = 'lazy';
+      thumb.appendChild(img);
+      // indicators
+      const indicator = document.createElement('div'); indicator.className = 'thumb-indicator';
+      mem.photos.forEach((p, idx) => {
+        const dot = document.createElement('div'); dot.className = 'thumb-dot' + (idx===0 ? ' active' : '');
+        indicator.appendChild(dot);
+      });
+      thumb.appendChild(indicator);
+      frame.appendChild(thumb);
+      art.appendChild(frame);
+      // info
+      const info = document.createElement('div'); info.className = 'memory-info';
+      const h3 = document.createElement('h3'); h3.className = 'memory-title'; h3.textContent = mem.title || '';
+      const t = document.createElement('time'); t.className = 'memory-date'; t.textContent = fmtDate(mem.date);
+      const p = document.createElement('p'); p.className = 'memory-excerpt'; p.textContent = mem.description || '';
+      info.appendChild(h3); info.appendChild(t); info.appendChild(p);
+      art.appendChild(info);
+      // click -> lightbox for this memory
+      art.addEventListener('click', (ev) => {
+        // avoid interfering when clicking controls inside
+        openMemoryLightbox(mem);
+      });
+      roll.appendChild(art);
+    });
+    // attach observer
+    attachMemoriesObservers();
+  }
 
-    const opts = { root: document.getElementById('memories-viewport') || null, rootMargin: '0px', threshold: buildThresholds() };
-    STATE.memories.io = new IntersectionObserver((entries) => {
-      // pick element with highest intersection ratio
+  function attachMemoriesObservers() {
+    const roll = document.querySelector('.memories-roll');
+    if (!roll) return;
+    // disconnect previous
+    if (STATE.memoriesObserver) {
+      try { STATE.memoriesObserver.disconnect(); } catch (e) {}
+    }
+    // thresholds for center detection: more granular
+    const thresholds = [];
+    for (let i=0;i<=1;i+=0.01) thresholds.push(i);
+    STATE.memoriesObserver = new IntersectionObserver((entries) => {
+      // find the item with largest intersection ratio in viewport area (entries possibly include items outside)
       let best = null;
       entries.forEach(en => {
-        if (!best || en.intersectionRatio > best.intersectionRatio) best = en;
+        const el = en.target;
+        const ratio = en.intersectionRatio || 0;
+        if (!best || ratio > best.ratio) best = { el, ratio };
       });
       if (!best) return;
-      const el = best.target;
-      // Remove is-center from others
-      $$('.memory-item.is-center').forEach(e => { if (e !== el) { e.classList.remove('is-center'); stopMiniSlide(e); } });
-      if (best.intersectionRatio > 0.25) {
-        if (!el.classList.contains('is-center')) {
-          el.classList.add('is-center');
-          startMiniSlide(el);
+      // toggle classes
+      const all = roll.querySelectorAll('.memory-item.is-center');
+      all.forEach(x => { if (x !== best.el) { x.classList.remove('is-center'); stopMiniSlideshow(x); } });
+      if (best.ratio > 0.25) {
+        if (!best.el.classList.contains('is-center')) {
+          best.el.classList.add('is-center');
+          startMiniSlideshow(best.el);
         }
       } else {
-        if (el.classList.contains('is-center')) {
-          el.classList.remove('is-center');
-          stopMiniSlide(el);
+        if (best.el.classList.contains('is-center')) {
+          best.el.classList.remove('is-center');
+          stopMiniSlideshow(best.el);
         }
       }
-    }, opts);
-
+    }, { root: document.querySelector('.memories-viewport'), rootMargin: '0px', threshold: thresholds });
     // observe each item
-    Array.from(roll.querySelectorAll('.memory-item')).forEach(it => STATE.memories.io.observe(it));
+    const items = Array.from(roll.querySelectorAll('.memory-item'));
+    items.forEach(i => STATE.memoriesObserver.observe(i));
   }
 
-  function buildThresholds() {
-    const t = [];
-    for (let i=0;i<=1.0;i+=0.01) t.push(i);
-    return t;
-  }
-
-  // mini slideshow: cycle photos for centered memory
-  function startMiniSlide(el) {
+  function startMiniSlideshow(el) {
     if (!el) return;
-    const id = el.dataset.id;
+    const id = el.getAttribute('data-id');
     if (!id) return;
-    if (STATE.memories.miniSlides.has(id)) return;
-    const photos = safeJSON(el.dataset.photos, []);
+    if (el.__miniRunning) return;
+    const photos = safeJSONParse(el.getAttribute('data-photos'), []);
     if (!photos || photos.length <= 1) return;
-    const imgEl = el.querySelector('.film-thumb img');
-    const dots = Array.from(el.querySelectorAll('.thumb-dot'));
+    el.__miniRunning = true;
     let idx = 0;
-    const interval = 2200;
-    const timer = setInterval(() => {
+    const img = el.querySelector('.film-thumb img');
+    const dots = Array.from(el.querySelectorAll('.thumb-dot'));
+    const tick = () => {
       idx = (idx + 1) % photos.length;
-      const url = cloudify(photos[idx], { w: 360, h: 240, crop: 'fill' });
-      if (imgEl) imgEl.src = url;
+      const url = photos[idx];
+      img.src = cloudifyMaybe(url, { w: 360, h: 240, crop: 'fill' });
       dots.forEach((d,i) => d.classList.toggle('active', i === idx));
-    }, interval);
-    STATE.memories.miniSlides.set(id, { timer, idx });
-  }
-
-  function stopMiniSlide(el) {
-    if (!el) return;
-    const id = el.dataset.id;
-    if (!id) return;
-    const s = STATE.memories.miniSlides.get(id);
-    if (s) {
-      clearInterval(s.timer);
-      STATE.memories.miniSlides.delete(id);
-      // reset first photo
-      const photos = safeJSON(el.dataset.photos, []);
-      const imgEl = el.querySelector('.film-thumb img');
-      if (imgEl && photos && photos[0]) imgEl.src = cloudify(photos[0], { w:360, h:240, crop:'fill' });
-      el.querySelectorAll('.thumb-dot').forEach((d,i) => d.classList.toggle('active', i === 0));
-    }
-  }
-
-  // Auto-scroll control
-  function setupAutoScrollControl() {
-    const btn = document.getElementById('mem-auto-toggle');
-    const viewport = document.getElementById('memories-viewport');
-    if (!btn || !viewport) return;
-    // restore state
-    const saved = localStorage.getItem('memAutoScroll') === 'true';
-    btn.textContent = saved ? 'Pause Auto-Scroll' : 'Start Auto-Scroll';
-    btn.setAttribute('aria-pressed', saved ? 'true' : 'false');
-    if (saved && !PREFERS_REDUCED_MOTION) startAutoScroll();
-
-    btn.addEventListener('click', () => {
-      if (STATE.memories.autoScrolling) {
-        stopAutoScroll();
-        btn.textContent = 'Start Auto-Scroll';
-        btn.setAttribute('aria-pressed', 'false');
-        localStorage.setItem('memAutoScroll', 'false');
-      } else {
-        if (!PREFERS_REDUCED_MOTION) startAutoScroll();
-        btn.textContent = 'Pause Auto-Scroll';
-        btn.setAttribute('aria-pressed', 'true');
-        localStorage.setItem('memAutoScroll', 'true');
-      }
-    });
-
-    // pause on user interaction
-    ['wheel','touchstart','pointerdown'].forEach(ev => {
-      viewport.addEventListener(ev, () => {
-        if (STATE.memories.autoScrolling) {
-          stopAutoScroll();
-          btn.textContent = 'Start Auto-Scroll';
-          btn.setAttribute('aria-pressed', 'false');
-          localStorage.setItem('memAutoScroll', 'false');
-        }
-      }, { passive: true });
-    });
-  }
-
-  function startAutoScroll() {
-    if (PREFERS_REDUCED_MOTION) return;
-    if (STATE.memories.autoScrolling) return;
-    const viewport = document.getElementById('memories-viewport');
-    if (!viewport) return;
-    STATE.memories.autoScrolling = true;
-    const step = () => {
-      if (!STATE.memories.autoScrolling) return;
-      // scroll up slowly; loop back to bottom when reach top
-      const max = viewport.scrollHeight - viewport.clientHeight;
-      let pos = viewport.scrollTop;
-      pos -= STATE.memories.autoScrollSpeed;
-      if (pos <= 0) pos = max || 0;
-      viewport.scrollTop = pos;
-      STATE.memories.autoScrollRAF = requestAnimationFrame(step);
     };
-    STATE.memories.autoScrollRAF = requestAnimationFrame(step);
+    el.__miniTimer = setInterval(tick, 2000);
   }
 
-  function stopAutoScroll() {
-    STATE.memories.autoScrolling = false;
-    if (STATE.memories.autoScrollRAF) {
-      cancelAnimationFrame(STATE.memories.autoScrollRAF);
-      STATE.memories.autoScrollRAF = null;
+  function stopMiniSlideshow(el) {
+    if (!el) return;
+    if (!el.__miniRunning) return;
+    clearInterval(el.__miniTimer);
+    el.__miniTimer = null;
+    el.__miniRunning = false;
+    // reset to first photo
+    const photos = safeJSONParse(el.getAttribute('data-photos'), []);
+    const img = el.querySelector('.film-thumb img');
+    const dots = Array.from(el.querySelectorAll('.thumb-dot'));
+    if (photos && photos[0]) img.src = cloudifyMaybe(photos[0], { w: 360, h: 240, crop: 'fill' });
+    dots.forEach((d,i) => d.classList.toggle('active', i === 0));
+  }
+
+  function cloudifyMaybe(input, opts = {}) {
+    if (!input) return '/assets/thumb-placeholder.jpg';
+    if (/^https?:\/\//.test(input)) return input;
+    return cloudinaryURLPublic(input, opts);
+  }
+
+  // Memory auto-scroll
+  function initMemoriesAutoScroll() {
+    const btn = $('#mem-auto-toggle');
+    const viewport = $('#memories-viewport');
+    if (!btn || !viewport) return;
+    // read localStorage
+    const saved = localStorage.getItem('memories_auto') === 'true';
+    STATE.autoScroll = saved && !PREFERS_REDUCED_MOTION;
+    updateAutoScrollButton();
+    if (STATE.autoScroll) startMemoriesAutoScroll();
+    btn.addEventListener('click', () => {
+      STATE.autoScroll = !STATE.autoScroll;
+      localStorage.setItem('memories_auto', STATE.autoScroll ? 'true' : 'false');
+      updateAutoScrollButton();
+      if (STATE.autoScroll) startMemoriesAutoScroll(); else stopMemoriesAutoScroll();
+    });
+    // pause when user interacts
+    ['wheel', 'touchstart', 'pointerdown'].forEach(ev => viewport.addEventListener(ev, () => {
+      if (STATE.autoScroll) { stopMemoriesAutoScroll(); STATE.autoScroll = false; updateAutoScrollButton(); localStorage.setItem('memories_auto', 'false'); }
+    }, { passive: true }));
+  }
+
+  function updateAutoScrollButton() {
+    const btn = $('#mem-auto-toggle');
+    if (!btn) return;
+    btn.textContent = STATE.autoScroll ? 'Pause Auto-Scroll' : 'Start Auto-Scroll';
+    btn.setAttribute('aria-pressed', STATE.autoScroll ? 'true' : 'false');
+  }
+
+  function startMemoriesAutoScroll() {
+    const viewport = $('#memories-viewport');
+    if (!viewport) return;
+    if (PREFERS_REDUCED_MOTION) return;
+    // continuous upward scroll with wrap-around
+    const stepPx = 0.45; // speed — px per frame
+    function frame() {
+      if (!STATE.autoScroll) { STATE.autoScrollRAF = null; return; }
+      const max = viewport.scrollHeight - viewport.clientHeight;
+      let next = viewport.scrollTop - stepPx;
+      if (next <= 0) next = max; // loop
+      viewport.scrollTop = next;
+      STATE.autoScrollRAF = requestAnimationFrame(frame);
+    }
+    if (!STATE.autoScrollRAF) STATE.autoScrollRAF = requestAnimationFrame(frame);
+  }
+
+  function stopMemoriesAutoScroll() {
+    if (STATE.autoScrollRAF) {
+      cancelAnimationFrame(STATE.autoScrollRAF);
+      STATE.autoScrollRAF = null;
     }
   }
 
-  /* ======================
-     PLUGIN SLOT (iframe)
-     ====================== */
+  //////////////////////
+  // EVENT: nearest + countdown
+  //////////////////////
+  let EVENT_TIMER = null;
+  function renderEventNearest(events = []) {
+    const box = $('#event-box');
+    if (!box) return;
+    if (!Array.isArray(events) || events.length === 0) {
+      box.setAttribute('data-has-event', 'false');
+      $('#event-title').textContent = 'Tidak ada event';
+      $('#event-datetime').textContent = '';
+      $('#event-desc').textContent = '';
+      return;
+    }
+    // find next future event
+    const now = new Date();
+    const fut = events.map(ev => ({ ...ev, start: new Date(ev.start_datetime || ev.start || ev.date) }))
+      .filter(ev => ev.start instanceof Date && !isNaN(ev.start.getTime()) && ev.start > now)
+      .sort((a,b) => a.start - b.start);
+    const nearest = fut[0] || null;
+    if (!nearest) {
+      box.setAttribute('data-has-event', 'false');
+      $('#event-title').textContent = 'Tidak ada event';
+      $('#event-datetime').textContent = '';
+      $('#event-desc').textContent = '';
+      return;
+    }
+    box.setAttribute('data-has-event', 'true');
+    $('#event-title').textContent = nearest.title || 'Event';
+    $('#event-datetime').textContent = fmtDate(nearest.start);
+    $('#event-desc').textContent = nearest.description || '';
+    startEventCountdown(nearest.start);
+  }
 
-  function initPluginSlot() {
+  function startEventCountdown(targetDate) {
+    if (EVENT_TIMER) { clearInterval(EVENT_TIMER); EVENT_TIMER = null; }
+    const target = new Date(targetDate);
+    if (isNaN(target)) return;
+    function tick() {
+      const now = new Date();
+      let diff = Math.max(0, Math.floor((target - now) / 1000));
+      if (diff <= 0) {
+        // clear and hide
+        $('#event-box')?.setAttribute('data-has-event', 'false');
+        clearInterval(EVENT_TIMER);
+        EVENT_TIMER = null;
+        return;
+      }
+      const days = Math.floor(diff / 86400); diff -= days * 86400;
+      const hours = Math.floor(diff / 3600); diff -= hours * 3600;
+      const mins = Math.floor(diff / 60); diff -= mins * 60;
+      const secs = diff;
+      $('#cd-days').textContent = String(days).padStart(2,'0');
+      $('#cd-hours').textContent = String(hours).padStart(2,'0');
+      $('#cd-mins').textContent = String(mins).padStart(2,'0');
+      $('#cd-secs').textContent = String(secs).padStart(2,'0');
+    }
+    tick();
+    EVENT_TIMER = setInterval(tick, 1000);
+  }
+
+  //////////////////////
+  // MESSAGES
+  //////////////////////
+  function renderMessages(list = []) {
+    const container = $('#messages-list');
+    if (!container) return;
+    container.innerHTML = '';
+    list.forEach(m => {
+      const art = document.createElement('article');
+      art.className = 'message-card';
+      art.setAttribute('data-id', m.id);
+      const h = document.createElement('h3'); h.className = 'msg-title'; h.textContent = m.title || '';
+      const auth = document.createElement('div'); auth.className = 'msg-author'; auth.textContent = m.author_name || '';
+      const body = document.createElement('div'); body.className = 'msg-body'; body.textContent = m.content || '';
+      art.appendChild(h); art.appendChild(auth); art.appendChild(body);
+      art.addEventListener('click', () => openMessageModal(m));
+      container.appendChild(art);
+    });
+  }
+
+  function openMessageModal(m) {
+    openLightbox({ images: [], metaList: [], index: 0 });
+    const meta = $('#lightbox-meta');
+    if (meta) {
+      meta.innerHTML = `<div style="font-weight:700">${escapeHtml(m.title || '')}</div><div style="color:var(--muted);margin-bottom:8px">oleh: ${escapeHtml(m.author_name || '')}</div><div>${escapeHtml(m.content || '')}</div>`;
+    }
+    $('#lightbox-img').style.display = 'none';
+  }
+
+  //////////////////////
+  // PLUGIN SLOT (iframe)
+  //////////////////////
+  function initPluginSlotUI() {
     const slot = $('#plugin-slot');
     if (!slot) return;
-    // if admin toggled plugin via data attributes, mount
     const enabled = slot.getAttribute('data-enabled') === 'true';
     const url = slot.getAttribute('data-plugin-url') || '';
     if (enabled && url) mountPlugin(url);
   }
 
-  let PLUGIN_IFRAME = null;
   function mountPlugin(url) {
     const slot = $('#plugin-slot');
     if (!slot) return;
@@ -958,8 +1104,7 @@
     const iframe = document.createElement('iframe');
     iframe.src = url;
     iframe.width = '100%';
-    iframe.height = '560';
-    iframe.frameBorder = '0';
+    iframe.height = '640';
     iframe.loading = 'lazy';
     iframe.style.border = '0';
     iframe.style.borderRadius = '12px';
@@ -967,147 +1112,51 @@
     slot.innerHTML = '';
     slot.appendChild(iframe);
     slot.setAttribute('aria-hidden', 'false');
-    PLUGIN_IFRAME = iframe;
+    STATE.plugin = { enabled: true, url };
   }
 
   function unmountPlugin() {
     const slot = $('#plugin-slot');
     if (!slot) return;
-    slot.innerHTML = `<div class="plugin-placeholder"><div class="plugin-note">Plugin belum aktif</div></div>`;
+    slot.innerHTML = '<div class="plugin-placeholder"><div class="plugin-note">Plugin belum aktif</div></div>';
     slot.setAttribute('aria-hidden', 'true');
-    PLUGIN_IFRAME = null;
+    STATE.plugin = { enabled: false, url: '' };
   }
 
-  /* ======================
-     EVENT: nearest + countdown
-     ====================== */
-
-  function renderEventNearest(list = []) {
-    if (!Array.isArray(list) || !list.length) {
-      // hide or set empty
-      $('#event-box')?.setAttribute('data-has-event', 'false');
-      $('#event-title').textContent = 'Tidak ada event';
-      $('#event-datetime').textContent = '';
-      $('#event-desc').textContent = '';
-      return;
-    }
-    // convert and find nearest future
-    const now = new Date();
-    const future = list.map(e => ({ ...e, start: new Date(e.start_datetime || e.start || e.date || null) }))
-      .filter(e => e.start instanceof Date && !Number.isNaN(e.start.getTime()) && e.start > now)
-      .sort((a,b) => a.start - b.start);
-    const nearest = future.length ? future[0] : null;
-    if (!nearest) {
-      $('#event-box')?.setAttribute('data-has-event', 'false');
-      $('#event-title').textContent = 'Tidak ada event';
-      $('#event-datetime').textContent = '';
-      $('#event-desc').textContent = '';
-      return;
-    }
-    $('#event-box')?.setAttribute('data-has-event', 'true');
-    $('#event-title').textContent = nearest.title || 'Event';
-    $('#event-datetime').textContent = fmtDate(nearest.start);
-    $('#event-desc').textContent = nearest.description || '';
-    startEventCountdown(nearest.start);
-  }
-
-  let EVENT_TIMER = null;
-  function startEventCountdown(targetDate) {
-    if (EVENT_TIMER) { clearInterval(EVENT_TIMER); EVENT_TIMER = null; }
-    const target = new Date(targetDate);
-    if (Number.isNaN(target.getTime())) return;
-    const elDays = $('#cd-days'), elHours = $('#cd-hours'), elMins = $('#cd-mins'), elSecs = $('#cd-secs');
-    function tick() {
-      const now = new Date();
-      let diff = Math.max(0, Math.floor((target - now)/1000));
-      if (diff <= 0) {
-        // hide event
-        $('#event-box')?.setAttribute('data-has-event', 'false');
-        clearInterval(EVENT_TIMER); EVENT_TIMER = null;
-        return;
+  //////////////////////
+  // HEADER floating behavior & nav clicks
+  //////////////////////
+  function initHeaderFloating() {
+    const header = $('#site-header');
+    const nav = $('#floating-nav');
+    if (!header || !nav) return;
+    // initial position is absolute inside hero; when user scrolls, make it fixed to top-left small
+    const compactClass = 'header--compact';
+    let ticking = false;
+    function onScroll() {
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          const y = window.scrollY || document.documentElement.scrollTop;
+          header.classList.toggle(compactClass, y > 120);
+          // if compact, ensure nav is visible as floating fixed small
+          ticking = false;
+        });
+        ticking = true;
       }
-      const days = Math.floor(diff / 86400); diff -= days * 86400;
-      const hours = Math.floor(diff / 3600); diff -= hours * 3600;
-      const mins = Math.floor(diff / 60); diff -= mins * 60;
-      const secs = diff;
-      if (elDays) elDays.textContent = String(days).padStart(2,'0');
-      if (elHours) elHours.textContent = String(hours).padStart(2,'0');
-      if (elMins) elMins.textContent = String(mins).padStart(2,'0');
-      if (elSecs) elSecs.textContent = String(secs).padStart(2,'0');
     }
-    tick();
-    EVENT_TIMER = setInterval(tick, 1000);
-  }
-
-  /* ======================
-     MISC: MESSAGES
-     ====================== */
-
-  function renderMessages(items = []) {
-    const list = $('#messages-list');
-    if (!list) return;
-    list.innerHTML = '';
-    items.forEach(it => {
-      const art = document.createElement('article');
-      art.className = 'message-card';
-      art.dataset.id = it.id || '';
-      art.innerHTML = `<header><h3 class="msg-title">${escapeHtml(it.title || 'Pesan')}</h3>
-                       <div class="msg-author" style="opacity:0">${escapeHtml(it.author_name || '')}</div></header>
-                       <div class="msg-body">${escapeHtml((it.content || it.body || '').slice(0,240))}</div>`;
-      art.addEventListener('click', () => openMessageDetail(it));
-      list.appendChild(art);
-    });
-  }
-
-  function openMessageDetail(it) {
-    // reuse lightbox modal for message detail
-    openLightbox({ images: [], startIndex: 0, metaList: [] });
-    const meta = $('#lightbox-meta');
-    if (meta) {
-      meta.innerHTML = `<div style="font-weight:700;margin-bottom:8px">${escapeHtml(it.title || '')}</div>
-                        <div style="color:var(--muted);margin-bottom:12px">${escapeHtml(it.author_name || '')}</div>
-                        <div>${escapeHtml(it.content || it.body || '')}</div>`;
-    }
-    if (LIGHTBOX.img) LIGHTBOX.img.style.display = 'none';
-  }
-
-  /* ======================
-     HEADER / NAV behavior (floating follow)
-     ====================== */
-
-  function initHeaderBehavior() {
-    const header = document.getElementById('site-header');
-    if (!header) return;
-    const nav = document.getElementById('floating-nav');
-    if (!nav) return;
-    // Make nav follow screen: when user scrolls, nav stays near top center or top-left compact
-    window.addEventListener('scroll', () => {
-      const y = window.scrollY || window.pageYOffset;
-      if (y > 80) {
-        header.classList.add('header--compact');
-        nav.style.left = '16px';
-        nav.style.top = '12px';
-        nav.style.transform = 'none';
-      } else {
-        header.classList.remove('header--compact');
-        nav.style.left = '50%';
-        nav.style.top = '18px';
-        nav.style.transform = 'translateX(-50%)';
-      }
-    }, { passive: true });
-
-    // initial state
-    const ev = new Event('scroll'); window.dispatchEvent(ev);
+    document.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
   }
 
   function initFloatingNavClicks() {
-    const nav = document.getElementById('floating-nav');
+    const nav = $('#floating-nav');
     if (!nav) return;
-    nav.addEventListener('click', (e) => {
-      const btn = e.target.closest('.nav-btn');
+    nav.addEventListener('click', (ev) => {
+      const btn = ev.target.closest('.nav-btn');
       if (!btn) return;
       const target = btn.getAttribute('data-target');
-      if (target) scrollTo(target);
+      if (!target) return;
+      scrollTo(target);
     });
   }
 
@@ -1117,286 +1166,109 @@
     el.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
-  /* ======================
-     FOOTER YEAR
-     ====================== */
-
-  function initFooterYear() {
-    const el = document.getElementById('footer-year');
-    if (el) el.textContent = new Date().getFullYear();
-  }
-
-  /* ======================
-     SITE MOTTO POINTER GLOW
-     ====================== */
-
-  function initMottoPointer() {
-    const motto = document.querySelector('.motto-inner');
-    if (!motto || PREFERS_REDUCED_MOTION) return;
-    // use CSS variables to place glow; update on pointermove
-    motto.addEventListener('pointermove', (e) => {
-      const r = motto.getBoundingClientRect();
-      const x = e.clientX - r.left;
-      const y = e.clientY - r.top;
-      motto.style.setProperty('--pointer-x', `${x}px`);
-      motto.style.setProperty('--pointer-y', `${y}px`);
-    });
-    motto.addEventListener('pointerleave', () => {
-      motto.style.removeProperty('--pointer-x');
-      motto.style.removeProperty('--pointer-y');
+  //////////////////////
+  // Masonry small helper (we rely mostly on CSS columns, but enforce reflow after images load)
+  //////////////////////
+  function reflowMasonryAfterLoad() {
+    // ensure images have loaded then force reflow by toggling a CSS var
+    const cont = $('#gallery-masonry');
+    if (!cont) return;
+    const images = Array.from(cont.querySelectorAll('img'));
+    let loaded = 0;
+    if (images.length === 0) return;
+    images.forEach(img => {
+      if (img.complete) {
+        loaded++;
+      } else {
+        img.addEventListener('load', () => {
+          loaded++;
+          if (loaded === images.length) {
+            // no-op but triggers layout
+            cont.style.columnGap = '14px';
+            setTimeout(() => cont.style.columnGap = '14px', 50);
+          }
+        });
+      }
     });
   }
 
-  /* ======================
-     HELPERS: cloudify
-     ====================== */
-
-  function cloudify(p, opts = {}) {
-    if (!p) return '';
-    if (typeof p === 'string') {
-      if (/^https?:\/\//.test(p)) return p;
-      return cloudinaryURL(p, opts);
-    }
-    if (p.secure_url && /^https?:\/\//.test(p.secure_url)) return p.secure_url;
-    if (p.public_id) return cloudinaryURL(p.public_id, opts);
-    return '';
+  //////////////////////
+  // Utilities and DOM helpers
+  //////////////////////
+  function attachGalleryLazyLoaderOnDemand() {
+    // safe alias for external call
+    attachGalleryLazyLoader();
   }
 
-  /* ======================
-     DEMO DATA (fallback)
-     ====================== */
-
-  function demoData() {
-    const photos = [];
-    for (let i=0;i<24;i++) {
-      photos.push({
-        id: `demo-${i+1}`,
-        caption: `Foto Kenangan ${i+1}`,
-        public_id: '',
-        secure_url: `https://picsum.photos/seed/kelas-${i+1}/1200/800`,
-        tags: (i%2===0) ? ['ospek','kelas'] : ['kegiatan'],
-        date_taken: new Date(Date.now() - (i*86400000)).toISOString()
-      });
-    }
-    const memories = [
-      { id: 'mem-1', title: 'Ospek 2024', date: '2024-09-02', description: 'Orientasi siswa baru', photos: photos.slice(0,6).map(p => p.secure_url) },
-      { id: 'mem-2', title: 'Kunjungan Industri', date: '2024-11-10', description: 'Pembelajaran lapangan', photos: photos.slice(6,12).map(p => p.secure_url) },
-      { id: 'mem-3', title: 'Pentas Seni', date: '2025-03-20', description: 'Pertunjukan seni', photos: photos.slice(12,20).map(p => p.secure_url) }
-    ];
-    const events = [{ id: 'e1', title: 'Ujian Modul 1', start: new Date(Date.now() + 7*86400000).toISOString(), description: 'Ujian materi Revit dasar' }];
-    const messages = [
-      { id: 'msg1', title: 'Pesan Wali Kelas', author_name: 'Wali Kelas', content: 'Tetap semangat dan jaga kesehatan.'}
-    ];
-    const profiles = [
-      { id: 'p1', name: 'Ketua Kelas', role: 'Ketua', jumlah_siswa: 36, social: { instagram: '#' } },
-      { id: 'p2', name: 'Wakil Ketua', role: 'Wakil Ketua', social: { instagram: '#' } },
-      { id: 'p3', name: 'Wali Kelas', role: 'Wali Kelas', social: { instagram: '#' } },
-      { id: 'p4', name: 'Asal Sekolah', role: 'Asal Sekolah', name: 'SMKN 1 KOTA KEDIRI' }
-    ];
-    const siteConfig = { site_title:'Kelas 11 DPIB 2 — SMKN 1 KOTA KEDIRI', motto_text:'Kenangan Kita, Selamanya', footer_text:'© {{year}} Kelas 11 DPIB 2 — SMKN 1 KOTA KEDIRI' };
-    return { photos, memories, events, messages, profiles, siteConfig };
-  }
-
-  /* ======================
-     NAV / UTILITY
-     ====================== */
-
-  // Simple debounce
-  function debounce(fn, wait=100) {
-    let t = null;
-    return (...args) => { clearTimeout(t); t = setTimeout(() => fn.apply(this,args), wait); };
-  }
-
-  /* ======================
-     STARTUP: ensure STATE gallery filtered & render
-     ====================== */
-
-  // Initialize gallery filtered and render
-  function renderGalleryPage() {
-    // if tag filter not filled, fill initial
-    if (!STATE.gallery.filtered || !STATE.gallery.filtered.length) STATE.gallery.filtered = STATE.gallery.items.slice();
-    // apply current search and tag filter
-    applyGalleryFilterAndRender();
-  }
-
-  function applyGalleryFilterAndRender() {
-    // apply search + tags then render page
-    const q = ($('#gallery-search')?.value || '').trim().toLowerCase();
-    const selTags = Array.from(STATE.gallery.selectedTags || []);
-    const source = STATE.gallery.items.slice();
-    STATE.gallery.filtered = source.filter(it => {
-      const matchesQ = !q || (it.caption && it.caption.toLowerCase().includes(q)) || (it.tags || []).some(t => t.toLowerCase().includes(q));
-      const matchesTags = !selTags.length || (it.tags || []).some(t => selTags.includes(t));
-      return matchesQ && matchesTags;
-    });
-    STATE.gallery.page = clamp(STATE.gallery.page, 1, Math.max(1, Math.ceil(STATE.gallery.filtered.length / STATE.gallery.perPage)));
-    renderGalleryPageDOM();
-  }
-
-  function renderGalleryPageDOM() {
-    // Reuse renderGalleryPage setup logic: but avoid recursion
+  function attachGalleryLazyLoader() {
     const container = $('#gallery-masonry');
     if (!container) return;
-    const per = STATE.gallery.perPage || 12;
-    const items = STATE.gallery.filtered;
-    const total = items.length;
-    STATE.gallery.totalPages = Math.max(1, Math.ceil(total / per));
-    const start = (STATE.gallery.page - 1) * per;
-    const pageItems = items.slice(start, start + per);
-    const elems = pageItems.map(it => {
-      const fig = document.createElement('figure');
-      fig.className = 'masonry-item';
-      fig.tabIndex = 0;
-      fig.dataset.id = it.id;
-      fig.dataset.tags = JSON.stringify(it.tags || []);
-      const img = document.createElement('img');
-      img.className = 'masonry-img';
-      img.alt = it.caption || '';
-      img.loading = 'lazy';
-      const src = cloudify(it.public_id || it.secure_url || it.raw?.public_id || it.raw?.secure_url, { w:900, dpr:'auto' }) || (it.secure_url || '');
-      img.dataset.src = src;
-      img.src = '/assets/thumb-placeholder.jpg';
-      fig.appendChild(img);
-      if (it.caption) {
-        const cap = document.createElement('figcaption');
-        cap.className = 'masonry-caption';
-        cap.textContent = it.caption;
-        fig.appendChild(cap);
-      }
-      fig.addEventListener('click', () => openLightboxFromGalleryItem(it, STATE.gallery.filtered));
-      return fig;
-    });
-
-    // layout masonry
-    const colsContainer = container;
-    layoutMasonry(colsContainer, elems);
-    setupImageLazyLoad(colsContainer);
-    const info = $('#gallery-pageinfo'); if (info) info.textContent = `Page ${STATE.gallery.page} / ${STATE.gallery.totalPages}`;
-  }
-
-  /* ======================
-     IMAGE LAZY-LOAD for general usage
-     ====================== */
-
-  function setupImageLazyLoad(root) {
-    const imgs = Array.from((root || document).querySelectorAll('img[data-src]'));
-    if (!imgs.length) return;
+    if (STATE.galleryObserver) { try { STATE.galleryObserver.disconnect(); } catch (e) {} STATE.galleryObserver = null; }
+    const items = Array.from(container.querySelectorAll('img[data-src]'));
+    if (!items.length) return;
     const io = new IntersectionObserver((entries, obs) => {
       entries.forEach(en => {
-        if (en.isIntersecting) {
-          const img = en.target;
-          const src = img.dataset.src;
-          if (src) img.src = src;
-          obs.unobserve(img);
-        }
+        if (!en.isIntersecting) return;
+        const img = en.target;
+        const src = img.dataset.src;
+        if (src) img.src = src;
+        obs.unobserve(img);
       });
-    }, { rootMargin: '300px 0px', threshold: 0.01 });
-    imgs.forEach(i => io.observe(i));
+    }, { root: null, rootMargin: '300px 0px', threshold: 0.01 });
+    items.forEach(i => io.observe(i));
+    STATE.galleryObserver = io;
   }
 
-  /* ======================
-     HELPER: openTagFilter UI from external call
-     ====================== */
-  function openTagFilterPopup() {
-    // build if not exists
-    ensureTagFilterPopup();
-  }
-  // expose to global so UI button can call if needed
-  window.openTagFilterPopup = openTagFilterPopup;
-
-  /* ======================
-     NETWORK / FILE 404 handling helper
-     ====================== */
-
-  // quick check whether a resource exists — use fetch HEAD (works for same-origin and CORS allowed)
-  async function resourceExists(url) {
-    try {
-      const r = await fetch(url, { method: 'HEAD' });
-      return r.ok;
-    } catch (e) {
-      return false;
-    }
+  //////////////////////
+  // Utilities: open memory lightbox
+  //////////////////////
+  function openMemoryLightbox(mem) {
+    const imgs = mem.photos.map(p => p.secure_url || cloudifyMaybe(p.public_id || ''));
+    const metaList = mem.photos.map(p => ({ caption: mem.title, date: mem.date }));
+    openLightbox({ images: imgs, metaList, index: 0 });
   }
 
-  /* ======================
-     PUBLIC EXPOSURES (for debug / test)
-     ====================== */
-
-  window.__KELAS_DEBUG__ = {
-    state: STATE,
-    config: CONFIG,
-    cloudify,
-    openLightbox,
-    renderGalleryPageDOM,
-    applyGalleryFilterAndRender
-  };
-
-  /* ======================
-     FINAL small helpers & ensure tag popup created
-     ====================== */
-
-  function ensureTagFilterPopup() {
-    if ($('#tag-filter-popup')) { renderTagFilterCheckboxes(); $('#tag-filter-popup').style.display = 'block'; return $('#tag-filter-popup'); }
-    const popup = document.createElement('div');
-    popup.id = 'tag-filter-popup';
-    popup.className = 'tag-filter-popup glass';
-    popup.style.position = 'fixed';
-    popup.style.left = '50%';
-    popup.style.top = '50%';
-    popup.style.transform = 'translate(-50%,-50%)';
-    popup.style.zIndex = '2200';
-    popup.style.padding = '18px';
-    popup.style.maxWidth = '520px';
-    popup.style.width = '92%';
-    popup.style.display = 'block';
-    popup.innerHTML = `
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-        <strong>Pilih Tag</strong>
-        <button id="tag-filter-close" class="btn secondary">Tutup</button>
-      </div>
-      <div id="tag-filter-list" style="max-height:340px;overflow:auto;display:flex;flex-direction:column;gap:8px;padding-right:6px"></div>
-      <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px">
-        <button id="tag-filter-clear" class="btn secondary">Bersihkan</button>
-        <button id="tag-filter-apply" class="btn primary">Terapkan</button>
-      </div>
-    `;
-    document.body.appendChild(popup);
-    $('#tag-filter-close').addEventListener('click', () => popup.style.display = 'none');
-    $('#tag-filter-clear').addEventListener('click', () => { STATE.gallery.selectedTags.clear(); renderTagFilterCheckboxes(); });
-    $('#tag-filter-apply').addEventListener('click', () => { applyGalleryFilterAndRender(); popup.style.display = 'none'; });
-    renderTagFilterCheckboxes();
-    return popup;
-  }
-
-  function renderTagFilterCheckboxes() {
-    const list = $('#tag-filter-list');
-    if (!list) return;
-    list.innerHTML = '';
-    const tags = STATE.gallery.tagList || [];
-    if (!tags.length) {
-      list.innerHTML = '<div style="color:var(--muted)">Tidak ada tag</div>';
-      return;
-    }
-    tags.forEach(tag => {
-      const id = `tag_${tag.replace(/\W+/g,'_')}`;
-      const row = document.createElement('label');
-      row.style.display = 'flex';
-      row.style.alignItems = 'center';
-      row.style.gap = '8px';
-      row.style.cursor = 'pointer';
-      row.innerHTML = `<input type="checkbox" id="${id}" data-tag="${escapeHtml(tag)}"> <span>${escapeHtml(tag)}</span>`;
-      const cb = row.querySelector('input[type="checkbox"]');
-      cb.checked = STATE.gallery.selectedTags.has(tag);
-      cb.addEventListener('change', (e) => {
-        if (e.target.checked) STATE.gallery.selectedTags.add(tag);
-        else STATE.gallery.selectedTags.delete(tag);
-      });
-      list.appendChild(row);
+  //////////////////////
+  // Motions: Motto pointer glow (follow pointer)
+  //////////////////////
+  function initMottoPointer() {
+    const m = document.querySelector('.motto-inner');
+    if (!m || PREFERS_REDUCED_MOTION) return;
+    m.addEventListener('pointermove', (ev) => {
+      const rect = m.getBoundingClientRect();
+      const x = ev.clientX - rect.left;
+      const y = ev.clientY - rect.top;
+      m.style.setProperty('--pointer-x', `${x}px`);
+      m.style.setProperty('--pointer-y', `${y}px`);
     });
   }
 
-  /* ======================
-     END OF SCRIPT
-     ====================== */
+  //////////////////////
+  // Footer year
+  //////////////////////
+  function initFooterYear() {
+    const fy = $('#footer-year');
+    if (fy) fy.textContent = new Date().getFullYear();
+  }
 
+  //////////////////////
+  // Escape & small helpers
+  //////////////////////
+  function escapeHtml(s) {
+    if (!s) return '';
+    return String(s).replace(/[&<>"']/g, m => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' })[m]);
+  }
+
+  //////////////////////
+  // Expose some utilities for debugging (only if DEBUG)
+  //////////////////////
+  if (DEBUG) {
+    window.__KELAS_STATE = STATE;
+    window.__KELAS_UTILS = { cloudifyMaybe, supabaseGet };
+    console.log('DEBUG mode: __KELAS_STATE exposed');
+  }
+
+  //////////////////////
+  // END
+  //////////////////////
 })();
