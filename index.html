@@ -99,6 +99,54 @@
       --nav-bg: rgba(10, 14, 39, 0.9);
     }
 
+    body.theme-cyberpunk {
+      --primary: #ff00ff;
+      --primary-rgb: 255,0,255;
+      --secondary: #00ffff;
+      --text-primary: #ffffff;
+      --text-secondary: #ffff00;
+      --bg-dark: #000000;
+      --bg-card: #1a1a2e;
+      --border: #ff00ff;
+      --nav-bg: rgba(0, 0, 0, 0.95);
+    }
+
+    body.theme-minimal {
+      --primary: #4f46e5;
+      --primary-rgb: 79,70,229;
+      --secondary: #64748b;
+      --text-primary: #1e293b;
+      --text-secondary: #64748b;
+      --bg-dark: #ffffff;
+      --bg-card: #f8fafc;
+      --border: #e2e8f0;
+      --nav-bg: rgba(255, 255, 255, 0.95);
+    }
+
+    body.theme-retro {
+      --primary: #ff6b6b;
+      --primary-rgb: 255,107,107;
+      --secondary: #ffd93d;
+      --text-primary: #1d3557;
+      --text-secondary: #457b9d;
+      --bg-dark: #f1faee;
+      --bg-card: #e8f4f8;
+      --border: #a8dadc;
+      --nav-bg: rgba(241, 250, 238, 0.9);
+    }
+
+    body.theme-nord {
+      --primary: #88c0d0;
+      --primary-rgb: 136,192,208;
+      --secondary: #81a1c1;
+      --text-primary: #eceff4;
+      --text-secondary: #d8dee9;
+      --bg-dark: #2e3440;
+      --bg-card: #3b4252;
+      --border: #4c566a;
+      --nav-bg: rgba(46, 52, 64, 0.9);
+    }
+
     html {
       scroll-behavior: smooth;
     }
@@ -262,6 +310,137 @@
       }
     }
 
+    /* ========== THEME-SPECIFIC STYLES ========== */
+
+    /* CYBERPUNK: High contrast, sharp edges, glowing effects */
+    body.theme-cyberpunk {
+      font-family: 'Courier New', monospace;
+      font-weight: 600;
+    }
+
+    body.theme-cyberpunk .btn,
+    body.theme-cyberpunk button {
+      border: 2px solid var(--primary);
+      box-shadow: 0 0 10px rgba(255, 0, 255, 0.5);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-family: 'Courier New', monospace;
+    }
+
+    body.theme-cyberpunk .btn:hover,
+    body.theme-cyberpunk button:hover {
+      box-shadow: 0 0 20px rgba(255, 0, 255, 0.8), inset 0 0 10px rgba(0, 255, 255, 0.3);
+    }
+
+    body.theme-cyberpunk .stat-card,
+    body.theme-cyberpunk .gallery-item,
+    body.theme-cyberpunk section {
+      border: 2px solid var(--primary);
+      box-shadow: 0 0 15px rgba(255, 0, 255, 0.3);
+    }
+
+    /* MINIMAL: Clean lines, large spacing, monochrome */
+    body.theme-minimal {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-weight: 400;
+      letter-spacing: 0.3px;
+    }
+
+    body.theme-minimal button,
+    body.theme-minimal .btn {
+      border-radius: 0;
+      border: 2px solid var(--primary);
+      background: white;
+      color: var(--primary);
+      text-transform: uppercase;
+      font-size: 0.75rem;
+      letter-spacing: 2px;
+      font-weight: 600;
+    }
+
+    body.theme-minimal button:hover,
+    body.theme-minimal .btn:hover {
+      background: var(--primary);
+      color: white;
+    }
+
+    body.theme-minimal .stat-card {
+      border: none;
+      border-bottom: 3px solid var(--primary);
+      border-radius: 0;
+      box-shadow: none;
+      padding: 2rem;
+    }
+
+    body.theme-minimal h1, 
+    body.theme-minimal h2, 
+    body.theme-minimal h3 {
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+
+    /* RETRO: Warm colors, rounded edges, vintage feel */
+    body.theme-retro {
+      font-family: 'Georgia', serif;
+      font-weight: 400;
+    }
+
+    body.theme-retro button,
+    body.theme-retro .btn {
+      border-radius: 25px;
+      border: 3px solid var(--primary);
+      background: var(--primary);
+      color: var(--text-primary);
+      box-shadow: 4px 4px 0px var(--secondary);
+      transform: translateZ(0);
+    }
+
+    body.theme-retro button:hover,
+    body.theme-retro .btn:hover {
+      transform: translate(-2px, -2px);
+      box-shadow: 6px 6px 0px var(--secondary);
+    }
+
+    body.theme-retro .stat-card {
+      border: 3px solid var(--primary);
+      border-radius: 20px;
+      box-shadow: 6px 6px 0px rgba(255, 107, 107, 0.2);
+    }
+
+    body.theme-retro h1,
+    body.theme-retro h2,
+    body.theme-retro h3 {
+      font-family: 'Georgia', serif;
+      font-weight: 700;
+    }
+
+    /* NORD: Cool, professional, slightly transparent */
+    body.theme-nord {
+      font-family: 'Fira Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      font-weight: 500;
+    }
+
+    body.theme-nord button,
+    body.theme-nord .btn {
+      border: 1px solid var(--border);
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      backdrop-filter: blur(10px);
+      border-radius: 8px;
+    }
+
+    body.theme-nord button:hover,
+    body.theme-nord .btn:hover {
+      border-color: var(--primary);
+      box-shadow: 0 8px 32px rgba(136, 192, 208, 0.2);
+    }
+
+    body.theme-nord .stat-card {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: linear-gradient(135deg, rgba(59, 66, 82, 0.6), rgba(76, 86, 106, 0.4));
+      backdrop-filter: blur(10px);
+    }
+
     .theme-panel {
       position: absolute;
       right: 0;
@@ -279,6 +458,140 @@
       display: flex;
       flex-wrap: wrap;
     }
+
+    /* ===== Component-level theme variations ===== */
+
+    /* CYBERPUNK: angular cards, neon glows, squared photos */
+    body.theme-cyberpunk nav {
+      background: linear-gradient(90deg, rgba(0,0,0,0.95), rgba(8,0,20,0.85));
+      border-bottom: 2px solid var(--primary);
+      box-shadow: 0 6px 30px rgba(255,0,255,0.06);
+    }
+
+    body.theme-cyberpunk .hero {
+      border-radius: 6px;
+      padding: 2rem;
+      background: linear-gradient(135deg, rgba(26,0,40,0.6), rgba(8,0,20,0.4));
+      box-shadow: 0 10px 40px rgba(124,58,237,0.08);
+    }
+
+    body.theme-cyberpunk .profile-card {
+      border-radius: 6px;
+      padding: 0.6rem;
+      background: linear-gradient(180deg, rgba(10,0,20,0.6), rgba(20,0,40,0.4));
+      border: 1px solid rgba(var(--primary-rgb),0.18);
+    }
+
+    body.theme-cyberpunk .profile-photo,
+    body.theme-cyberpunk .profile-placeholder {
+      border-radius: 8px;
+      width: 72px;
+      height: 72px;
+      border: 2px solid var(--primary);
+      filter: drop-shadow(0 6px 14px rgba(255,0,255,0.12));
+    }
+
+    body.theme-cyberpunk .gallery-item {
+      border-radius: 6px;
+      overflow: hidden;
+      border: 2px solid rgba(var(--primary-rgb),0.12);
+    }
+
+    body.theme-cyberpunk .filter-content {
+      border: 1px dashed rgba(var(--primary-rgb),0.25);
+      background: linear-gradient(180deg, rgba(8,0,16,0.6), rgba(10,0,30,0.6));
+    }
+
+    /* MINIMAL: squared layout, lots of whitespace, thin lines */
+    body.theme-minimal nav,
+    body.theme-minimal .hero,
+    body.theme-minimal .class-profile,
+    body.theme-minimal .stat-card {
+      border-radius: 0;
+      background: transparent;
+      box-shadow: none;
+      border-color: var(--border);
+    }
+
+    body.theme-minimal .profile-photo,
+    body.theme-minimal .profile-placeholder {
+      border-radius: 6px;
+      width: 64px;
+      height: 64px;
+      border: 1px solid var(--border);
+    }
+
+    body.theme-minimal .gallery-item {
+      border-radius: 0;
+      border: 1px solid var(--border);
+      padding: 0.4rem;
+    }
+
+    body.theme-minimal input,
+    body.theme-minimal select,
+    body.theme-minimal textarea {
+      border-radius: 0;
+      border: 1px solid var(--border);
+      padding: 0.6rem;
+      background: var(--bg-card);
+    }
+
+    /* RETRO: rounded badges, layered shadows, soft textures */
+    body.theme-retro nav,
+    body.theme-retro .hero {
+      border-radius: 20px;
+      background-image: repeating-linear-gradient(45deg, rgba(255,255,255,0.02) 0 4px, transparent 4px 12px);
+    }
+
+    body.theme-retro .profile-card {
+      border-radius: 18px;
+      padding: 1rem;
+      background: linear-gradient(180deg, rgba(255,235,205,0.03), rgba(255,235,205,0.01));
+    }
+
+    body.theme-retro .profile-photo,
+    body.theme-retro .profile-placeholder {
+      border-radius: 50%;
+      width: 84px;
+      height: 84px;
+      border: 4px solid var(--primary);
+    }
+
+    body.theme-retro .gallery-item {
+      border-radius: 16px;
+      box-shadow: 8px 8px 0px rgba(0,0,0,0.06);
+    }
+
+    /* NORD: soft rounded cards, frosted glass, subtle depth */
+    body.theme-nord nav,
+    body.theme-nord .hero,
+    body.theme-nord .class-profile {
+      border-radius: 12px;
+      background: linear-gradient(135deg, rgba(58,74,95,0.45), rgba(59,66,82,0.25));
+      backdrop-filter: blur(6px);
+      border: 1px solid rgba(76,86,106,0.14);
+    }
+
+    body.theme-nord .profile-card {
+      border-radius: 10px;
+      padding: 0.8rem;
+      background: linear-gradient(180deg, rgba(59,66,82,0.35), rgba(76,86,106,0.2));
+    }
+
+    body.theme-nord .profile-photo,
+    body.theme-nord .profile-placeholder {
+      border-radius: 10px;
+      width: 72px;
+      height: 72px;
+      border: 1px solid rgba(76,86,106,0.18);
+    }
+
+    body.theme-nord .gallery-item {
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 8px 30px rgba(20,30,40,0.12);
+    }
+
 
     .theme-btn {
       width: 34px;
@@ -469,15 +782,49 @@
       }
 
       .profile-grid {
-        grid-template-columns: 1fr;
-        gap: 1.5rem;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(65px, 1fr));
+        gap: 0.5rem;
+        margin-bottom: 2rem;
+      }
+
+      .profile-card {
+        text-align: center;
       }
 
       .profile-photo,
       .profile-placeholder {
-        width: 120px;
-        height: 120px;
-        font-size: 2.5rem;
+        width: 60px;
+        height: 60px;
+        font-size: 1.2rem;
+        margin: 0 auto 0.2rem;
+      }
+
+      .profile-card h3 {
+        font-size: 0.6rem;
+        margin-bottom: 0.1rem;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .profile-card p {
+        font-size: 0.55rem;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .student-count {
+        padding: 0.8rem 1rem;
+      }
+
+      .student-count h3 {
+        font-size: 1.2rem;
+      }
+
+      .student-count p {
+        font-size: 0.75rem;
       }
     }
 
@@ -786,14 +1133,18 @@
       background: var(--primary);
       color: white;
       border: none;
-      padding: 0.7rem 1.5rem;
-      border-radius: 50px;
+      width: 44px;
+      height: 44px;
+      padding: 0;
+      border-radius: 8px;
       cursor: pointer;
       display: flex;
       align-items: center;
-      gap: 0.5rem;
+      justify-content: center;
+      gap: 0;
       transition: all 0.3s;
       font-size: 1rem;
+      flex-shrink: 0;
     }
 
     .filter-btn:hover {
@@ -971,8 +1322,17 @@
       }
 
       .filter-btn {
-        width: 100%;
-        justify-content: center;
+        width: 44px;
+        height: 44px;
+        flex-shrink: 0;
+      }
+
+      .filter-btn i {
+        display: block;
+      }
+
+      .filter-btn span {
+        display: none;
       }
 
       .gallery-grid {
@@ -1392,6 +1752,224 @@
       font-weight: 600;
       margin: 0.5rem 0;
     }
+    /* ===== Theme decorative overlays & animations ===== */
+
+    .theme-deco {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 9999;
+    }
+
+    .theme-deco::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      opacity: 1;
+      mix-blend-mode: normal;
+    }
+
+    .theme-deco svg { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; }
+
+    /* Cyberpunk: subtle neon grid that slowly moves */
+    .deco-cyberpunk::before {
+      background: linear-gradient(90deg, rgba(255,0,255,0.12) 1px, transparent 1px), linear-gradient(0deg, rgba(0,255,255,0.08) 1px, transparent 1px);
+      background-size: 48px 48px, 48px 48px;
+      animation: deco-grid-move 12s linear infinite;
+      opacity: 0.24;
+    }
+
+    /* stronger neon scanlines */
+    .deco-cyberpunk .deco-scanlines {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient( to bottom, rgba(255,0,255,0.03) 0%, transparent 6%, rgba(0,255,255,0.02) 7%, transparent 14% );
+      animation: scanlines-move 6s linear infinite;
+      mix-blend-mode: overlay;
+      opacity: 0.5;
+      pointer-events: none;
+    }
+
+    @keyframes scanlines-move { to { background-position: 0 120px; } }
+
+    @keyframes deco-grid-move {
+      from { background-position: 0 0, 0 0; }
+      to { background-position: 120px 0, 0 120px; }
+    }
+
+    /* Nord: slow aurora gradient */
+    .deco-nord::before {
+      background: radial-gradient(900px 260px at 10% 20%, rgba(136,192,208,0.18), transparent 22%), radial-gradient(760px 240px at 80% 70%, rgba(129,161,193,0.12), transparent 22%);
+      animation: deco-aurora 12s ease-in-out infinite;
+      opacity: 1;
+    }
+
+    @keyframes deco-aurora {
+      0% { transform: translateY(0); opacity: 0.9 }
+      50% { transform: translateY(-18px); opacity: 0.7 }
+      100% { transform: translateY(0); opacity: 0.9 }
+    }
+
+    /* Ocean: floating bubbles (soft circular gradients) */
+    .deco-ocean::before {
+      background: radial-gradient(circle at 20% 30%, rgba(255,255,255,0.07), transparent 10%), radial-gradient(circle at 80% 65%, rgba(255,255,255,0.06), transparent 8%);
+      animation: deco-bubbles 10s linear infinite;
+      opacity: 1;
+    }
+
+    .deco-ocean .deco-bubbles-wrap {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+    }
+
+    .deco-ocean .deco-bubbles-wrap::after {
+      content: '';
+      position: absolute;
+      left: 10%;
+      bottom: -20%;
+      width: 220px;
+      height: 220px;
+      background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.06), transparent 20%);
+      border-radius: 50%;
+      animation: bubble-rise 9s ease-in-out infinite;
+      opacity: 0.9;
+    }
+
+    @keyframes bubble-rise { 0%{transform:translateY(0) scale(0.9)}50%{transform:translateY(-120px) scale(1.05)}100%{transform:translateY(0) scale(0.9)} }
+
+    @keyframes deco-bubbles {
+      from { transform: translateY(0) scale(1); }
+      50% { transform: translateY(-12px) scale(1.02); }
+      to { transform: translateY(0) scale(1); }
+    }
+
+    /* Retro: paper texture overlay */
+    .deco-retro::before {
+      background-image: repeating-linear-gradient(45deg, rgba(255,255,240,0.04) 0 4px, transparent 4px 12px);
+      opacity: 0.7;
+      mix-blend-mode: multiply;
+    }
+
+    .deco-retro .deco-polaroids {
+      position: absolute; inset: 10% auto auto 6%; width: 220px; height: 160px; pointer-events: none;
+      background-image: linear-gradient(135deg, rgba(255,255,255,0.06), rgba(0,0,0,0.02));
+      transform: rotate(-8deg); box-shadow: 0 10px 30px rgba(0,0,0,0.06);
+      opacity: 0.95;
+      animation: polaroid-tilt 6s ease-in-out infinite;
+    }
+
+    @keyframes polaroid-tilt { 0%{transform:rotate(-6deg)}50%{transform:rotate(-10deg)}100%{transform:rotate(-6deg)} }
+
+    /* Sunset: warm radial glow at top */
+    .deco-sunset::before {
+      background: radial-gradient(600px 200px at 50% 10%, rgba(249,115,22,0.12), transparent 20%);
+      opacity: 0.9;
+      animation: deco-sun 16s ease-in-out infinite;
+    }
+
+    @keyframes deco-sun { 0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)} }
+
+    /* Forest: subtle leaf silhouettes */
+    .deco-forest::before {
+      background-image: radial-gradient(circle at 10% 80%, rgba(21,128,61,0.09), transparent 12%), radial-gradient(circle at 90% 20%, rgba(5,150,105,0.07), transparent 12%);
+      opacity: 0.95;
+    }
+
+    .deco-forest .deco-leaves {
+      position: absolute; inset: -10% -10% auto -10%; height: 30vh; pointer-events: none; background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="60"><g fill="rgba(21,128,61,0.08)"><ellipse cx="20" cy="20" rx="18" ry="6"/><ellipse cx="60" cy="10" rx="28" ry="8"/><ellipse cx="120" cy="16" rx="22" ry="6"/></g></svg>'); background-repeat: repeat-x; animation: leaves-drift 18s linear infinite; opacity:0.95}
+
+    @keyframes leaves-drift { 0%{transform:translateX(0)}100%{transform:translateX(-50%)} }
+
+    /* Falling leaf elements used by forest theme */
+    .leaf {
+      position: fixed;
+      top: -10vh;
+      pointer-events: none;
+      z-index: 10000;
+      will-change: transform, opacity;
+      filter: drop-shadow(0 6px 10px rgba(0,0,0,0.12));
+    }
+
+    .leaf svg { display:block; width: 48px; height: 32px; }
+
+    @keyframes leaf-fall {
+      0% { transform: translate3d(0, -5vh, 0) rotate(0deg) scale(var(--s,1)); opacity: 0; }
+      10% { opacity: 1; }
+      50% { transform: translate3d(var(--x,0px), 50vh, 0) rotate(180deg) scale(var(--s,1)); }
+      100% { transform: translate3d(calc(var(--x,0px) * 1.2), 110vh, 0) rotate(360deg) scale(var(--s,1)); opacity: 0.85; }
+    }
+
+    /* Neon: quick shimmer */
+    .deco-neon::before {
+      background: linear-gradient(90deg, rgba(255,0,110,0.12), rgba(0,255,200,0.06));
+      animation: deco-shimmer 4.5s linear infinite;
+      opacity: 0.3;
+    }
+
+    @keyframes deco-shimmer { 0%{filter:brightness(1)}50%{filter:brightness(1.25)}100%{filter:brightness(1)} }
+
+    /* Toast/mini-popup that appears briefly on theme change */
+    .theme-toast {
+      position: fixed;
+      right: 18px;
+      top: 78px;
+      background: rgba(0,0,0,0.6);
+      color: #fff;
+      padding: 0.5rem 0.75rem;
+      border-radius: 8px;
+      z-index: 60;
+      pointer-events: none;
+      transform: translateY(-6px);
+      opacity: 0;
+      transition: all 300ms ease;
+      font-weight: 700;
+    }
+
+    .theme-toast.show { opacity: 1; transform: translateY(0); }
+
+    /* DPIB watermark / brand mark (building silhouette) */
+    .dpib-mark {
+      position: fixed;
+      right: 18px;
+      bottom: 18px;
+      width: 180px;
+      height: auto;
+      opacity: 0.08;
+      pointer-events: none;
+      z-index: 50;
+      transition: opacity 400ms ease, transform 400ms ease;
+      transform-origin: center;
+      filter: grayscale(10%) contrast(1.05);
+    }
+
+    .dpib-mark svg {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    /* per-theme adjustments */
+    body.theme-cyberpunk .dpib-mark { opacity: 0.12; filter: drop-shadow(0 8px 18px rgba(255,0,255,0.12)); }
+    body.theme-retro .dpib-mark { opacity: 0.16; filter: sepia(0.12) contrast(1.05); }
+    body.theme-nord .dpib-mark { opacity: 0.12; filter: drop-shadow(0 8px 20px rgba(0,0,0,0.12)); }
+    body.theme-minimal .dpib-mark { opacity: 0.06; filter: none; }
+    @media (max-width: 768px) {
+      .dpib-mark { width: 120px; right: 12px; bottom: 12px; }
+    }
+
+    /* DPiB mark subtle float/pulse per theme */
+    .dpib-mark { transform: translateY(0) scale(1); transition: transform 600ms ease, opacity 400ms ease; }
+    body.theme-cyberpunk .dpib-mark { animation: dpib-pulse 3.2s ease-in-out infinite; }
+    body.theme-retro .dpib-mark { animation: dpib-slow-bob 6s ease-in-out infinite; }
+    body.theme-nord .dpib-mark { animation: dpib-slow-bob 8s ease-in-out infinite; }
+
+    @keyframes dpib-pulse { 0%{transform:translateY(0) scale(1)}50%{transform:translateY(-6px) scale(1.02)}100%{transform:translateY(0) scale(1)} }
+    @keyframes dpib-slow-bob { 0%{transform:translateY(0)}50%{transform:translateY(-10px)}100%{transform:translateY(0)} }
+
+    /* ===== end of theme deco rules ===== */
+
     /* Responsive adjustments for mobile */
     @media (max-width: 600px) {
       .student-card { padding: 1rem; border-radius: 10px; }
@@ -1467,6 +2045,10 @@
         <button class="theme-btn" data-theme="ocean" title="Ocean"><i data-feather="cloud"></i></button>
         <button class="theme-btn" data-theme="forest" title="Forest"><i data-feather="layers"></i></button>
         <button class="theme-btn" data-theme="neon" title="Neon"><i data-feather="zap"></i></button>
+        <button class="theme-btn" data-theme="cyberpunk" title="Cyberpunk"><i data-feather="shield"></i></button>
+        <button class="theme-btn" data-theme="minimal" title="Minimal"><i data-feather="square"></i></button>
+        <button class="theme-btn" data-theme="retro" title="Retro"><i data-feather="award"></i></button>
+        <button class="theme-btn" data-theme="nord" title="Nord"><i data-feather="wind"></i></button>
       </div>
     </div>
   </nav>
@@ -1482,7 +2064,7 @@
 
     <!-- CLASS PROFILE SECTION -->
     <section id="profil">
-      <h2 class="section-title">👥 Profil Kelas</h2>
+      <h2 class="section-title"><i data-feather="users"></i> Profil Kelas</h2>
       <div class="class-profile">
         <div class="profile-grid" id="profileGrid"></div>
         <div class="student-count" id="studentCount" title="Klik untuk melihat daftar siswa">
@@ -1495,8 +2077,8 @@
     <!-- GALLERY SECTION -->
     <section id="galeri">
       <div class="gallery-header">
-        <h2>🖼️ Galeri Foto</h2>
-        <button class="filter-btn" id="filterBtn"><i data-feather="sliders"></i> Filter</button>
+        <h2><i data-feather="image"></i> Galeri Foto</h2>
+        <button class="filter-btn" id="filterBtn"><i data-feather="sliders"></i></button>
       </div>
       <div class="gallery-grid" id="galleryGrid"></div>
       <div class="pagination" id="pagination"></div>
@@ -1504,19 +2086,19 @@
 
     <!-- MEMORIES SECTION -->
     <section id="memories" class="memories">
-      <h2 class="section-title">💭 Memories</h2>
+      <h2 class="section-title"><i data-feather="heart"></i> Memories</h2>
       <div id="memoriesContainer"></div>
     </section>
 
     <!-- EVENT SECTION -->
     <section id="event">
-      <h2 class="section-title">📅 Event Mendatang</h2>
+      <h2 class="section-title"><i data-feather="calendar"></i> Event Mendatang</h2>
       <div id="eventContainer"></div>
     </section>
 
     <!-- GUESTBOOK SECTION -->
     <section id="guestbook">
-      <h2 class="section-title">📝 Buku Tamu</h2>
+      <h2 class="section-title"><i data-feather="edit"></i> Buku Tamu</h2>
       <div class="guestbook-section">
         <div class="guestbook-form">
           <h3>Tulis Pesan</h3>
@@ -1542,7 +2124,7 @@
 
     <!-- STUDENT DIRECTORY (HIDDEN - reveal with secret click) -->
     <section id="students" style="display: none;">
-      <h2 class="section-title">📋 Daftar Siswa</h2>
+      <h2 class="section-title"><i data-feather="list"></i> Daftar Siswa</h2>
       <div style="overflow-x: auto; margin-top: 2rem;">
         <table class="gallery-grid" style="width: 100%; border-collapse: collapse;">
           <thead>
@@ -1580,7 +2162,7 @@
     </div>
 
     <section id="studentDir" class="student-directory">
-      <h2 class="section-title">👨‍🎓 Daftar Siswa</h2>
+      <h2 class="section-title"><i data-feather="user"></i> Daftar Siswa</h2>
       <div id="studentsGridView" class="students-grid"></div>
     </section>
   </main>
@@ -1677,6 +2259,9 @@
         btn.classList.remove('active')
         if(btn.dataset.theme === themeName) btn.classList.add('active')
       })
+
+      // Apply per-theme decorative extras
+      applyThemeExtras(themeName)
     }
 
     $$('.theme-btn').forEach(btn => {
@@ -1686,6 +2271,165 @@
     // Load saved theme
     const savedTheme = localStorage.getItem('theme') || 'dark'
     setTheme(savedTheme)
+
+    // Apply decorative extras for the initial theme
+    applyThemeExtras(savedTheme)
+
+    function applyThemeExtras(themeName) {
+      // remove existing deco and toast
+      const existing = document.querySelector('.theme-deco')
+      if(existing) existing.remove()
+      const existingToast = document.querySelector('.theme-toast')
+      if(existingToast) existingToast.remove()
+
+      // minimal theme has no extras
+      if(themeName === 'minimal') return
+
+      // create deco container
+      const deco = document.createElement('div')
+      deco.className = 'theme-deco deco-' + themeName
+      document.body.appendChild(deco)
+
+      // helper: generate falling leaf elements
+      function generateLeaves(container, count = 10) {
+        const leafPaths = [
+          'M10 2 C14 6, 18 10, 14 18 C8 26, 2 26, 2 18 C2 10, 6 6, 10 2 Z',
+          'M12 2 C16 6, 20 12, 16 20 C10 28, 4 26, 6 18 C8 10, 10 6, 12 2 Z'
+        ]
+        for(let i=0;i<count;i++){
+          const leaf = document.createElement('div')
+          leaf.className = 'leaf'
+          const left = Math.random() * 100
+          const xOffset = (Math.random() * 120 - 60).toFixed(1) + 'px'
+          const duration = (8 + Math.random() * 8).toFixed(2) + 's'
+          const delay = (-Math.random() * 6).toFixed(2) + 's'
+          const scale = (0.6 + Math.random() * 0.9).toFixed(2)
+          const path = leafPaths[i % leafPaths.length]
+          leaf.style.left = left + '%'
+          leaf.style.setProperty('--x', xOffset)
+          leaf.style.setProperty('--s', scale)
+          leaf.style.animation = `leaf-fall ${duration} linear ${delay} forwards`
+          leaf.innerHTML = `<svg viewBox="0 0 24 32" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="${path}" fill="rgba(34,139,34,0.85)"/></svg>`
+          container.appendChild(leaf)
+          // remove after animation completes
+          setTimeout(()=>{ try{ leaf.remove() }catch(e){} }, (parseFloat(duration) + Math.abs(parseFloat(delay)) + 1)*1000)
+        }
+      }
+
+      // add DPIB brand watermark (SVG) as a subtle decorative mark
+      const existingDpib = document.querySelector('.dpib-mark')
+      if(existingDpib) existingDpib.remove()
+      const dpib = document.createElement('div')
+      dpib.className = 'dpib-mark'
+      dpib.innerHTML = `
+        <svg viewBox="0 0 200 80" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <defs>
+            <linearGradient id="g1" x1="0" x2="1">
+              <stop offset="0%" stop-color="var(--primary)" stop-opacity="0.15"/>
+              <stop offset="100%" stop-color="var(--secondary)" stop-opacity="0.06"/>
+            </linearGradient>
+          </defs>
+          <rect x="2" y="28" width="196" height="46" rx="6" fill="url(#g1)" />
+          <g fill="none" stroke="var(--primary)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 28v-8a6 6 0 0 1 6-6h8v14" />
+            <rect x="36" y="10" width="26" height="18" rx="2"/>
+            <rect x="68" y="6" width="34" height="22" rx="2"/>
+            <rect x="106" y="2" width="40" height="26" rx="2"/>
+            <rect x="150" y="18" width="30" height="16" rx="2"/>
+            <path d="M6 74h188" />
+            <path d="M36 74v-18" />
+            <path d="M68 74v-20" />
+            <path d="M106 74v-22" />
+            <path d="M150 74v-16" />
+          </g>
+          <text x="12" y="64" fill="var(--primary)" font-size="8" font-weight="700">DPIB 11-2</text>
+        </svg>
+      `
+      document.body.appendChild(deco)
+
+      // add more visible per-theme extras inside the deco container
+      try {
+        switch(themeName) {
+          case 'cyberpunk':
+            deco.insertAdjacentHTML('beforeend', `
+              <svg aria-hidden="true"><defs></defs>
+                <rect width="100%" height="100%" fill="none" />
+                <g opacity="0.25">
+                  <rect x="0" y="0" width="100%" height="100%" fill="url(#)" />
+                </g>
+              </svg>
+              <div class="deco-scanlines" style="position:absolute;inset:0;mix-blend-mode:overlay;opacity:0.6;
+                background:linear-gradient(to bottom, rgba(255,0,255,0.06) 0%, transparent 6%);"></div>
+            `)
+            break
+          case 'ocean':
+            deco.insertAdjacentHTML('beforeend', `
+              <svg aria-hidden="true">
+                <g fill="rgba(255,255,255,0.08)">
+                  <circle cx="10%" cy="90%" r="80"></circle>
+                  <circle cx="80%" cy="70%" r="60"></circle>
+                  <circle cx="40%" cy="60%" r="40"></circle>
+                </g>
+              </svg>
+            `)
+            break
+          case 'retro':
+            deco.insertAdjacentHTML('beforeend', `
+              <div class="deco-polaroids" style="position:absolute;left:6%;top:10%;width:220px;height:160px;">
+                <svg aria-hidden="true" viewBox="0 0 220 160" xmlns="http://www.w3.org/2000/svg">
+                  <rect x="0" y="0" width="80" height="100" fill="rgba(255,255,255,0.06)" rx="6"/>
+                  <rect x="30" y="20" width="80" height="100" fill="rgba(255,255,255,0.04)" rx="6"/>
+                  <rect x="70" y="10" width="80" height="100" fill="rgba(255,255,255,0.03)" rx="6"/>
+                </svg>
+              </div>
+            `)
+            break
+          case 'forest':
+            // generate animated falling leaves for forest theme
+            if(typeof generateLeaves === 'function') {
+              generateLeaves(deco, 12)
+            } else {
+              // fallback: simple silhouette
+              deco.insertAdjacentHTML('beforeend', `
+                <svg aria-hidden="true">
+                  <g fill="rgba(21,128,61,0.12)">
+                    <ellipse cx="8%" cy="70%" rx="60" ry="18"/>
+                    <ellipse cx="35%" cy="60%" rx="80" ry="20"/>
+                    <ellipse cx="75%" cy="65%" rx="70" ry="18"/>
+                  </g>
+                </svg>
+              `)
+            }
+            break
+          case 'nord':
+            deco.insertAdjacentHTML('beforeend', `
+              <svg aria-hidden="true">
+                <defs>
+                  <linearGradient id="aur" x1="0" x2="1">
+                    <stop offset="0%" stop-color="#88c0d0" stop-opacity="0.18" />
+                    <stop offset="100%" stop-color="#81a1c1" stop-opacity="0.08" />
+                  </linearGradient>
+                </defs>
+                <rect x="0" y="10%" width="100%" height="30%" fill="url(#aur)" opacity="0.9" />
+              </svg>
+            `)
+            break
+          default:
+            // no extra
+            break
+        }
+      } catch(e) { console.warn('deco insert failed', e) }
+
+      // show a small toast to indicate theme change (visible)
+      const toast = document.createElement('div')
+      toast.className = 'theme-toast'
+      toast.textContent = themeName.charAt(0).toUpperCase() + themeName.slice(1) + ' theme'
+      document.body.appendChild(toast)
+      // animate toast
+      setTimeout(() => toast.classList.add('show'), 20)
+      setTimeout(() => toast.classList.remove('show'), 2600)
+      setTimeout(() => toast.remove(), 3000)
+    }
 
     // ============================================
     // NAVBAR SCROLL EFFECT
