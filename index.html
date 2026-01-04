@@ -182,8 +182,12 @@
       gap: 1rem;
       align-items: center;
       list-style: none;
-      flex-wrap: wrap;
-      justify-content: center;
+      /* keep navbar items on a single row and allow horizontal scroll on small screens */
+      flex-wrap: nowrap;
+      justify-content: flex-start;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      padding-bottom: 0.25rem;
     }
 
     .nav-menu a {
@@ -194,6 +198,7 @@
       display: flex;
       align-items: center;
       gap: 0.4rem;
+      white-space: nowrap;
     }
 
     .nav-menu a:hover,

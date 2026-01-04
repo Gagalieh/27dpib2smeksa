@@ -111,14 +111,37 @@ const toggleBtn = $('#btn-toggle-sidebar')
 // Initialize: on mobile, sidebar starts hidden; on desktop, always visible
 function initSidebarState() {
   if (window.innerWidth <= 768) {
-    sidebar.classList.add('mobile-open') // Keep it closed initially for mobile, but allow toggle
+    // Start mobile with collapsed (icons-only) state visible
+    sidebar.classList.remove('mobile-open')
+    sidebar.classList.add('mobile-collapsed')
+    sidebar.classList.add('collapsed')
+  } else {
+    // Desktop: ensure full sidebar is visible and not compacted
+    sidebar.classList.remove('mobile-collapsed')
+    sidebar.classList.remove('mobile-open')
+    sidebar.classList.remove('collapsed')
   }
 }
 
 // Toggle sidebar on button click
 if(toggleBtn) {
   toggleBtn.addEventListener('click', () => {
-    sidebar.classList.toggle('mobile-open')
+    if (window.innerWidth <= 768) {
+      // On mobile: toggle between expanded and collapsed (icons-only)
+      const isOpen = sidebar.classList.contains('mobile-open')
+      if (isOpen) {
+        sidebar.classList.remove('mobile-open')
+        sidebar.classList.add('mobile-collapsed')
+        sidebar.classList.add('collapsed')
+      } else {
+        sidebar.classList.add('mobile-open')
+        sidebar.classList.remove('mobile-collapsed')
+        sidebar.classList.remove('collapsed')
+      }
+    } else {
+      // Desktop behavior: toggle collapsed/full
+      sidebar.classList.toggle('collapsed')
+    }
   })
 }
 
@@ -126,7 +149,10 @@ if(toggleBtn) {
 $$('.sidebar-link').forEach((link) => {
   link.addEventListener('click', () => {
     if (window.innerWidth <= 768) {
+      // Collapse to icon-strip (do not fully hide)
       sidebar.classList.remove('mobile-open')
+      sidebar.classList.add('mobile-collapsed')
+      sidebar.classList.add('collapsed')
     }
   })
 })
@@ -134,7 +160,16 @@ $$('.sidebar-link').forEach((link) => {
 // Handle window resize
 window.addEventListener('resize', () => {
   if (window.innerWidth > 768) {
-    sidebar.classList.add('mobile-open') // Ensure sidebar visible on desktop
+    // Restore desktop defaults
+    sidebar.classList.remove('mobile-open')
+    sidebar.classList.remove('mobile-collapsed')
+    sidebar.classList.remove('collapsed')
+  } else {
+    // On small screens ensure we are in collapsed mobile state unless explicitly open
+    if (!sidebar.classList.contains('mobile-open')) {
+      sidebar.classList.add('mobile-collapsed')
+      sidebar.classList.add('collapsed')
+    }
   }
 })
 

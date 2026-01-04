@@ -232,13 +232,21 @@ html, body {
     width: 280px;
     height: 100vh;
     z-index: 1000;
-    transform: translateX(-100%);
-    transition: transform 0.3s ease-out;
+    /* start with only icon strip visible (70px):
+       width 280px, margin-left -210px shows rightmost 70px */
+    margin-left: -210px;
+    transition: margin-left 0.28s ease-out;
   }
 
+  /* fully open (expanded) on mobile */
   .sidebar.mobile-open {
-    transform: translateX(0);
+    margin-left: 0;
     box-shadow: 2px 0 10px rgba(0,0,0,0.3);
+  }
+
+  /* when collapsed on mobile, apply compact styling (icons only) */
+  .sidebar.mobile-collapsed {
+    margin-left: -210px;
   }
 
   .admin-dashboard {
@@ -259,16 +267,13 @@ html, body {
 /* Desktop: always show sidebar, never collapse automatically */
 @media (min-width: 769px) {
   .sidebar {
-    transform: translateX(0) !important;
+    margin-left: 0 !important;
   }
 
   .sidebar.mobile-open {
-    transform: translateX(0) !important;
+    margin-left: 0 !important;
   }
 
-  #btn-toggle-sidebar {
-    display: none !important;
-  }
 }
 
 /* MAIN CONTENT */
