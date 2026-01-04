@@ -1,49 +1,751 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Admin — Kelas 11 DPIB 2</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin - Digital Kenangan Kelas</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.css">
+  <link rel="stylesheet" href="admin.css">
 </head>
 <body>
-  <main class="container" style="padding-top:40px">
-    <h1>Admin Panel</h1>
-    <div id="auth-area">
+  <!-- LOGIN PAGE -->
+  <div id="login-page" class="login-page">
+    <div class="login-box">
+      <div class="login-header">
+        <h1>Admin Panel</h1>
+        <p>Digital Kenangan Kelas 11 DPIB 2</p>
+      </div>
       <form id="login-form">
-        <label>Email<br><input id="email" type="email"></label><br>
-        <label>Password<br><input id="password" type="password"></label><br>
-        <button id="login-btn" class="btn">Masuk</button>
+        <div class="form-group">
+          <input type="email" id="login-email" placeholder="Email" required>
+        </div>
+        <div class="form-group">
+          <input type="password" id="login-password" placeholder="Password" required>
+        </div>
+        <button type="submit" class="btn btn-primary btn-full">Login</button>
+        <div class="login-hint">
+          <small>Demo: 27dpib2@smeksa.com / 27dpib2.smeksa</small>
+        </div>
       </form>
     </div>
+  </div>
 
-    <div id="admin-ui" class="hidden">
-      <h2>Dashboard</h2>
-      <div id="admin-stats"></div>
-      <section>
-        <h3>Tambah Photo (drag & drop)</h3>
-        <input id="photo-input" type="file" multiple accept="image/*">
-        <div id="upload-status"></div>
+  <!-- ADMIN DASHBOARD -->
+  <div id="admin-dashboard" class="admin-dashboard hidden">
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <h2>Admin</h2>
+        <div class="sidebar-header-actions">
+          <button id="btn-toggle-sidebar" class="btn-icon" title="Toggle sidebar">
+            <i data-feather="menu"></i>
+          </button>
+          <button id="btn-logout" class="btn-icon btn-logout" title="Logout">
+            <i data-feather="log-out"></i>
+          </button>
+        </div>
+      </div>
+      <nav class="sidebar-nav">
+        <a href="#dashboard" data-tab="dashboard" class="sidebar-link active">
+          <i data-feather="grid"></i> <span>Dashboard</span>
+        </a>
+        <a href="#site-config" data-tab="site-config" class="sidebar-link">
+          <i data-feather="settings"></i> <span>Site Config</span>
+        </a>
+        <a href="#class-profile" data-tab="class-profile" class="sidebar-link">
+          <i data-feather="users"></i> <span>Profil Kelas</span>
+        </a>
+        <a href="#tags" data-tab="tags" class="sidebar-link">
+          <i data-feather="tag"></i> <span>Tags</span>
+        </a>
+        <a href="#gallery-upload" data-tab="gallery-upload" class="sidebar-link">
+          <i data-feather="upload"></i> <span>Upload Galeri</span>
+        </a>
+        <a href="#gallery" data-tab="gallery" class="sidebar-link">
+          <i data-feather="image"></i> <span>Kelola Galeri</span>
+        </a>
+        <a href="#memories" data-tab="memories" class="sidebar-link">
+          <i data-feather="film"></i> <span>Memories</span>
+        </a>
+        <a href="#news" data-tab="news" class="sidebar-link">
+          <i data-feather="feather"></i> <span>Berita</span>
+        </a>
+        <a href="#events" data-tab="events" class="sidebar-link">
+          <i data-feather="calendar"></i> <span>Kegiatan</span>
+        </a>
+        <a href="#guestbook" data-tab="guestbook" class="sidebar-link">
+          <i data-feather="message-square"></i> <span>Guestbook</span>
+        </a>
+        <a href="#help" data-tab="help" class="sidebar-link">
+          <i data-feather="help-circle"></i> <span>Bantuan</span>
+        </a>
+        <hr style="border: none; border-top: 1px solid var(--border-light); margin: 1rem 0;">
+        <a href="#students" data-tab="students" class="sidebar-link" id="nav-students-link" style="display: none;">
+          <i data-feather="users"></i> <span>📋 Siswa</span>
+        </a>
+        <button id="btn-shortcuts" class="sidebar-link" style="width: 100%;">
+          <i data-feather="command"></i> <span>Shortcuts (? or ⌘K)</span>
+        </button>
+      </nav>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+      <!-- DASHBOARD TAB -->
+      <section id="dashboard" class="tab-content active">
+        <div class="content-header">
+          <h1>Dashboard</h1>
+          <p>Statistik website Anda</p>
+        </div>
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon" style="background: rgba(124,58,237,0.2);">
+              <i data-feather="image"></i>
+            </div>
+            <div class="stat-info">
+              <div class="stat-value" id="stat-photos">0</div>
+              <div class="stat-label">Foto</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon" style="background: rgba(245,158,11,0.2);">
+              <i data-feather="hard-drive"></i>
+            </div>
+            <div class="stat-info">
+              <div class="stat-value" id="stat-storage">0 MB</div>
+              <div class="stat-label">Penyimpanan Galeri</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon" style="background: rgba(14,165,233,0.2);">
+              <i data-feather="film"></i>
+            </div>
+            <div class="stat-info">
+              <div class="stat-value" id="stat-memories">0</div>
+              <div class="stat-label">Memories</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon" style="background: rgba(16,185,129,0.2);">
+              <i data-feather="feather"></i>
+            </div>
+            <div class="stat-info">
+              <div class="stat-value" id="stat-news">0</div>
+              <div class="stat-label">Berita</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon" style="background: rgba(59,130,246,0.2);">
+              <i data-feather="calendar"></i>
+            </div>
+            <div class="stat-info">
+              <div class="stat-value" id="stat-events">0</div>
+              <div class="stat-label">Event</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon" style="background: rgba(168,85,247,0.2);">
+              <i data-feather="message-square"></i>
+            </div>
+            <div class="stat-info">
+              <div class="stat-value" id="stat-guests">0</div>
+              <div class="stat-label">Pesan</div>
+            </div>
+          </div>
+        </div>
       </section>
 
-      <section>
-        <h3>Tambah Memory</h3>
-        <form id="add-memory-form">
-          <input id="mem-title" placeholder="Judul"><br>
-          <input id="mem-date" type="date"><br>
-          <textarea id="mem-desc" placeholder="Deskripsi singkat"></textarea><br>
-          <button id="mem-add" class="btn">Tambah Memory</button>
-        </form>
+      <!-- SITE CONFIG TAB -->
+      <section id="site-config" class="tab-content">
+        <div class="content-header">
+          <h1>Konfigurasi Site</h1>
+          <p>Atur tampilan dan konten website publik</p>
+        </div>
+        <div class="form-container">
+          <form id="site-config-form">
+            <div class="form-row">
+              <div class="form-group">
+                <label>Hero Title</label>
+                <input type="text" name="hero_title" placeholder="Judul di hero section">
+              </div>
+              <div class="form-group">
+                <label>Hero Subtitle</label>
+                <input type="text" name="hero_subtitle" placeholder="Subtitle">
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Hero Motto</label>
+              <input type="text" name="hero_motto" placeholder="Motto/tagline kelas">
+            </div>
+            <div class="form-group">
+              <label>Footer Text</label>
+              <input type="text" name="footer_text" placeholder="Teks footer">
+            </div>
+            <div class="form-divider">Social Media</div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Instagram URL</label>
+                <input type="url" name="instagram_url" placeholder="https://instagram.com/...">
+              </div>
+              <div class="form-group">
+                <label>YouTube URL</label>
+                <input type="url" name="youtube_url" placeholder="https://youtube.com/...">
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>TikTok URL</label>
+                <input type="url" name="tiktok_url" placeholder="https://tiktok.com/...">
+              </div>
+              <div class="form-group">
+                <label>WhatsApp</label>
+                <input type="text" name="whatsapp_url" placeholder="https://wa.me/...">
+              </div>
+            </div>
+            <button type="submit" class="btn btn-primary">Simpan Konfigurasi</button>
+          </form>
+        </div>
       </section>
 
-      <section>
-        <h3>Edit / Daftar (bagian bawah)</h3>
-        <div id="admin-list"></div>
+      <!-- CLASS PROFILE TAB -->
+      <section id="class-profile" class="tab-content">
+        <div class="content-header">
+          <h1>Profil Kelas</h1>
+          <p>Atur informasi ketua, wakil, dan wali kelas</p>
+        </div>
+        <div class="form-container">
+          <form id="class-profile-form">
+            <div class="form-divider">Ketua Kelas</div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Nama</label>
+                <input type="text" name="ketua_name" placeholder="Nama ketua kelas">
+              </div>
+              <div class="form-group">
+                <label>Instagram</label>
+                <input type="url" name="ketua_instagram" placeholder="https://instagram.com/...">
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Foto (URL)</label>
+              <input type="url" name="ketua_photo_url" placeholder="https://...jpg">
+            </div>
+
+            <div class="form-divider">Wakil Ketua</div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Nama</label>
+                <input type="text" name="wakil_name" placeholder="Nama wakil ketua">
+              </div>
+              <div class="form-group">
+                <label>Instagram</label>
+                <input type="url" name="wakil_instagram" placeholder="https://instagram.com/...">
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Foto (URL)</label>
+              <input type="url" name="wakil_photo_url" placeholder="https://...jpg">
+            </div>
+
+            <div class="form-divider">Wali Kelas</div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Nama</label>
+                <input type="text" name="wali_name" placeholder="Nama wali kelas">
+              </div>
+              <div class="form-group">
+                <label>Instagram</label>
+                <input type="url" name="wali_instagram" placeholder="https://instagram.com/...">
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Foto (URL)</label>
+              <input type="url" name="wali_photo_url" placeholder="https://...jpg">
+            </div>
+
+            <div class="form-divider">Informasi Kelas</div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Jumlah Siswa</label>
+                <input type="number" name="total_students" min="0" placeholder="Jumlah siswa">
+              </div>
+              <div class="form-group">
+                <label>Nama Sekolah</label>
+                <input type="text" name="school_name" value="SMKN 1 Kota Kediri">
+              </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Simpan Profil</button>
+          </form>
+        </div>
       </section>
+
+      <!-- TAGS TAB -->
+      <section id="tags" class="tab-content">
+        <div class="content-header">
+          <h1>Manajemen Tags</h1>
+          <p>Atur tag untuk kategori foto</p>
+        </div>
+        <div class="form-container">
+          <form id="add-tag-form">
+            <div class="form-row">
+              <div class="form-group">
+                <label>Nama Tag</label>
+                <input type="text" id="tag-name" placeholder="Contoh: Outing" required>
+              </div>
+              <div class="form-group">
+                <label>Warna</label>
+                <input type="color" id="tag-color" value="#7c3aed">
+              </div>
+            </div>
+            <button type="submit" class="btn btn-primary">Tambah Tag</button>
+          </form>
+        </div>
+        <div id="tags-list" class="tags-list"></div>
+      </section>
+
+      <!-- GALLERY UPLOAD TAB -->
+      <section id="gallery-upload" class="tab-content">
+        <div class="content-header">
+          <h1>Upload Galeri</h1>
+          <p>Upload foto dengan preview dan tag</p>
+        </div>
+        <div class="upload-area" id="upload-area">
+          <div class="upload-icon">
+            <i data-feather="upload-cloud"></i>
+          </div>
+          <h3>Drag & drop foto di sini</h3>
+          <p>atau</p>
+          <input type="file" id="file-input" multiple accept="image/*" style="display:none">
+          <button type="button" id="btn-browse" class="btn btn-secondary">Pilih Foto</button>
+        </div>
+        <div id="upload-preview-list" class="upload-preview-list"></div>
+        <div id="upload-progress" class="upload-progress hidden">
+          <div class="progress-bar">
+            <div class="progress-fill"></div>
+          </div>
+          <div class="progress-text"><span id="progress-percent">0</span>%</div>
+        </div>
+        <button id="btn-upload-all" class="btn btn-primary hidden">Upload Semua (<span id="file-count">0</span>)</button>
+      </section>
+
+      <!-- GALLERY MANAGEMENT TAB -->
+      <section id="gallery" class="tab-content">
+        <div class="content-header">
+          <h1>Kelola Galeri</h1>
+          <p>Edit, tag, dan hapus foto</p>
+        </div>
+        <div class="gallery-filter">
+          <input type="text" id="gallery-search" placeholder="Cari foto...">
+          <select id="gallery-filter-tag">
+            <option value="">Semua Tag</option>
+          </select>
+        </div>
+        <div style="display: flex; gap: 0.75rem; margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border-light);">
+          <label style="display: flex; align-items: center; gap: 0.5rem; color: var(--text-secondary); cursor: pointer;">
+            <input type="checkbox" id="gallery-select-all">
+            <span id="gallery-select-label">Pilih Semua</span>
+          </label>
+          <button id="btn-gallery-bulk-tag" class="btn btn-secondary hidden" style="font-size: 0.9rem;">+ Tag Terpilih</button>
+          <button id="btn-gallery-bulk-delete" class="btn btn-danger hidden" style="font-size: 0.9rem;">🗑️ Hapus Terpilih</button>
+        </div>
+        <div id="gallery-grid" class="gallery-grid"></div>
+      </section>
+
+      <!-- MEMORIES TAB -->
+      <section id="memories" class="tab-content">
+        <div class="content-header">
+          <h1>Manajemen Memories</h1>
+          <p>Buat dan kelola timeline memories</p>
+        </div>
+        <button id="btn-add-memory" class="btn btn-primary">+ Tambah Memory</button>
+        <div id="memories-list" class="memories-list"></div>
+      </section>
+
+      <!-- NEWS TAB -->
+      <section id="news" class="tab-content">
+        <div class="content-header">
+          <h1>Manajemen Berita</h1>
+          <p>Buat dan kelola artikel berita</p>
+        </div>
+        <button id="btn-add-news" class="btn btn-primary">+ Tambah Berita</button>
+        <div id="news-list" class="news-list"></div>
+      </section>
+
+      <!-- EVENTS TAB -->
+      <section id="events" class="tab-content">
+        <div class="content-header">
+          <h1>Manajemen Kegiatan</h1>
+          <p>Atur event dan kegiatan kelas</p>
+        </div>
+        <button id="btn-add-event" class="btn btn-primary">+ Tambah Event</button>
+        <div id="events-list" class="events-list"></div>
+      </section>
+
+      <!-- STUDENTS TAB (SUPERADMIN ONLY) -->
+      <section id="students" class="tab-content">
+        <div class="content-header">
+          <h1>📋 Daftar Siswa</h1>
+          <p>Kelola data siswa kelas (Superadmin Only)</p>
+        </div>
+        <div class="students-actions" style="margin-bottom: 1.5rem;">
+          <button id="btn-add-student" class="btn btn-primary">+ Tambah Siswa</button>
+        </div>
+        <div id="students-table-container" style="overflow-x: auto;">
+          <table id="students-table" class="admin-table">
+            <thead>
+              <tr>
+                <th>No. Siswa</th>
+                <th>Nama</th>
+                <th>Email</th>
+                <th>Telepon</th>
+                <th>Instagram</th>
+                <th>Alamat</th>
+                <th>Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="students-tbody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- GUESTBOOK TAB -->
+      <section id="guestbook" class="tab-content">
+        <div class="content-header">
+          <h1>Moderasi Guestbook</h1>
+          <p>Kelola pesan dari pengunjung</p>
+        </div>
+        <div id="guestbook-list" class="guestbook-list"></div>
+      </section>
+
+      <!-- HELP TAB -->
+      <section id="help" class="tab-content">
+        <div class="content-header">
+          <h1>Bantuan Admin Panel</h1>
+          <p>Panduan lengkap penggunaan sistem</p>
+        </div>
+        <div class="help-container">
+          <div class="help-section">
+            <h3>🔐 Login & Keamanan</h3>
+            <p>Gunakan email dan password yang telah diberikan untuk login. Jangan bagikan kredensial admin ke pihak lain.</p>
+          </div>
+
+          <div class="help-section">
+            <h3>📸 Upload Galeri</h3>
+            <ul class="help-list">
+              <li><strong>Drag & drop:</strong> Seret foto ke area upload atau klik tombol "Pilih Foto"</li>
+              <li><strong>Tambah tag:</strong> Klik tombol tag untuk menambahkan kategori foto</li>
+              <li><strong>Multiple tag:</strong> Bisa menambahkan lebih dari 1 tag per foto</li>
+              <li><strong>Atur title & caption:</strong> Isi informasi untuk setiap foto sebelum upload</li>
+              <li><strong>Upload:</strong> Klik "Upload Semua" untuk mengirim semua foto ke server</li>
+            </ul>
+          </div>
+
+          <div class="help-section">
+            <h3>🖼️ Kelola Galeri</h3>
+            <ul class="help-list">
+              <li><strong>Cari & filter:</strong> Gunakan search atau filter tag untuk menemukan foto</li>
+              <li><strong>Edit foto:</strong> Klik tombol "Edit" untuk mengubah title, caption, dan tag</li>
+              <li><strong>Bulk tag:</strong> Pilih beberapa foto lalu klik "Tambah Tag ke Terpilih" untuk assign tag secara massal</li>
+              <li><strong>Bulk delete:</strong> Pilih foto lalu klik "Hapus Terpilih" untuk menghapus multiple files</li>
+              <li><strong>Ganti foto:</strong> Pada modal edit, bisa mengganti foto dengan yang baru</li>
+            </ul>
+          </div>
+
+          <div class="help-section">
+            <h3>🏷️ Manajemen Tags</h3>
+            <p>Buat kategori untuk mengelompokkan foto. Contoh: Outing, Upacara, Pelajaran, dll. Setiap tag bisa punya warna sendiri.</p>
+          </div>
+
+          <div class="help-section">
+            <h3>⚙️ Site Config</h3>
+            <p>Atur judul, subtitle, motto kelas dan social media links yang muncul di halaman publik.</p>
+          </div>
+
+          <div class="help-section">
+            <h3>👥 Profil Kelas</h3>
+            <p>Masukkan data ketua, wakil, dan wali kelas beserta foto dan Instagram mereka.</p>
+          </div>
+
+          <div class="help-section">
+            <h3>📅 Memories, Berita, Kegiatan</h3>
+            <ul class="help-list">
+              <li><strong>Memories:</strong> Timeline momen spesial dengan foto-foto pilihan</li>
+              <li><strong>Berita:</strong> Artikel & pengumuman (bisa draft atau publish)</li>
+              <li><strong>Kegiatan:</strong> Event & jadwal kelas dengan countdown hari</li>
+            </ul>
+          </div>
+
+          <div class="help-section">
+            <h3>💬 Moderasi Guestbook</h3>
+            <p>Review dan hapus pesan dari pengunjung website. Setiap pesan masuk akan muncul di sini.</p>
+          </div>
+
+          <div class="help-section">
+            <h3>❓ Troubleshooting</h3>
+            <ul class="help-list">
+              <li><strong>Foto tidak upload:</strong> Pastikan koneksi internet stabil dan ukuran foto tidak terlalu besar</li>
+              <li><strong>Foto hilang setelah refresh:</strong> Cek RLS di Supabase atau hubungi admin teknis</li>
+              <li><strong>Perubahan tidak muncul:</strong> Refresh halaman browser atau clear cache</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- MODALS -->
+  <div id="modal-gallery-edit" class="modal hidden">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Edit Foto</h2>
+        <button type="button" class="btn-close">&times;</button>
+      </div>
+      <form id="gallery-edit-form" class="modal-form">
+        <div class="form-group">
+          <label>Foto Preview</label>
+          <img id="gallery-edit-preview" style="width: 100%; max-height: 300px; border-radius: 8px; object-fit: cover; margin-bottom: 1rem;">
+        </div>
+        <div class="form-group">
+          <label>Ganti Foto (Opsional)</label>
+          <input type="file" id="gallery-edit-file-input" accept="image/*">
+          <small style="color: var(--text-secondary); margin-top: 0.5rem; display: block;">Biarkan kosong jika tidak ingin mengganti</small>
+        </div>
+        <div class="form-group">
+          <label>Judul</label>
+          <input type="text" id="gallery-edit-title" required>
+        </div>
+        <div class="form-group">
+          <label>Caption</label>
+          <input type="text" id="gallery-edit-caption">
+        </div>
+        <div class="form-group">
+          <label>Tags</label>
+          <div id="gallery-edit-tags-container" style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.5rem;"></div>
+        </div>
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary">Simpan</button>
+          <button type="button" class="btn btn-secondary btn-cancel">Batal</button>
+        </div>
+      </form>
     </div>
+  </div>
 
-  </main>
-  <script src="/admin.js" defer></script>
+  <div id="modal-bulk-tag" class="modal hidden">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Tambah Tag ke <span id="bulk-tag-count">0</span> Foto</h2>
+        <button type="button" class="btn-close">&times;</button>
+      </div>
+      <div class="modal-form">
+        <div class="form-group">
+          <label>Pilih Tag untuk Ditambahkan</label>
+          <div id="bulk-tag-options" style="display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 0.75rem;"></div>
+        </div>
+        <div class="form-actions" style="margin-top: 1.5rem;">
+          <button id="btn-bulk-tag-add" class="btn btn-primary">Tambah Tag</button>
+          <button type="button" class="btn btn-secondary btn-cancel">Batal</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="modal-shortcuts" class="modal hidden">
+    <div class="modal-content" style="max-width: 600px;">
+      <div class="modal-header">
+        <h2>⌨️ Keyboard Shortcuts</h2>
+        <button type="button" class="btn-close">&times;</button>
+      </div>
+      <div class="modal-form">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+          <div>
+            <h4 style="color: var(--primary); margin-bottom: 0.75rem;">Navigation</h4>
+            <ul style="list-style: none; gap: 0.5rem; display: flex; flex-direction: column;">
+              <li><kbd style="background: var(--bg-darker); padding: 0.3rem 0.6rem; border-radius: 4px; font-size: 0.8rem;">?</kbd> / <kbd style="background: var(--bg-darker); padding: 0.3rem 0.6rem; border-radius: 4px; font-size: 0.8rem;">⌘K</kbd> - Buka shortcuts</li>
+              <li><kbd style="background: var(--bg-darker); padding: 0.3rem 0.6rem; border-radius: 4px; font-size: 0.8rem;">Esc</kbd> - Tutup modal</li>
+              <li><kbd style="background: var(--bg-darker); padding: 0.3rem 0.6rem; border-radius: 4px; font-size: 0.8rem;">⌘D</kbd> - Go to Dashboard</li>
+              <li><kbd style="background: var(--bg-darker); padding: 0.3rem 0.6rem; border-radius: 4px; font-size: 0.8rem;">⌘G</kbd> - Go to Gallery</li>
+            </ul>
+          </div>
+          <div>
+            <h4 style="color: var(--secondary); margin-bottom: 0.75rem;">Actions</h4>
+            <ul style="list-style: none; gap: 0.5rem; display: flex; flex-direction: column;">
+              <li><kbd style="background: var(--bg-darker); padding: 0.3rem 0.6rem; border-radius: 4px; font-size: 0.8rem;">⌘S</kbd> - Save Form</li>
+              <li><kbd style="background: var(--bg-darker); padding: 0.3rem 0.6rem; border-radius: 4px; font-size: 0.8rem;">⌘E</kbd> - Export Gallery</li>
+              <li><kbd style="background: var(--bg-darker); padding: 0.3rem 0.6rem; border-radius: 4px; font-size: 0.8rem;">⌘L</kbd> - Logout</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="loading-overlay" class="loading-overlay hidden">
+    <div class="loading-spinner"></div>
+    <p id="loading-text">Loading...</p>
+  </div>
+
+  <div id="modal-memory" class="modal hidden">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Memory Form</h2>
+        <button type="button" class="btn-close">&times;</button>
+      </div>
+      <form id="memory-form" class="modal-form">
+        <div class="form-group">
+          <label>Judul Memory</label>
+          <input type="text" name="title" required>
+        </div>
+        <div class="form-group">
+          <label>Tanggal</label>
+          <input type="date" name="memory_date" required>
+        </div>
+        <div class="form-group">
+          <label>Deskripsi</label>
+          <textarea name="description" rows="3"></textarea>
+        </div>
+        <div class="form-group">
+          <label>Pilih Foto dari Galeri</label>
+          <div style="display: flex; gap: 0.75rem; margin-bottom: 0.75rem;">
+            <input type="text" id="memory-photo-search" placeholder="Cari foto..." style="flex: 1; padding: 0.75rem 1rem; background: rgba(255, 255, 255, 0.05); border: 1px solid var(--border); border-radius: 8px; color: var(--text-primary);">
+            <select id="memory-photo-filter-tag" style="padding: 0.75rem 1rem; background: rgba(255, 255, 255, 0.05); border: 1px solid var(--border); border-radius: 8px; color: var(--text-primary);">
+              <option value="">Semua Tag</option>
+            </select>
+          </div>
+          <div id="memory-photo-list" class="memory-photo-list"></div>
+        </div>
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary">Simpan</button>
+          <button type="button" class="btn btn-secondary btn-cancel">Batal</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="modal-news" class="modal hidden">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>News Form</h2>
+        <button type="button" class="btn-close">&times;</button>
+      </div>
+      <form id="news-form" class="modal-form">
+        <div class="form-group">
+          <label>Judul</label>
+          <input type="text" name="title" required>
+        </div>
+        <div class="form-group">
+          <label>Ringkasan</label>
+          <textarea name="summary" rows="2"></textarea>
+        </div>
+        <div class="form-group">
+          <label>Isi Lengkap</label>
+          <textarea name="content" rows="4"></textarea>
+        </div>
+        <div class="form-group">
+          <label>Thumbnail URL</label>
+          <input type="url" name="thumbnail_url">
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Tanggal Publish</label>
+            <input type="date" name="publish_date" required>
+          </div>
+          <div class="form-group">
+            <label>Status</label>
+            <select name="status">
+              <option value="draft">Draft</option>
+              <option value="published">Published</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary">Simpan</button>
+          <button type="button" class="btn btn-secondary btn-cancel">Batal</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="modal-event" class="modal hidden">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Event Form</h2>
+        <button type="button" class="btn-close">&times;</button>
+      </div>
+      <form id="event-form" class="modal-form">
+        <div class="form-group">
+          <label>Judul Event</label>
+          <input type="text" name="title" required>
+        </div>
+        <div class="form-group">
+          <label>Deskripsi</label>
+          <textarea name="description" rows="3"></textarea>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Tanggal</label>
+            <input type="date" name="event_date" required>
+          </div>
+          <div class="form-group">
+            <label>Waktu</label>
+            <input type="time" name="event_time">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Lokasi</label>
+          <input type="text" name="location">
+        </div>
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary">Simpan</button>
+          <button type="button" class="btn btn-secondary btn-cancel">Batal</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- STUDENTS FORM MODAL -->
+  <div id="modal-student" class="modal hidden">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 id="student-form-title">Tambah Siswa</h2>
+        <button type="button" class="btn-close">&times;</button>
+      </div>
+      <form id="student-form" class="modal-form">
+        <div class="form-group">
+          <label>Nomor Siswa *</label>
+          <input type="number" name="student_number" required>
+        </div>
+        <div class="form-group">
+          <label>Nama Lengkap *</label>
+          <input type="text" name="name" required>
+        </div>
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" name="email">
+        </div>
+        <div class="form-group">
+          <label>Telepon</label>
+          <input type="tel" name="phone">
+        </div>
+        <div class="form-group">
+          <label>Instagram</label>
+          <input type="text" name="instagram" placeholder="@username">
+        </div>
+        <div class="form-group">
+          <label>Alamat</label>
+          <textarea name="address" rows="2"></textarea>
+        </div>
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary">Simpan</button>
+          <button type="button" class="btn btn-secondary" onclick="document.getElementById('modal-student').classList.add('hidden')">Batal</button>
+        </div>
+        <input type="hidden" id="student-id" name="id">
+      </form>
+    </div>
+  </div>
+
+  <script src="config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+  <script type="module" src="admin.js"></script>
 </body>
 </html>

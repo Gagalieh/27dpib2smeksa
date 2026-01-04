@@ -1,260 +1,2318 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Kelas 11 DPIB 2 — SMKN 1 KOTA KEDIRI</title>
-  <meta name="description" content="Showcase & memories Kelas 11 DPIB 2 SMKN 1 Kota Kediri. Foto, event, berita dan kenangan.">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Digital Kenangan Kelas 11 DPIB 2 SMKN 1 Kota Kediri - Galeri foto, memories, timeline, dan dokumentasi kelas digital yang interaktif dan modern.">
+  <meta name="keywords" content="kelas 11 DPIB 2, SMKN 1 Kota Kediri, memories, galeri, timeline, digital kenangan">
+  <meta name="author" content="Kelas 11 DPIB 2">
+  <meta name="theme-color" content="#7c3aed">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Digital Kenangan Kelas 11 DPIB 2">
+  <meta property="og:description" content="Jelajahi memories, galeri foto, dan cerita indah Kelas 11 DPIB 2 SMKN 1 Kota Kediri.">
+  <meta property="og:url" content="https://kelas11dpib2.com">
+  <meta property="og:image" content="https://kelas11dpib2.com/og-image.jpg">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Digital Kenangan Kelas 11 DPIB 2">
+  <meta name="twitter:description" content="Jelajahi memories, galeri foto, dan cerita indah Kelas 11 DPIB 2.">
+  <link rel="canonical" href="https://kelas11dpib2.com">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='75' font-size='75'>💎</text></svg>">
+  <!-- feather icons loaded via script at bottom -->
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
-  <!-- Open Graph placeholders -->
-  <meta property="og:title" content="Kelas 11 DPIB 2 — SMKN 1 KOTA KEDIRI">
-  <meta property="og:description" content="Showcase & memories Kelas 11 DPIB 2">
-  <meta property="og:image" content="/assets/og-hero.jpg">
+    :root {
+      /* Theme Variables - Default Dark */
+      --primary: #7c3aed;
+      --primary-rgb: 124,58,237;
+      --secondary: #0ea5e9;
+      --success: #10b981;
+      --danger: #ef4444;
+      --text-primary: #f1f5f9;
+      --text-secondary: #cbd5e1;
+      --bg-dark: #09090b;
+      --bg-card: #0f172a;
+      --border: #1e293b;
+      --nav-bg: rgba(9, 9, 11, 0.7);
+    }
 
-  <!-- Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    /* THEMES */
+    body.theme-light {
+      --primary: #6366f1;
+      --primary-rgb: 99,102,241;
+      --secondary: #06b6d4;
+      --text-primary: #1f2937;
+      --text-secondary: #6b7280;
+      --bg-dark: #f9fafb;
+      --bg-card: #ffffff;
+      --border: #e5e7eb;
+      --nav-bg: rgba(255, 255, 255, 0.7);
+    }
 
-  <!-- Feather icons (script will be executed in script.js with feather.replace()) -->
-  <script src="https://unpkg.com/feather-icons"></script>
+    body.theme-sunset {
+      --primary: #f97316;
+      --primary-rgb: 249,115,22;
+      --secondary: #ec4899;
+      --text-primary: #fef3c7;
+      --text-secondary: #fed7aa;
+      --bg-dark: #7c2d12;
+      --bg-card: #b45309;
+      --border: #d97706;
+      --nav-bg: rgba(124, 45, 18, 0.8);
+    }
 
-  <!-- Styles -->
-  <link rel="stylesheet" href="style.css">
+    body.theme-ocean {
+      --primary: #0369a1;
+      --primary-rgb: 3,105,161;
+      --secondary: #0891b2;
+      --text-primary: #cffafe;
+      --text-secondary: #a5f3fc;
+      --bg-dark: #082f49;
+      --bg-card: #0c4a6e;
+      --border: #164e63;
+      --nav-bg: rgba(8, 47, 73, 0.8);
+    }
 
-  <!-- Environment/config (Netlify will inject actual values into this block or script.js will read window.__CONFIG__) -->
-  <script id="env-config" type="application/json">
-  {
-    "SUPABASE_URL": "",
-    "SUPABASE_ANON_KEY": "",
-    "CLOUDINARY_CLOUD_NAME": "",
-    "CLOUDINARY_UPLOAD_PRESET": ""
-  }
-  </script>
+    body.theme-forest {
+      --primary: #15803d;
+      --secondary: #059669;
+      --text-primary: #dcfce7;
+      --text-secondary: #bbf7d0;
+      --bg-dark: #052e16;
+      --bg-card: #166534;
+      --border: #15803d;
+      --nav-bg: rgba(5, 46, 22, 0.8);
+    }
 
-  <meta name="theme-color" content="#7C5CFF66">
+    body.theme-neon {
+      --primary: #ff006e;
+      --secondary: #00f5ff;
+      --text-primary: #ffffff;
+      --text-secondary: #b0ffff;
+      --bg-dark: #0a0e27;
+      --bg-card: #1a1f3a;
+      --border: #00f5ff;
+      --nav-bg: rgba(10, 14, 39, 0.9);
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: 'Arial', sans-serif;
+      background: linear-gradient(135deg, var(--bg-dark) 0%, var(--bg-dark) 100%);
+      color: var(--text-primary);
+      line-height: 1.6;
+      overflow-x: hidden;
+      transition: background 0.3s ease, color 0.3s ease;
+    }
+
+    /* NAVBAR - Starts in header, becomes sticky on scroll */
+    nav {
+      position: absolute;
+      top: 28px;
+      left: 50%;
+      transform: translateX(-50%);
+      max-width: 90%;
+      width: fit-content;
+      padding: 0.75rem 1.25rem;
+      background: var(--nav-bg);
+      backdrop-filter: blur(18px);
+      border: 1px solid var(--border);
+      border-radius: 50px;
+      display: flex;
+      align-items: center;
+      gap: 1.25rem;
+      z-index: 100;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
+      transition: all 0.32s ease;
+    }
+
+    /* When scrolled past the hero, make the nav sticky and show only icons */
+    nav.scrolled {
+      position: fixed;
+      top: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: auto;
+      padding: 0.5rem 0.75rem;
+      border-radius: 40px;
+      justify-content: center;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.25);
+      backdrop-filter: blur(10px);
+    }
+
+    /* Hide text in nav links when scrolled */
+    nav.scrolled .nav-logo {
+      display: none;
+    }
+
+    nav.scrolled .nav-menu a {
+      font-size: 0;
+      gap: 0;
+    }
+
+    nav.scrolled .nav-menu svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    nav.scrolled .theme-switcher {
+      border-left: none;
+      padding-left: 0;
+    }
+
+    .nav-logo {
+      font-size: 1.05rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .nav-menu {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+      list-style: none;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .nav-menu a {
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 0.92rem;
+      transition: color 0.28s;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .nav-menu a:hover,
+    .nav-menu a.active {
+      color: var(--primary);
+    }
+
+    .nav-menu svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    /* Theme switcher: show only a toggle; reveal panel when toggled */
+    .theme-switcher {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+      padding-left: 1rem;
+      border-left: 1px solid var(--border);
+      position: relative;
+    }
+
+    .theme-toggle {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 1rem;
+    }
+
+    /* Skip link for accessibility */
+    .skip-link {
+      position: absolute;
+      left: 8px;
+      top: -40px;
+      background: var(--bg-card);
+      color: var(--text-primary);
+      padding: 8px 12px;
+      border-radius: 6px;
+      z-index: 200;
+      transition: top 0.18s ease;
+      text-decoration: none;
+      font-weight: 700;
+    }
+
+    .skip-link:focus {
+      top: 8px;
+      outline: 3px solid var(--primary);
+    }
+
+    /* Respect prefers-reduced-motion */
+    @media (prefers-reduced-motion: reduce) {
+      * {
+        animation-duration: 0.001ms !important;
+        transition-duration: 0.001ms !important;
+      }
+    }
+
+    .theme-panel {
+      position: absolute;
+      right: 0;
+      top: 48px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      padding: 0.6rem;
+      border-radius: 10px;
+      display: none;
+      gap: 0.5rem;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.25);
+    }
+
+    .theme-panel.open {
+      display: flex;
+      flex-wrap: wrap;
+    }
+
+    .theme-btn {
+      width: 34px;
+      height: 34px;
+      border: none;
+      border-radius: 8px;
+      background: var(--bg-card);
+      color: var(--text-primary);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.22s;
+      font-size: 0.9rem;
+      padding: 0.15rem;
+    }
+
+    .theme-btn:hover,
+    .theme-btn.active {
+      background: var(--primary);
+      transform: translateY(-3px);
+      color: white;
+    }
+
+    @media (max-width: 768px) {
+      nav {
+        top: 14px;
+        gap: 0.75rem;
+        padding: 0.4rem 0.8rem;
+      }
+
+      .nav-menu {
+        gap: 0.6rem;
+      }
+
+      .nav-menu a {
+        font-size: 0.8rem;
+      }
+
+      .nav-menu svg {
+        width: 16px;
+        height: 16px;
+      }
+
+      .theme-panel { top: 42px; }
+
+      .theme-btn {
+        width: 28px;
+        height: 28px;
+        border-radius: 6px;
+      }
+    }
+
+    /* MAIN CONTENT */
+    main {
+      margin-top: 140px;
+      padding: 0 1rem;
+    }
+
+    section {
+      max-width: 1400px;
+      margin: 4rem auto;
+      padding: 0 1rem;
+    }
+
+    /* HERO */
+    .hero {
+      text-align: center;
+      padding: 3rem 1rem;
+      background: linear-gradient(135deg, var(--bg-card) 0%, transparent 100%);
+      border-radius: 20px;
+      margin-bottom: 4rem;
+    }
+
+    .hero h1 {
+      font-size: 3rem;
+      margin-bottom: 0.5rem;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero p {
+      font-size: 1.2rem;
+      color: var(--text-secondary);
+      margin-bottom: 0.5rem;
+    }
+
+    .hero .motto {
+      font-size: 1rem;
+      color: var(--secondary);
+      font-style: italic;
+    }
+
+    @media (max-width: 768px) {
+      main {
+        margin-top: 100px;
+      }
+
+      .hero {
+        padding: 2rem 1rem;
+        margin-bottom: 2rem;
+      }
+
+      .hero h1 {
+        font-size: 2rem;
+      }
+
+      .hero p {
+        font-size: 1rem;
+      }
+    }
+
+    /* CLASS PROFILE */
+    .class-profile {
+      background: var(--bg-card);
+      border-radius: 15px;
+      padding: 2rem;
+      border: 1px solid var(--border);
+      margin-bottom: 3rem;
+    }
+
+    .profile-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    .profile-card {
+      text-align: center;
+    }
+
+    .profile-photo {
+      width: 150px;
+      height: 150px;
+      border-radius: 50%;
+      margin: 0 auto 1rem;
+      object-fit: cover;
+      border: 3px solid var(--primary);
+    }
+
+    .profile-placeholder {
+      width: 150px;
+      height: 150px;
+      border-radius: 50%;
+      margin: 0 auto 1rem;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 3rem;
+      color: var(--bg-dark);
+      border: 3px solid var(--primary);
+      font-weight: bold;
+    }
+
+    .profile-card h3 {
+      margin-bottom: 0.5rem;
+    }
+
+    .profile-card p {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+    }
+
+    .student-count {
+      text-align: center;
+      padding: 1.5rem;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      border-radius: 10px;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .student-count h3 {
+      color: white;
+      font-size: 2rem;
+    }
+
+    .student-count p {
+      color: rgba(255, 255, 255, 0.8);
+    }
+
+    @media (max-width: 768px) {
+      .class-profile {
+        padding: 1.5rem;
+      }
+
+      .profile-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+      }
+
+      .profile-photo,
+      .profile-placeholder {
+        width: 120px;
+        height: 120px;
+        font-size: 2.5rem;
+      }
+    }
+
+    /* TIMELINE STYLE FOR MEMORIES - MODERN & MINIMALIST WITH PHOTO */
+    .memories {
+      position: relative;
+      padding: 3rem 0;
+    }
+
+    .memories-timeline {
+      position: relative;
+      max-width: 1000px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      padding: 2rem;
+    }
+
+    /* Vertical connecting line */
+    .memories-timeline:before {
+      content: '';
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      top: 40px;
+      bottom: 0;
+      width: 2px;
+      background: linear-gradient(180deg, var(--primary) 0%, var(--primary) 80%, transparent 100%);
+      z-index: 0;
+    }
+
+    .timeline-item {
+      position: relative;
+      display: flex;
+      gap: 2.5rem;
+      align-items: center;
+      padding: 2.5rem 0;
+      cursor: pointer;
+      z-index: 1;
+    }
+
+    /* Alternating layout - odd items left, even items right */
+    .timeline-item:nth-child(odd) {
+      flex-direction: row;
+    }
+
+    .timeline-item:nth-child(even) {
+      flex-direction: row-reverse;
+    }
+
+    /* Circular dot indicator */
+    .timeline-item:before {
+      content: '';
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 16px;
+      height: 16px;
+      background: var(--primary);
+      border: 3px solid var(--bg-body);
+      border-radius: 50%;
+      z-index: 2;
+      box-shadow: 0 0 0 2px var(--primary), 0 0 0 4px var(--bg-body);
+      transition: all 0.3s ease;
+    }
+
+    .timeline-item:hover:before {
+      width: 24px;
+      height: 24px;
+      box-shadow: 0 0 0 3px var(--primary), 0 0 0 6px var(--bg-body), 0 0 15px rgba(var(--primary-rgb), 0.4);
+    }
+
+    /* Photo frame */
+    .film-strip {
+      flex: 0 0 280px;
+      position: relative;
+      z-index: 1;
+      display: flex;
+      justify-content: center;
+    }
+
+    .film-frame {
+      position: relative;
+      width: 220px;
+      height: 200px;
+      background: #000;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+      transition: all 0.3s ease;
+    }
+
+    .film-frame:hover {
+      box-shadow: 0 12px 28px rgba(var(--primary-rgb), 0.25);
+      transform: translateY(-4px);
+    }
+
+    .film-frame img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: opacity 0.5s ease;
+    }
+
+    /* Content wrapper */
+    .timeline-info {
+      flex: 1;
+      max-width: 380px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.8rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      transition: all 0.3s ease;
+    }
+
+    .timeline-info:hover {
+      border-color: var(--primary);
+      box-shadow: 0 8px 24px rgba(var(--primary-rgb), 0.15);
+      transform: translateY(-4px);
+    }
+
+    .timeline-info h3 {
+      margin: 0 0 0.6rem 0;
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: var(--primary);
+      line-height: 1.2;
+    }
+
+    .timeline-info small {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+      margin-bottom: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 0.3px;
+    }
+
+    .timeline-info p {
+      color: var(--text-secondary);
+      line-height: 1.6;
+      margin: 0;
+      font-size: 0.95rem;
+    }
+
+    @media (max-width: 768px) {
+      .memories-timeline {
+        padding: 1rem;
+      }
+
+      .memories-timeline:before {
+        left: 30px;
+        transform: translateX(-50%);
+      }
+
+      .timeline-item,
+      .timeline-item:nth-child(even) {
+        flex-direction: column;
+        gap: 1.5rem;
+        padding: 1.5rem 0 1.5rem 70px;
+        align-items: flex-start;
+      }
+
+      .timeline-item:before {
+        left: 30px;
+        transform: translateX(-50%);
+      }
+
+      .film-strip {
+        width: 100%;
+        flex: 1;
+        margin-left: -70px;
+        justify-content: flex-start;
+      }
+
+      .film-frame {
+        width: 180px;
+        height: 160px;
+      }
+
+      .timeline-info {
+        width: 100%;
+        max-width: 100%;
+      }
+    }
+
+    .timeline-info h3 {
+      margin: 0 0 0.8rem 0;
+      font-size: 1.2rem;
+      color: var(--primary);
+    }
+
+    .timeline-info small {
+      color: var(--text-secondary);
+      font-size: 0.95rem;
+      margin-bottom: 1rem;
+    }
+
+    .timeline-info p {
+      color: var(--text-secondary);
+      line-height: 1.5;
+      margin: 0;
+    }
+
+    /* MEMORIES MODAL */
+    .memories-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.7);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 300;
+      backdrop-filter: blur(5px);
+    }
+
+    .memories-modal.active {
+      display: flex;
+    }
+
+    .memories-modal-content {
+      background: var(--bg-card);
+      border-radius: 15px;
+      padding: 2rem;
+      max-width: 700px;
+      max-height: 85vh;
+      overflow-y: auto;
+      border: 1px solid var(--border);
+      position: relative;
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      width: 40px;
+      height: 40px;
+      border: none;
+      background: var(--border);
+      color: var(--text-primary);
+      border-radius: 8px;
+      font-size: 1.5rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+
+    .modal-close:hover {
+      background: var(--primary);
+    }
+
+    .memory-photos-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 1rem;
+      margin-top: 1.5rem;
+    }
+
+    .memory-photo-thumb {
+      width: 100%;
+      height: 150px;
+      border-radius: 8px;
+      overflow: hidden;
+      cursor: pointer;
+      border: 2px solid var(--border);
+      transition: all 0.3s;
+    }
+
+    .memory-photo-thumb:hover {
+      border-color: var(--primary);
+      transform: scale(1.05);
+    }
+
+    .memory-photo-thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    @media (max-width: 900px) {
+      .timeline-item { flex-direction: column; gap: 1rem; }
+      .timeline-line { left: 20px; }
+    }
+
+    /* GALLERY - MASONRY */
+    .gallery-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .gallery-header h2 {
+      font-size: 2rem;
+    }
+
+    .filter-btn {
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 0.7rem 1.5rem;
+      border-radius: 50px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: all 0.3s;
+      font-size: 1rem;
+    }
+
+    .filter-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    /* FILTER POPUP */
+    .filter-popup {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.7);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 200;
+      backdrop-filter: blur(5px);
+    }
+
+    .filter-popup.active {
+      display: flex;
+    }
+
+    .filter-content {
+      background: var(--bg-card);
+      border-radius: 15px;
+      padding: 2rem;
+      max-width: 500px;
+      border: 1px solid var(--border);
+      max-height: 80vh;
+      overflow-y: auto;
+    }
+
+    .filter-content h3 {
+      margin-bottom: 1rem;
+    }
+
+    .filter-section {
+      margin-bottom: 2rem;
+    }
+
+    .filter-section label {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      display: block;
+      margin-bottom: 0.5rem;
+    }
+
+    .tag-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.7rem;
+    }
+
+    .tag-checkbox {
+      display: none;
+    }
+
+    .tag-label {
+      padding: 0.5rem 1rem;
+      background: var(--border);
+      border-radius: 50px;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-size: 0.85rem;
+      border: 2px solid transparent;
+    }
+
+    .tag-checkbox:checked + .tag-label {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+    }
+
+    .tag-label:hover {
+      border-color: var(--primary);
+    }
+
+    .filter-actions {
+      display: flex;
+      gap: 1rem;
+      margin-top: 1.5rem;
+    }
+
+    .filter-actions button {
+      flex: 1;
+      padding: 0.7rem;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .btn-apply {
+      background: var(--primary);
+      color: white;
+    }
+
+    .btn-apply:hover {
+      background: var(--secondary);
+    }
+
+    .btn-close-filter {
+      background: var(--border);
+      color: var(--text-primary);
+    }
+
+    .btn-close-filter:hover {
+      background: var(--danger);
+    }
+
+    /* MASONRY GALLERY */
+    .gallery-grid {
+      column-count: 4;
+      column-gap: 1rem;
+    }
+
+    .gallery-item {
+      break-inside: avoid;
+      margin-bottom: 1rem;
+      border-radius: 12px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: transform 0.3s, box-shadow 0.3s;
+      position: relative;
+    }
+
+    .gallery-item:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    }
+
+    .gallery-item img {
+      width: 100%;
+      display: block;
+      border-radius: 12px;
+    }
+
+    /* PAGINATION */
+    .pagination {
+      display: flex;
+      justify-content: center;
+      gap: 0.5rem;
+      margin-top: 3rem;
+      flex-wrap: wrap;
+    }
+
+    .pagination button {
+      padding: 0.6rem 1rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      color: var(--text-primary);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .pagination button:hover,
+    .pagination button.active {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: white;
+    }
+
+    @media (max-width: 1200px) {
+      .gallery-grid {
+        column-count: 3;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .gallery-header {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .filter-btn {
+        width: 100%;
+        justify-content: center;
+      }
+
+      .gallery-grid {
+        column-count: 2;
+        column-gap: 0.7rem;
+      }
+
+      .gallery-item {
+        margin-bottom: 0.7rem;
+      }
+
+      .filter-content {
+        max-width: 90vw;
+        padding: 1.5rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .gallery-grid {
+        column-count: 1;
+      }
+    }
+
+    /* LIGHTBOX */
+    .lightbox {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.95);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 300;
+    }
+
+    .lightbox.active {
+      display: flex;
+    }
+
+    .lightbox-content {
+      position: relative;
+      max-width: 90vw;
+      max-height: 90vh;
+    }
+
+    .lightbox-img {
+      max-width: 100%;
+      max-height: 100%;
+      border-radius: 12px;
+    }
+
+    .lightbox-close {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: rgba(255, 255, 255, 0.2);
+      border: none;
+      color: white;
+      font-size: 2rem;
+      cursor: pointer;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s;
+    }
+
+    .lightbox-close:hover {
+      background: rgba(255, 0, 0, 0.5);
+    }
+
+    @media (max-width: 768px) {
+      .lightbox-close {
+        top: 10px;
+        right: 10px;
+        width: 40px;
+        height: 40px;
+        font-size: 1.5rem;
+      }
+    }
+
+    /* MEMORIES */
+    .memories-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+      margin-top: 2rem;
+    }
+
+    .memory-card {
+      background: var(--bg-card);
+      border-radius: 15px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      cursor: pointer;
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+
+    .memory-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    }
+
+    .memory-carousel {
+      position: relative;
+      width: 100%;
+      height: 250px;
+      overflow: hidden;
+      background: var(--border);
+    }
+
+    .memory-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      animation: fade 0.5s ease-in-out;
+    }
+
+    @keyframes fade {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .memory-info {
+      padding: 1.5rem;
+    }
+
+    .memory-info h3 {
+      margin-bottom: 0.5rem;
+    }
+
+    .memory-info p {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+    }
+
+    @media (max-width: 768px) {
+      .memories-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+      }
+
+      .memory-carousel {
+        height: 200px;
+      }
+    }
+
+    /* EVENTS */
+    .event-card {
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      border-radius: 20px;
+      padding: 3rem 2rem;
+      text-align: center;
+      color: white;
+      margin-bottom: 3rem;
+    }
+
+    .event-card h2 {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .event-card p {
+      font-size: 1.1rem;
+      margin-bottom: 1.5rem;
+      opacity: 0.9;
+    }
+
+    .countdown {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1rem;
+      margin-top: 2rem;
+    }
+
+    .countdown-item {
+      background: rgba(255, 255, 255, 0.2);
+      padding: 1.5rem;
+      border-radius: 12px;
+      backdrop-filter: blur(10px);
+    }
+
+    .countdown-number {
+      font-size: 2rem;
+      font-weight: bold;
+    }
+
+    .countdown-label {
+      font-size: 0.8rem;
+      opacity: 0.8;
+    }
+
+    @media (max-width: 768px) {
+      .event-card {
+        padding: 2rem 1rem;
+      }
+
+      .event-card h2 {
+        font-size: 1.8rem;
+      }
+
+      .countdown {
+        gap: 0.5rem;
+      }
+
+      .countdown-item {
+        padding: 1rem;
+      }
+
+      .countdown-number {
+        font-size: 1.5rem;
+      }
+
+      .countdown-label {
+        font-size: 0.7rem;
+      }
+    }
+
+    /* GUESTBOOK */
+    .guestbook-section {
+      background: var(--bg-card);
+      border-radius: 15px;
+      padding: 2rem;
+      border: 1px solid var(--border);
+    }
+
+    .guestbook-form {
+      background: var(--border);
+      padding: 1.5rem;
+      border-radius: 12px;
+      margin-bottom: 2rem;
+    }
+
+    .form-group {
+      margin-bottom: 1rem;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+    }
+
+    .form-group input,
+    .form-group textarea {
+      width: 100%;
+      padding: 0.7rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text-primary);
+      font-family: inherit;
+    }
+
+    .form-group textarea {
+      resize: vertical;
+      min-height: 100px;
+    }
+
+    .btn-submit {
+      width: 100%;
+      padding: 0.8rem;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-weight: 600;
+    }
+
+    .btn-submit:hover {
+      background: var(--secondary);
+      transform: translateY(-2px);
+    }
+
+    .guestbook-list {
+      display: grid;
+      gap: 1.5rem;
+    }
+
+    .guest-message {
+      background: var(--border);
+      padding: 1.5rem;
+      border-radius: 12px;
+      border-left: 4px solid var(--primary);
+    }
+
+    .guest-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: start;
+      margin-bottom: 0.75rem;
+    }
+
+    .guest-name {
+      font-weight: 600;
+      color: var(--primary);
+    }
+
+    .guest-date {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+    }
+
+    .guest-email {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      margin-bottom: 0.75rem;
+    }
+
+    .guest-text {
+      color: var(--text-primary);
+    }
+
+    @media (max-width: 768px) {
+      .guestbook-section {
+        padding: 1.5rem;
+      }
+
+      .guestbook-form {
+        padding: 1rem;
+      }
+
+      .guest-message {
+        padding: 1rem;
+      }
+    }
+
+    /* FOOTER */
+    footer {
+      background: var(--bg-card);
+      border-top: 1px solid var(--border);
+      padding: 3rem 1rem;
+      text-align: center;
+      margin-top: 5rem;
+    }
+
+    .footer-content {
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    .social-links {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    .social-links a {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--border);
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s;
+    }
+
+    .social-links a:hover {
+      background: var(--primary);
+      transform: translateY(-3px);
+    }
+
+    footer p {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+    }
+
+    @media (max-width: 768px) {
+      footer {
+        padding: 2rem 1rem;
+      }
+    }
+
+    /* HIDDEN STUDENT DIRECTORY */
+    .student-directory {
+      display: none;
+    }
+
+    .student-directory.active {
+      display: block;
+    }
+
+    .students-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1.5rem;
+      margin-top: 2rem;
+    }
+
+    .student-card {
+      background: var(--bg-card);
+      border-radius: 12px;
+      padding: 1.5rem;
+      border: 1px solid var(--border);
+      transition: transform 0.3s;
+    }
+
+    .student-card:hover {
+      transform: translateY(-3px);
+    }
+
+    .student-number {
+      font-size: 0.85rem;
+      color: var(--primary);
+      font-weight: bold;
+    }
+
+    .student-name {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin: 0.5rem 0;
+    }
+    /* Responsive adjustments for mobile */
+    @media (max-width: 600px) {
+      .student-card { padding: 1rem; border-radius: 10px; }
+      .student-name { font-size: 1rem; }
+      .students-grid { gap: 1rem; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); }
+      /* Make tables horizontally scrollable and compact */
+      #students table, .gallery-grid { font-size: 0.95rem; }
+      #students table th, #students table td { padding: 0.6rem; }
+    }
+
+    /* Ensure the student table can scroll on small screens */
+    #students { --table-mobile-gap: 0.5rem; }
+    #students > div { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+    .student-info {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      margin: 0.3rem 0;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .student-info a {
+      color: var(--primary);
+      text-decoration: none;
+    }
+
+    .student-info a:hover {
+      text-decoration: underline;
+    }
+
+    @media (max-width: 768px) {
+      .students-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* UTILITIES */
+    .hidden {
+      display: none !important;
+    }
+
+    .text-center {
+      text-align: center;
+    }
+
+    .section-title {
+      font-size: 2rem;
+      margin-bottom: 2rem;
+      text-align: center;
+    }
+  </style>
 </head>
-<body class="theme-neon">
-
-  <!-- =========================
-       HEADER + HERO (full-width photo)
-       ========================= -->
-  <header id="site-header" class="site-header">
-    <div class="hero">
-      <img id="hero-img" src="/assets/hero.jpg" alt="Kelas 11 DPIB 2 — SMKN 1 KOTA KEDIRI" class="hero-image" />
-      <div class="hero-overlay glass">
-        <div class="hero-content">
-          <h1 id="site-title" class="site-title">Kelas 11 DPIB 2 — SMKN 1 KOTA KEDIRI</h1>
-        </div>
-
-        <!-- Floating navigation inside hero overlay -->
-        <nav id="floating-nav" class="floating-nav" role="navigation" aria-label="Main navigation">
-          <button class="nav-btn" data-target="#profil" aria-label="Profil"><i data-feather="users"></i></button>
-          <button class="nav-btn" data-target="#gallery" aria-label="Gallery"><i data-feather="grid"></i></button>
-          <button class="nav-btn" data-target="#motto" aria-label="Motto"><i data-feather="award"></i></button>
-          <button class="nav-btn" data-target="#messages" aria-label="Pesan"><i data-feather="mail"></i></button>
-          <button class="nav-btn" data-target="#event" aria-label="Event"><i data-feather="clock"></i></button>
-          <button class="nav-btn" data-target="#memories" aria-label="Memories"><i data-feather="film"></i></button>
-        </nav>
+<body class="theme-dark">
+  <a href="#main" class="skip-link">Lanjut ke konten</a>
+  <!-- NAVBAR -->
+  <nav>
+    <div class="nav-logo" id="navLogo">💎</div>
+    <ul class="nav-menu">
+      <li><a href="#profil" data-section="profil" aria-label="Profil"><i data-feather="user"></i> Profil</a></li>
+      <li><a href="#galeri" data-section="galeri" aria-label="Galeri"><i data-feather="image"></i> Galeri</a></li>
+      <li><a href="#memories" data-section="memories" aria-label="Memories"><i data-feather="film"></i> Memories</a></li>
+      <li><a href="#event" data-section="event" aria-label="Event"><i data-feather="calendar"></i> Event</a></li>
+      <li><a href="#guestbook" data-section="guestbook" aria-label="Buku Tamu"><i data-feather="message-circle"></i> Tamu</a></li>
+    </ul>
+    <div class="theme-switcher">
+      <button class="theme-toggle" id="themeToggle" title="Tema">🎨</button>
+      <div class="theme-panel" id="themePanel" aria-hidden="true">
+        <button class="theme-btn" data-theme="dark" title="Dark"><i data-feather="moon"></i></button>
+        <button class="theme-btn" data-theme="light" title="Light"><i data-feather="sun"></i></button>
+        <button class="theme-btn" data-theme="sunset" title="Sunset"><i data-feather="sunrise"></i></button>
+        <button class="theme-btn" data-theme="ocean" title="Ocean"><i data-feather="cloud"></i></button>
+        <button class="theme-btn" data-theme="forest" title="Forest"><i data-feather="layers"></i></button>
+        <button class="theme-btn" data-theme="neon" title="Neon"><i data-feather="zap"></i></button>
       </div>
     </div>
-  </header>
+  </nav>
 
-  <!-- =========================
-       MAIN
-       ========================= -->
-  <main id="main" class="site-main">
+  <main id="main">
+  
+    <!-- HERO SECTION -->
+    <section class="hero" id="hero">
+      <h1>Kelas 11 DPIB 2</h1>
+      <p>SMKN 1 Kota Kediri</p>
+      <p class="motto">💫 Bersama Menggapai Mimpi 💫</p>
+    </section>
 
-    <!-- =========================
-         PROFIL KELAS
-         ========================= -->
-    <section id="profil" class="section section-profil">
-      <div class="container">
-        <div class="section-header">
-          <h2 class="section-title"><i data-feather="user"></i> Profil Kelas</h2>
+    <!-- CLASS PROFILE SECTION -->
+    <section id="profil">
+      <h2 class="section-title">👥 Profil Kelas</h2>
+      <div class="class-profile">
+        <div class="profile-grid" id="profileGrid"></div>
+        <div class="student-count" id="studentCount" title="Klik untuk melihat daftar siswa">
+          <h3 id="studentCountNumber">0</h3>
+          <p>Jumlah Siswa</p>
         </div>
+      </div>
+    </section>
 
-        <div id="profil-grid" class="profil-grid" aria-live="polite">
-          <!-- Profil cards injected by JS. Structure example below -->
-          <!--
-          <article class="profil-card" data-person="ketua" data-id="p-1">
-            <div class="pc-body">
-              <div class="pc-name" id="p-1-name">Nama Ketua</div>
-              <div class="pc-role">Ketua</div>
-              <div class="pc-meta">Jumlah siswa: <span class="pc-count">XX</span></div>
-              <div class="pc-socials">
-                <a class="pc-social" href="#" target="_blank" rel="noopener" aria-label="Instagram Ketua"><i data-feather="instagram"></i></a>
-              </div>
+    <!-- GALLERY SECTION -->
+    <section id="galeri">
+      <div class="gallery-header">
+        <h2>🖼️ Galeri Foto</h2>
+        <button class="filter-btn" id="filterBtn"><i data-feather="sliders"></i> Filter</button>
+      </div>
+      <div class="gallery-grid" id="galleryGrid"></div>
+      <div class="pagination" id="pagination"></div>
+    </section>
+
+    <!-- MEMORIES SECTION -->
+    <section id="memories" class="memories">
+      <h2 class="section-title">💭 Memories</h2>
+      <div id="memoriesContainer"></div>
+    </section>
+
+    <!-- EVENT SECTION -->
+    <section id="event">
+      <h2 class="section-title">📅 Event Mendatang</h2>
+      <div id="eventContainer"></div>
+    </section>
+
+    <!-- GUESTBOOK SECTION -->
+    <section id="guestbook">
+      <h2 class="section-title">📝 Buku Tamu</h2>
+      <div class="guestbook-section">
+        <div class="guestbook-form">
+          <h3>Tulis Pesan</h3>
+          <form id="guestbookForm">
+            <div class="form-group">
+              <label>Nama (Opsional)</label>
+              <input type="text" id="visitorName" placeholder="Nama Anda">
             </div>
-          </article>
-          -->
+            <div class="form-group">
+              <label>Email (Opsional)</label>
+              <input type="email" id="visitorEmail" placeholder="Email Anda">
+            </div>
+            <div class="form-group">
+              <label>Pesan*</label>
+              <textarea id="visitorMessage" placeholder="Tulis pesan Anda..." required></textarea>
+            </div>
+            <button type="submit" class="btn-submit">Kirim Pesan</button>
+          </form>
         </div>
+        <div id="guestbookList" class="guestbook-list"></div>
       </div>
     </section>
 
-    <!-- =========================
-         GALLERY
-         ========================= -->
-    <section id="gallery" class="section section-gallery">
-      <div class="container">
-        <div class="section-header">
-          <h2 class="section-title"><i data-feather="image"></i> Gallery</h2>
-          <div class="gallery-controls">
-            <input id="gallery-search" class="input-search" type="search" placeholder="Cari tag atau caption..." aria-label="Cari foto">
-            <label for="gallery-perpage" class="sr-only">Foto per halaman</label>
-            <select id="gallery-perpage" class="select-perpage" aria-label="Foto per halaman">
-              <option value="12">12</option>
-              <option value="24">24</option>
-              <option value="48">48</option>
-            </select>
-          </div>
-        </div>
-
-        <!-- Masonry (full-fluid) -->
-        <div id="gallery-masonry" class="masonry" aria-live="polite">
-          <!-- Items rendered by JS -->
-        </div>
-
-        <!-- Pagination controls -->
-        <div class="gallery-pagination" aria-label="Gallery pagination">
-          <button id="gallery-prev" class="btn secondary">Prev</button>
-          <span id="gallery-pageinfo" class="pageinfo">Page 1</span>
-          <button id="gallery-next" class="btn secondary">Next</button>
-        </div>
+    <!-- STUDENT DIRECTORY (HIDDEN - reveal with secret click) -->
+    <section id="students" style="display: none;">
+      <h2 class="section-title">📋 Daftar Siswa</h2>
+      <div style="overflow-x: auto; margin-top: 2rem;">
+        <table class="gallery-grid" style="width: 100%; border-collapse: collapse;">
+          <thead>
+            <tr style="background: var(--bg-secondary); border-bottom: 2px solid var(--border-light);">
+              <th style="padding: 1rem; text-align: left;">No.</th>
+              <th style="padding: 1rem; text-align: left;">Nama</th>
+              <th style="padding: 1rem; text-align: left;">Email</th>
+              <th style="padding: 1rem; text-align: left;">Telepon</th>
+              <th style="padding: 1rem; text-align: left;">Instagram</th>
+              <th style="padding: 1rem; text-align: left;">Alamat</th>
+            </tr>
+          </thead>
+          <tbody id="studentsList" style="color: var(--text-primary);">
+          </tbody>
+        </table>
       </div>
     </section>
 
-    <!-- =========================
-         MOTTO
-         ========================= -->
-    <section id="motto" class="section section-motto">
-      <div class="motto-wrap">
-        <div class="motto-inner glass" role="region" aria-label="Motto kelas">
-          <h2 id="motto-text" class="motto-text">[Motto Kelas]</h2>
+    <!-- STUDENT DIRECTORY (HIDDEN) -->
+    <!-- Student detail modal -->
+    <div id="modal-student-detail" class="modal" style="display:none;">
+      <div class="modal-content" style="max-width:520px;">
+        <div class="modal-header">
+          <h3 id="detail-name">Nama</h3>
+          <button class="btn-close" id="detail-close">&times;</button>
+        </div>
+        <div class="modal-body" id="detail-body">
+          <p id="detail-number"></p>
+          <p id="detail-email"></p>
+          <p id="detail-phone"></p>
+          <p id="detail-instagram"></p>
+          <p id="detail-address"></p>
         </div>
       </div>
+    </div>
+
+    <section id="studentDir" class="student-directory">
+      <h2 class="section-title">👨‍🎓 Daftar Siswa</h2>
+      <div id="studentsGridView" class="students-grid"></div>
     </section>
-
-    <!-- =========================
-         PESAN UNTUK KELAS
-         ========================= -->
-    <section id="messages" class="section section-messages">
-      <div class="container">
-        <div class="section-header">
-          <h2 class="section-title"><i data-feather="mail"></i> Pesan untuk Kelas</h2>
-        </div>
-
-        <div id="messages-list" class="messages-list">
-          <!-- Cards injected by JS. Example:
-            <article class="message-card" data-id="m-1">
-              <header>
-                <h3 class="msg-title">Judul</h3>
-                <div class="msg-author">oleh: Nama</div>
-              </header>
-              <div class="msg-body">Isi pesan singkat... klik untuk detail</div>
-            </article>
-          -->
-        </div>
-      </div>
-    </section>
-
-    <!-- =========================
-         EVENT (Neareast event only on homepage)
-         ========================= -->
-    <section id="event" class="section section-event">
-      <div class="container">
-        <div class="section-header">
-          <h2 class="section-title"><i data-feather="calendar"></i> Event Terdekat</h2>
-        </div>
-
-        <div id="event-box" class="event-box glass" aria-live="polite" data-has-event="false">
-          <div class="event-left">
-            <h3 id="event-title">Tidak ada event</h3>
-            <div id="event-datetime" class="event-datetime"></div>
-            <p id="event-desc" class="event-desc"></p>
-          </div>
-          <div class="event-countdown" aria-hidden="true">
-            <div class="count-item"><span id="cd-days">00</span><small>Days</small></div>
-            <div class="count-item"><span id="cd-hours">00</span><small>Hours</small></div>
-            <div class="count-item"><span id="cd-mins">00</span><small>Minutes</small></div>
-            <div class="count-item"><span id="cd-secs">00</span><small>Seconds</small></div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- =========================
-         PLUGIN SLOT (Game) - initially hidden
-         ========================= -->
-    <section id="plugin" class="section section-plugin">
-      <div class="container">
-        <div id="plugin-slot" class="plugin-slot" aria-hidden="true" data-enabled="false" data-plugin-url="">
-          <!-- When enabled, script.js injects: <iframe src="..." /> -->
-          <div class="plugin-placeholder">
-            <div class="plugin-note">Plugin belum aktif</div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- =========================
-         MEMORIES - roll-film vertical (bottom)
-         ========================= -->
-    <section id="memories" class="section section-memories">
-      <div class="container">
-        <div class="section-header">
-          <h2 class="section-title"><i data-feather="film"></i> Memories</h2>
-          <div class="memories-controls">
-            <button id="mem-auto-toggle" class="btn primary" aria-pressed="false">Start Auto-Scroll</button>
-          </div>
-        </div>
-
-        <div id="memories-viewport" class="memories-viewport" aria-label="Memories timeline">
-          <div class="memories-roll" role="list" aria-live="polite">
-            <!-- Memory items rendered by JS.
-                 Example:
-            <article class="memory-item" data-id="mem-1" data-photos='["https://...", "..."]' data-date="2025-11-25" data-title="Judul Memory">
-              <div class="film-frame">
-                <div class="film-thumb">
-                  <img loading="lazy" src="/assets/thumb-placeholder.jpg" alt="Thumbnail">
-                </div>
-              </div>
-              <div class="memory-info">
-                <h3 class="memory-title">Judul Memory</h3>
-                <time class="memory-date">25 Nov 2025</time>
-                <p class="memory-excerpt">Keterangan singkat</p>
-              </div>
-            </article>
-            -->
-          </div>
-        </div>
-      </div>
-    </section>
-
   </main>
 
-  <!-- =========================
-       FOOTER
-       ========================= -->
-  <footer id="site-footer" class="site-footer glass">
-    <div class="container footer-inner">
-      <small id="footer-text">© <span id="footer-year"></span> Kelas 11 DPIB 2 — SMKN 1 KOTA KEDIRI</small>
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-content">
+      <div class="social-links" id="socialLinks"></div>
+      <p id="footerText">© 2024 Kelas 11 DPIB 2 - SMKN 1 Kota Kediri</p>
     </div>
   </footer>
 
-  <!-- =========================
-       LIGHTBOX (hidden by default)
-       ========================= -->
-  <div id="lightbox" class="lightbox" aria-hidden="true" role="dialog" aria-modal="true">
-    <button id="lightbox-close" class="lightbox-close" aria-label="Close (Esc)"><i data-feather="x"></i></button>
-    <button id="lightbox-prev" class="lightbox-nav prev" aria-label="Previous"><i data-feather="chevron-left"></i></button>
-    <div id="lightbox-inner" class="lightbox-inner" tabindex="-1">
-      <img id="lightbox-img" class="lightbox-img" src="" alt="">
-      <div id="lightbox-meta" class="lightbox-meta" aria-live="polite"></div>
+  <!-- FILTER POPUP -->
+  <div class="filter-popup" id="filterPopup">
+    <div class="filter-content">
+      <h3>Filter Galeri</h3>
+
+      <div class="filter-section">
+        <label>Pilih Tag</label>
+        <div class="tag-list" id="tagList"></div>
+      </div>
+
+      <div class="filter-section">
+        <label for="itemsPerPage">Item Per Halaman</label>
+        <select id="itemsPerPage" style="width: 100%; padding: 0.6rem; background: var(--bg-dark); color: var(--text-primary); border: 1px solid var(--border); border-radius: 8px;">
+          <option value="6">6</option>
+          <option value="9" selected>9</option>
+          <option value="12">12</option>
+          <option value="15">15</option>
+          <option value="18">18</option>
+        </select>
+      </div>
+
+      <div class="filter-actions">
+        <button class="btn-apply" id="applyFilter">Terapkan</button>
+        <button class="btn-close-filter" id="closeFilter">Tutup</button>
+      </div>
     </div>
-    <button id="lightbox-next" class="lightbox-nav next" aria-label="Next"><i data-feather="chevron-right"></i></button>
   </div>
 
-  <!-- Scripts (script.js will be provided next) -->
-  <script defer src="script.js"></script>
+  <!-- MEMORIES DETAIL MODAL -->
+  <div class="memories-modal" id="memoriesModal">
+    <div class="memories-modal-content">
+      <button class="modal-close" id="memoriesModalClose">×</button>
+      <div class="modal-header">
+        <h2 id="memoryTitle">Memory Title</h2>
+        <p id="memoryDate" style="color:var(--text-secondary); font-size:0.95rem;"></p>
+      </div>
+      <p id="memoryCaption" style="color:var(--text-secondary); margin:1rem 0; line-height:1.6;"></p>
+      <div class="memory-photos-grid" id="memoryPhotosGrid"></div>
+    </div>
+  </div>
+
+  <!-- LIGHTBOX -->
+  <div class="lightbox" id="lightbox">
+    <div class="lightbox-content">
+      <img src="" alt="" class="lightbox-img" id="lightboxImg">
+      <button class="lightbox-close" id="lightboxClose">×</button>
+    </div>
+  </div>
+
+  <!-- SCRIPTS -->
+  <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/masonry-layout@4.2.2/dist/masonry.pkgd.min.js"></script>
+  <script src="config.js"></script>
+  <script type="module">
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.38.0/+esm'
+
+    const supabase = createClient(window.CONFIG.SUPABASE_URL, window.CONFIG.SUPABASE_ANON_KEY)
+    const $ = (sel) => document.querySelector(sel)
+    const $$ = (sel) => document.querySelectorAll(sel)
+
+    // GLOBAL STATE
+    let allPhotos = []
+    let allMemories = []
+    let allEvents = []
+    let allGuestbook = []
+    let allStudents = []
+    let allTags = []
+    let selectedTags = []
+    let itemsPerPage = 9
+    let currentPage = 1
+    let studentClickCount = 0
+
+    // ============================================
+    // THEME SYSTEM
+    // ============================================
+    function setTheme(themeName) {
+      document.body.className = 'theme-' + themeName
+      localStorage.setItem('theme', themeName)
+      
+      // Update active button
+      $$('.theme-btn').forEach(btn => {
+        btn.classList.remove('active')
+        if(btn.dataset.theme === themeName) btn.classList.add('active')
+      })
+    }
+
+    $$('.theme-btn').forEach(btn => {
+      btn.addEventListener('click', () => setTheme(btn.dataset.theme))
+    })
+
+    // Load saved theme
+    const savedTheme = localStorage.getItem('theme') || 'dark'
+    setTheme(savedTheme)
+
+    // ============================================
+    // NAVBAR SCROLL EFFECT
+    // ============================================
+    window.addEventListener('scroll', () => {
+      const nav = $('nav')
+      if(window.scrollY > 50) {
+        nav.classList.add('scrolled')
+      } else {
+        nav.classList.remove('scrolled')
+      }
+    })
+
+    // ============================================
+    // LOAD DATA
+    // ============================================
+    async function loadAllData() {
+      try {
+        // Load class profile
+        const { data: classData } = await supabase.from('class_profile').select('*').eq('id', 1).single()
+        if(classData) renderClassProfile(classData)
+
+        // Load site config
+        const { data: configData } = await supabase.from('site_config').select('*').eq('id', 1).single()
+        if(configData) {
+          document.title = configData.hero_title + ' - Digital Kenangan'
+          $('#hero h1').textContent = configData.hero_title
+          $('#hero p').textContent = configData.hero_subtitle
+          $('.motto').textContent = '💫 ' + configData.hero_motto + ' 💫'
+          if(configData.footer_text) $('#footerText').textContent = configData.footer_text
+          
+          // Social links
+          const socialLinksHtml = []
+          if(configData.instagram_url) socialLinksHtml.push(`<a href="${configData.instagram_url}" target="_blank" title="Instagram"><i data-feather="instagram"></i></a>`)
+          if(configData.youtube_url) socialLinksHtml.push(`<a href="${configData.youtube_url}" target="_blank" title="YouTube"><i data-feather="youtube"></i></a>`)
+          if(configData.tiktok_url) socialLinksHtml.push(`<a href="${configData.tiktok_url}" target="_blank" title="TikTok"><i data-feather="music"></i></a>`)
+          if(configData.whatsapp_url) socialLinksHtml.push(`<a href="${configData.whatsapp_url}" target="_blank" title="WhatsApp"><i data-feather="phone"></i></a>`)
+          $('#socialLinks').innerHTML = socialLinksHtml.join('')
+        }
+
+        // Load tags
+        const { data: tagsData } = await supabase.from('tags').select('*').order('name')
+        allTags = tagsData || []
+        renderTagFilter()
+
+        // Load gallery
+        const { data: photosData } = await supabase.from('gallery').select('*, gallery_tags(tags(*))').eq('status', 'public').order('created_at', { ascending: false })
+        allPhotos = photosData || []
+        currentPage = 1
+        renderGallery()
+
+        // Load memories
+        const { data: memoriesData } = await supabase.from('memories').select('*, memory_photos(*, gallery(*))').order('position')
+        allMemories = memoriesData || []
+        renderMemories()
+
+        // Load events
+        const { data: eventsData } = await supabase.from('events').select('*').order('event_date')
+        allEvents = eventsData || []
+        renderNextEvent()
+
+        // Load guestbook (show all entries)
+        const { data: guestbookData } = await supabase.from('guestbook').select('*').order('created_at', { ascending: false })
+        allGuestbook = guestbookData || []
+        renderGuestbook()
+
+        // Load students (superadmin only)
+        const { data: studentsData } = await supabase.from('students').select('*').order('student_number')
+        allStudents = studentsData || []
+
+        feather.replace()
+      } catch(err) {
+        console.error('Load error:', err)
+      }
+    }
+
+    // ============================================
+    // CLASS PROFILE
+    // ============================================
+    function renderClassProfile(profile) {
+      const grid = $('#profileGrid')
+      grid.innerHTML = ''
+
+      const roles = [
+        { key: 'ketua', label: 'Ketua Kelas' },
+        { key: 'wakil', label: 'Wakil Ketua' },
+        { key: 'wali', label: 'Wali Kelas' }
+      ]
+
+      roles.forEach(role => {
+        const name = profile[role.key + '_name']
+        const photo = profile[role.key + '_photo_url']
+        const instagram = profile[role.key + '_instagram']
+
+        if(name) {
+          const initials = name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
+          const card = document.createElement('div')
+          card.className = 'profile-card'
+          card.innerHTML = `
+            ${photo ? `<img src="${photo}" alt="${name}" class="profile-photo">` : `<div class="profile-placeholder">${initials}</div>`}
+            <h3>${name}</h3>
+            <p>${role.label}</p>
+            ${instagram ? `<a href="${instagram}" target="_blank" style="color: var(--primary); text-decoration: none; font-size: 0.9rem;">👤 ${instagram}</a>` : ''}
+          `
+          grid.appendChild(card)
+        }
+      })
+
+      $('#studentCountNumber').textContent = profile.total_students || 0
+    }
+
+    // Student count easter egg
+    $('#studentCount').addEventListener('click', () => {
+      studentClickCount++
+      if(studentClickCount === 27) {
+        $('#studentDir').classList.add('active')
+        $('#studentDir').scrollIntoView({ behavior: 'smooth' })
+        renderStudentDirectory()
+        studentClickCount = 0
+      } else if(studentClickCount > 27) {
+        studentClickCount = 0
+      }
+    })
+
+    // ============================================
+    // GALLERY - MASONRY + PAGINATION
+    // ============================================
+    function renderTagFilter() {
+      const tagList = $('#tagList')
+      tagList.innerHTML = ''
+
+      allTags.forEach(tag => {
+        const id = `tag-${tag.id}`
+        const checkbox = document.createElement('input')
+        checkbox.type = 'checkbox'
+        checkbox.id = id
+        checkbox.className = 'tag-checkbox'
+        checkbox.dataset.tagId = tag.id
+        checkbox.value = tag.name
+
+        const label = document.createElement('label')
+        label.htmlFor = id
+        label.className = 'tag-label'
+        label.textContent = tag.name
+        label.style.backgroundColor = tag.color + '40'
+        label.style.borderColor = tag.color
+
+        const wrapper = document.createElement('div')
+        wrapper.style.display = 'flex'
+        wrapper.appendChild(checkbox)
+        wrapper.appendChild(label)
+
+        // Auto-apply filter on checkbox change
+        checkbox.addEventListener('change', () => {
+          selectedTags = Array.from($$('.tag-checkbox:checked')).map(el => parseInt(el.dataset.tagId))
+          currentPage = 1
+          renderGallery()
+        })
+
+        tagList.appendChild(wrapper)
+      })
+    }
+
+    function getFilteredPhotos() {
+      if(selectedTags.length === 0) return allPhotos
+
+      return allPhotos.filter(photo => {
+        return photo.gallery_tags.some(gt => selectedTags.includes(gt.tag_id))
+      })
+    }
+
+    function renderGallery() {
+      const filtered = getFilteredPhotos()
+      const start = (currentPage - 1) * itemsPerPage
+      const end = start + itemsPerPage
+      const pagePhotos = filtered.slice(start, end)
+
+      const gallery = $('#galleryGrid')
+      gallery.innerHTML = ''
+
+      pagePhotos.forEach(photo => {
+        const item = document.createElement('div')
+        item.className = 'gallery-item'
+        item.innerHTML = `<img src="${photo.image_url}" alt="${photo.title}" loading="lazy">`
+        
+        item.addEventListener('click', () => {
+          $('#lightboxImg').src = photo.image_url
+          $('#lightbox').classList.add('active')
+        })
+
+        gallery.appendChild(item)
+      })
+
+      renderPagination(filtered)
+    }
+
+    function renderPagination(filtered) {
+      const totalPages = Math.ceil(filtered.length / itemsPerPage)
+      const pagination = $('#pagination')
+      pagination.innerHTML = ''
+
+      for(let i = 1; i <= totalPages; i++) {
+        const btn = document.createElement('button')
+        btn.textContent = i
+        btn.className = i === currentPage ? 'active' : ''
+        btn.addEventListener('click', () => {
+          currentPage = i
+          renderGallery()
+          document.querySelector('#galeri').scrollIntoView({ behavior: 'smooth' })
+        })
+        pagination.appendChild(btn)
+      }
+    }
+
+    // Filter popup
+    $('#filterBtn').addEventListener('click', () => {
+      $('#filterPopup').classList.add('active')
+    })
+
+    $('#closeFilter').addEventListener('click', () => {
+      $('#filterPopup').classList.remove('active')
+    })
+
+    $('#applyFilter').addEventListener('click', () => {
+      selectedTags = Array.from($$('.tag-checkbox:checked')).map(el => parseInt(el.dataset.tagId))
+      itemsPerPage = parseInt($('#itemsPerPage').value)
+      currentPage = 1
+      renderGallery()
+      $('#filterPopup').classList.remove('active')
+    })
+
+    $('#filterPopup').addEventListener('click', (e) => {
+      if(e.target === $('#filterPopup')) {
+        $('#filterPopup').classList.remove('active')
+      }
+    })
+
+    // Lightbox
+    $('#lightboxClose').addEventListener('click', () => {
+      $('#lightbox').classList.remove('active')
+    })
+
+    $('#lightbox').addEventListener('click', (e) => {
+      if(e.target === $('#lightbox')) {
+        $('#lightbox').classList.remove('active')
+      }
+    })
+
+    // ============================================
+    // MEMORIES
+    // ============================================
+    function renderMemories() {
+      const container = $('#memoriesContainer')
+      if(!container) return
+      
+      container.innerHTML = ''
+
+      // Create timeline wrapper (regular page flow, no scrollable container)
+      const timeline = document.createElement('div')
+      timeline.className = 'memories-timeline'
+
+      // Sort memories by date (newest first)
+      const sorted = [...allMemories].sort((a, b) => new Date(b.memory_date) - new Date(a.memory_date))
+
+      sorted.forEach((memory, idx) => {
+        const photos = memory.memory_photos || []
+        const photoUrls = photos.map(mp => mp.gallery?.image_url).filter(Boolean)
+        if(photoUrls.length === 0) return
+
+        const item = document.createElement('div')
+        item.className = 'timeline-item'
+
+        // Film strip (single frame per memory with rotating photos)
+        const filmStrip = document.createElement('div')
+        filmStrip.className = 'film-strip'
+
+        const frame = document.createElement('div')
+        frame.className = 'film-frame'
+        const img = document.createElement('img')
+        img.src = photoUrls[0]
+        img.alt = memory.title
+        img.loading = 'lazy'
+        img.decoding = 'async'
+        frame.appendChild(img)
+
+        // Click to view in lightbox
+        frame.addEventListener('click', () => {
+          const lightbox = $('#lightbox')
+          const lightboxImg = $('#lightboxImg')
+          if(lightbox && lightboxImg) {
+            lightboxImg.src = photoUrls[0]
+            lightbox.classList.add('active')
+          }
+        })
+
+        filmStrip.appendChild(frame)
+
+        // Auto rotate photos in frame
+        let photoIdx = 0
+        let photoInterval = null
+        
+        function startRotation(speed = 3000) {
+          if(photoInterval) clearInterval(photoInterval)
+          photoIdx = 0
+          photoInterval = setInterval(() => {
+            photoIdx = (photoIdx + 1) % photoUrls.length
+            img.src = photoUrls[photoIdx]
+          }, speed)
+        }
+        
+        startRotation(3000)
+
+        // Faster rotation on hover
+        filmStrip.addEventListener('mouseenter', () => {
+          startRotation(1500)
+        })
+
+        filmStrip.addEventListener('mouseleave', () => {
+          startRotation(3000)
+        })
+
+        // Info section
+        const info = document.createElement('div')
+        info.className = 'timeline-info'
+        info.innerHTML = `
+          <h3>${memory.title}</h3>
+          <small>${new Date(memory.memory_date).toLocaleDateString('id-ID')}</small>
+          <p>${memory.description || ''}</p>
+        `
+
+        // Click info to open modal
+        info.addEventListener('click', () => {
+          showMemoryModal(memory, photoUrls)
+        })
+
+        item.appendChild(filmStrip)
+        item.appendChild(info)
+        timeline.appendChild(item)
+      })
+
+      container.appendChild(timeline)
+    }
+
+    // Memory modal functions
+    function showMemoryModal(memory, photoUrls) {
+      const modal = $('#memoriesModal')
+      if(!modal) return
+
+      $('#memoryTitle').textContent = memory.title
+      $('#memoryDate').textContent = new Date(memory.memory_date).toLocaleDateString('id-ID')
+      $('#memoryCaption').textContent = memory.description || ''
+
+      const grid = $('#memoryPhotosGrid')
+      grid.innerHTML = ''
+
+      photoUrls.forEach((url, idx) => {
+        const thumb = document.createElement('div')
+        thumb.className = 'memory-photo-thumb'
+        const img = document.createElement('img')
+        img.src = url
+        img.alt = `Photo ${idx + 1}`
+        img.loading = 'lazy'
+        img.decoding = 'async'
+        thumb.appendChild(img)
+
+        thumb.addEventListener('click', () => {
+          const lightbox = $('#lightbox')
+          const lightboxImg = $('#lightboxImg')
+          if(lightbox && lightboxImg) {
+            lightboxImg.src = url
+            lightbox.classList.add('active')
+          }
+        })
+
+        grid.appendChild(thumb)
+      })
+
+      modal.classList.add('active')
+    }
+
+    // ============================================
+    // EVENTS
+    // ============================================
+    function renderNextEvent() {
+      const today = new Date()
+      today.setHours(0, 0, 0, 0)
+
+      const nextEvent = allEvents.find(event => {
+        const eventDate = new Date(event.event_date)
+        return eventDate >= today
+      })
+
+      const container = $('#eventContainer')
+      container.innerHTML = ''
+
+      if(!nextEvent) {
+        container.innerHTML = '<p style="text-align: center; color: var(--text-secondary);">Tidak ada event mendatang</p>'
+        return
+      }
+
+      const eventDate = new Date(nextEvent.event_date)
+      const card = document.createElement('div')
+      card.className = 'event-card'
+
+      const updateCountdown = () => {
+        const now = new Date()
+        const diff = eventDate - now
+
+        if(diff < 0) {
+          card.querySelector('.countdown').innerHTML = '<p>Event sudah berakhir</p>'
+          return
+        }
+
+        const days = Math.floor(diff / (1000 * 60 * 60 * 24))
+        const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))
+        const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))
+        const seconds = Math.floor((diff % (1000 * 60)) / 1000)
+
+        card.querySelector('#days').textContent = days
+        card.querySelector('#hours').textContent = hours
+        card.querySelector('#minutes').textContent = minutes
+        card.querySelector('#seconds').textContent = seconds
+      }
+
+      card.innerHTML = `
+        <h2>${nextEvent.title}</h2>
+        <p>${new Date(nextEvent.event_date).toLocaleDateString('id-ID')}</p>
+        <p>${nextEvent.description || ''}</p>
+        ${nextEvent.location ? `<p>📍 ${nextEvent.location}</p>` : ''}
+        <div class="countdown">
+          <div class="countdown-item">
+            <div class="countdown-number" id="days">0</div>
+            <div class="countdown-label">Hari</div>
+          </div>
+          <div class="countdown-item">
+            <div class="countdown-number" id="hours">0</div>
+            <div class="countdown-label">Jam</div>
+          </div>
+          <div class="countdown-item">
+            <div class="countdown-number" id="minutes">0</div>
+            <div class="countdown-label">Menit</div>
+          </div>
+          <div class="countdown-item">
+            <div class="countdown-number" id="seconds">0</div>
+            <div class="countdown-label">Detik</div>
+          </div>
+        </div>
+      `
+
+      container.appendChild(card)
+      updateCountdown()
+      setInterval(updateCountdown, 1000)
+    }
+
+    // ============================================
+    // GUESTBOOK
+    // ============================================
+    function renderGuestbook() {
+      const list = $('#guestbookList')
+      list.innerHTML = ''
+
+      if(allGuestbook.length === 0) {
+        list.innerHTML = '<p style="text-align: center; color: var(--text-secondary);">Belum ada pesan</p>'
+        return
+      }
+
+      allGuestbook.forEach(guest => {
+        const msg = document.createElement('div')
+        msg.className = 'guest-message'
+        msg.innerHTML = `
+          <div class="guest-header">
+            <div>
+              <div class="guest-name">${guest.visitor_name || 'Anonim'}</div>
+              ${guest.visitor_email ? `<div class="guest-email">📧 ${guest.visitor_email}</div>` : ''}
+            </div>
+            <div class="guest-date">${new Date(guest.created_at).toLocaleDateString('id-ID')}</div>
+          </div>
+          <div class="guest-text">"${guest.message}"</div>
+        `
+        list.appendChild(msg)
+      })
+    }
+
+    // Guestbook form
+    $('#guestbookForm').addEventListener('submit', async (e) => {
+      e.preventDefault()
+
+      const name = $('#visitorName').value.trim()
+      const email = $('#visitorEmail').value.trim()
+      const message = $('#visitorMessage').value.trim()
+
+      if(!message) {
+        alert('Pesan tidak boleh kosong!')
+        return
+      }
+
+      try {
+        const { error } = await supabase.from('guestbook').insert({
+          visitor_name: name || 'Anonim',
+          visitor_email: email || null,
+          message,
+          is_approved: true
+        })
+
+        if(error) throw error
+
+        // Clear form
+        $('#visitorName').value = ''
+        $('#visitorEmail').value = ''
+        $('#visitorMessage').value = ''
+
+        // Reload guestbook (show all entries)
+        const { data } = await supabase.from('guestbook').select('*').order('created_at', { ascending: false })
+        allGuestbook = data || []
+        renderGuestbook()
+
+        alert('Terima kasih! Pesan Anda telah terkirim.')
+      } catch(err) {
+        console.error('Error:', err)
+        alert('Gagal mengirim pesan')
+      }
+    })
+
+    // ============================================
+    // STUDENT DIRECTORY (HIDDEN)
+    // ============================================
+    // Helper to derive name from common fields
+    function getStudentNamePublic(student) {
+      if(!student) return ''
+      const keys = ['name','nama','full_name','student_name','first_name','fullname']
+      for(const k of keys) {
+        if(Object.prototype.hasOwnProperty.call(student, k) && typeof student[k] === 'string' && student[k].trim() !== '') return student[k].trim()
+      }
+      if(student.first_name || student.last_name) return ((student.first_name || '') + ' ' + (student.last_name || '')).trim()
+      return ''
+    }
+
+    function renderStudentDirectory() {
+      const grid = $('#studentsGridView')
+      grid.innerHTML = ''
+
+      if(allStudents.length === 0) {
+        grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center;">Belum ada data siswa</p>'
+        return
+      }
+
+      allStudents.forEach(student => {
+        const card = document.createElement('div')
+        card.className = 'student-card'
+        const displayName = getStudentNamePublic(student) || 'Tidak Ada Nama'
+        const phone = student.phone || student.phone_number || ''
+        card.innerHTML = `
+          <div class="student-number">No. ${student.student_number}</div>
+          <div class="student-name">${displayName}</div>
+          ${phone ? `<div class="student-info">📞 ${phone}</div>` : ''}
+          ${student.email ? `<div class="student-info">📧 <a href="mailto:${student.email}">${student.email}</a></div>` : ''}
+          ${student.instagram ? `<div class="student-info">📱 <a href="https://instagram.com/${student.instagram}" target="_blank">@${student.instagram}</a></div>` : ''}
+          ${student.address ? `<div class="student-info">🏠 ${student.address}</div>` : ''}
+        `
+        grid.appendChild(card)
+      })
+    }
+
+    // ============================================
+    // INIT
+    // ============================================
+    loadAllData()
+    feather.replace()
+  </script>
+
+  <script>
+    (function(){
+      const toggle = document.getElementById('themeToggle')
+      const panel = document.getElementById('themePanel')
+      if(!toggle || !panel) return
+
+      toggle.addEventListener('click', (e) => {
+        e.stopPropagation()
+        const open = panel.classList.toggle('open')
+        panel.setAttribute('aria-hidden', open ? 'false' : 'true')
+      })
+
+      panel.addEventListener('click', (e) => {
+        const btn = e.target.closest('.theme-btn')
+        if(!btn) return
+        const theme = btn.dataset.theme
+        if(theme) {
+          document.body.className = 'theme-' + theme
+          localStorage.setItem('theme', theme)
+          document.querySelectorAll('.theme-btn').forEach(b => b.classList.toggle('active', b === btn))
+        }
+        panel.classList.remove('open')
+        panel.setAttribute('aria-hidden', 'true')
+      })
+
+      document.addEventListener('click', (e) => {
+        if(!panel.classList.contains('open')) return
+        if(e.target === toggle || panel.contains(e.target)) return
+        panel.classList.remove('open')
+        panel.setAttribute('aria-hidden', 'true')
+      })
+
+      window.addEventListener('scroll', () => {
+        if(panel.classList.contains('open')) {
+          panel.classList.remove('open')
+          panel.setAttribute('aria-hidden', 'true')
+        }
+      })
+
+      // initialize active state from saved theme
+      const saved = localStorage.getItem('theme') || 'dark'
+      document.body.className = 'theme-' + saved
+      document.querySelectorAll('.theme-btn').forEach(b => b.classList.toggle('active', b.dataset.theme === saved))
+    })();
+
+    // Memories modal close handler
+    (function(){
+      const modal = document.getElementById('memoriesModal')
+      const closeBtn = document.getElementById('memoriesModalClose')
+      if(!modal || !closeBtn) return
+
+      closeBtn.addEventListener('click', () => {
+        modal.classList.remove('active')
+      })
+
+      modal.addEventListener('click', (e) => {
+        if(e.target === modal) {
+          modal.classList.remove('active')
+        }
+      })
+    })()
+  </script>
+
 </body>
 </html>

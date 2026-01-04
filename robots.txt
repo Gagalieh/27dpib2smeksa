@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Disallow: /admin.html
+Disallow: /admin.js
+Disallow: /config.js
+Disallow: /script.js
+
+Sitemap: https://kelas11dpib2.com/sitemap.xml
