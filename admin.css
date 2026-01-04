@@ -110,7 +110,7 @@ html, body {
   border-right: 1px solid var(--border);
   padding: 2rem 1.25rem;
   overflow-y: auto;
-  position: sticky;
+  position: relative;
   top: 0;
   max-height: 100vh;
   backdrop-filter: blur(10px);
@@ -223,55 +223,118 @@ html, body {
   border-bottom: 3px solid var(--primary);
 }
 
-/* Mobile default: sidebar slide-out, collapsed icon-only on small screens */
+.sidebar.collapsed .sidebar-header h2 {
+  display: none;
+}
+
+.sidebar.collapsed .sidebar-link span {
+  display: none;
+}
+
+/* For mobile: show icons only without changing width */
+.sidebar.mobile-collapsed {
+  /* Don't change width on mobile collapsed, use margin-left instead */
+}
+
+.sidebar.mobile-collapsed .sidebar-header h2 {
+  display: none;
+}
+
+.sidebar.mobile-collapsed .sidebar-link span {
+  display: none;
+}
+
+/* Mobile default: sidebar always icon-only on small screens */
 @media (max-width: 768px) {
-  .sidebar {
-    position: fixed;
-    left: 0;
-    top: 0;
-    width: 280px;
-    height: 100vh;
-    z-index: 1000;
-    /* start with only icon strip visible (70px):
-       width 280px, margin-left -210px shows rightmost 70px */
-    margin-left: -210px;
-    transition: margin-left 0.28s ease-out;
-  }
-
-  /* fully open (expanded) on mobile */
-  .sidebar.mobile-open {
-    margin-left: 0;
-    box-shadow: 2px 0 10px rgba(0,0,0,0.3);
-  }
-
-  /* when collapsed on mobile, apply compact styling (icons only) */
-  .sidebar.mobile-collapsed {
-    margin-left: -210px;
-  }
-
   .admin-dashboard {
+    display: flex !important;
+    flex-direction: row;
+    min-height: 100vh;
+  }
+
+  .sidebar {
+    position: relative;
+    width: 70px !important;
+    padding: 1rem 0.5rem !important;
+    margin: 0 !important;
+    flex-shrink: 0;
+    height: 100vh;
+    overflow-y: auto;
+    border-right: 1px solid var(--border);
+  }
+
+  .sidebar-header {
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border-light);
+  }
+
+  .sidebar-header h2 {
+    display: none;
+  }
+
+  .sidebar-header-actions {
     flex-direction: column;
+    width: 100%;
+  }
+
+  .btn-logout {
+    width: 36px;
+    height: 36px;
+  }
+
+  .sidebar-nav {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .sidebar-link {
+    justify-content: center;
+    align-items: center;
+    width: 50px;
+    height: 50px;
+    padding: 0 !important;
+    border-radius: 8px;
+  }
+
+  .sidebar-link span {
+    display: none;
+  }
+
+  .sidebar-link i {
+    width: 24px;
+    height: 24px;
+  }
+
+  .sidebar-link.active {
+    background: rgba(124, 58, 237, 0.15);
+    border: none;
+    border-left: none;
+    border-bottom: none;
+    padding-left: 0;
   }
 
   .main-content {
-    width: 100%;
+    flex: 1;
+    width: calc(100% - 70px);
+    overflow-y: auto;
     padding: 1rem;
   }
 
-  /* Show collapse button on mobile */
+  /* Hide toggle button on mobile */
   #btn-toggle-sidebar {
-    display: block !important;
+    display: none !important;
   }
 }
 
 /* Desktop: always show sidebar, never collapse automatically */
 @media (min-width: 769px) {
   .sidebar {
-    margin-left: 0 !important;
-  }
-
-  .sidebar.mobile-open {
-    margin-left: 0 !important;
+    position: relative;
   }
 
 }
