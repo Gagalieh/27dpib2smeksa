@@ -975,44 +975,41 @@
     }
 
     @media (max-width: 768px) {
+      /* Mobile: simplified stacked timeline with thumbnail left and info right */
       .memories-timeline {
-        padding: 1rem;
+        padding: 0.8rem;
+        display: block;
       }
 
       .memories-timeline:before {
-        left: 30px;
+        left: 24px;
         transform: translateX(-50%);
+        top: 24px;
+        bottom: 0;
       }
 
-      .timeline-item,
+      .timeline-item {
+        display: grid;
+        grid-template-columns: 72px 1fr;
+        gap: 1rem;
+        align-items: center;
+        padding: 0.9rem 0;
+      }
+
       .timeline-item:nth-child(even) {
-        flex-direction: column;
-        gap: 1.5rem;
-        padding: 1.5rem 0 1.5rem 70px;
-        align-items: flex-start;
+        grid-template-columns: 72px 1fr;
       }
 
       .timeline-item:before {
-        left: 30px;
+        left: 24px;
         transform: translateX(-50%);
       }
 
-      .film-strip {
-        width: 100%;
-        flex: 1;
-        margin-left: -70px;
-        justify-content: flex-start;
-      }
+      .film-strip { grid-column: 1 / 2; width: 72px; margin: 0; }
 
-      .film-frame {
-        width: 180px;
-        height: 160px;
-      }
+      .film-frame { width: 72px; height: 72px; border-radius: 8px; }
 
-      .timeline-info {
-        width: 100%;
-        max-width: 100%;
-      }
+      .timeline-info { grid-column: 2 / 3; }
     }
 
     .timeline-info h3 {
@@ -2532,11 +2529,14 @@
             ${photo ? `<img src="${photo}" alt="${name}" class="profile-photo">` : `<div class="profile-placeholder">${initials}</div>`}
             <h3>${name}</h3>
             <p>${role.label}</p>
-            ${instagram ? `<a href="${instagram}" target="_blank" style="color: var(--primary); text-decoration: none; font-size: 0.9rem;">👤 ${instagram}</a>` : ''}
+            <div class="profile-socials">${instagram ? `<a href="${instagram}" target="_blank" title="Instagram"><i data-feather="instagram"></i></a>` : ''}</div>
           `
           grid.appendChild(card)
         }
       })
+
+      // Replace feather icons inside newly created profile cards
+      try { feather.replace() } catch(e) {}
 
       $('#studentCountNumber').textContent = profile.total_students || 0
     }

@@ -76,31 +76,101 @@ window._nativeAlert = window.alert
 window.alert = (msg) => showToast(String(msg), 'info', false)
 
 // ============================================
-// AUTH
+// AUTH (safe attach + better logging)
 // ============================================
-$('#login-form').addEventListener('submit', async (e) => {
-  e.preventDefault()
-  const email = $('#login-email').value
-  const password = $('#login-password').value
+function attachLoginHandler() {
+  const form = $('#login-form')
+  if (!form) {
+    console.warn('attachLoginHandler: #login-form not found, will retry on DOMContentLoaded')
+    document.addEventListener('DOMContentLoaded', attachLoginHandler, { once: true })
+    return
+  }
 
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault()
+    const email = ($('#login-email') && $('#login-email').value) || ''
+    const password = ($('#login-password') && $('#login-password').value) || ''
+
+    if (!validateEmail(email)) return showToast('Email tidak valid', 'error')
+    if (!password) return showToast('Masukkan password', 'error')
+
+    try {
+      const res = await supabase.auth.signInWithPassword({ email, password })
+      console.log('supabase signInWithPassword response', res)
+      if (res.error) throw res.error
+      currentUser = res.data?.user || null
+      showAdminPanel()
+      feather.replace()
+      initializeAdmin()
+    } catch (error) {
+      console.error('Login error', error)
+      showToast('❌ Login gagal: ' + (error?.message || JSON.stringify(error)), 'error', false)
+    }
+  })
+}
+
+attachLoginHandler()
+
+const btnLogout = $('#btn-logout')
+if (btnLogout) {
+  btnLogout.addEventListener('click', async () => {
+    if (confirm('Logout?')) {
+      try {
+        await supabase.auth.signOut()
+      } catch (e) {
+        console.error('Sign out error', e)
+      }
+      location.reload()
+    }
+  })
+} else {
+  console.warn('#btn-logout not found; logout handler not attached')
+}
+
+// Initialize admin dashboard data and listeners
+async function initializeAdmin() {
   try {
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password })
-    if (error) throw error
-    currentUser = data.user
-    showAdminPanel()
-    feather.replace()
-    initializeAdmin()
-  } catch (error) {
-    alert('❌ Login gagal: ' + error.message)
+    await loadDashboardStats()
+    // pre-load common datasets for admin
+    await Promise.allSettled([loadAllTags(), loadAllGalleryPhotos(), loadAllMemories(), loadAllEvents()])
+    // ensure class profile data is loaded into the admin form and preview
+    await loadClassProfileAdmin()
+    // ensure students tab visibility and icon replacement
+    try { showStudentsTab && showStudentsTab() } catch(e) {}
+    try { feather && feather.replace && feather.replace() } catch(e) {}
+  } catch (err) {
+    console.error('initializeAdmin error', err)
   }
-})
+}
 
-$('#btn-logout').addEventListener('click', async () => {
-  if (confirm('Logout?')) {
-    await supabase.auth.signOut()
-    location.reload()
+// Load class profile into admin form and preview (robust)
+async function loadClassProfileAdmin() {
+  try {
+    const { data } = await supabase.from('class_profile').select('*').eq('id', 1).single()
+    if (data) {
+      // populate admin form fields if present
+      const form = document.getElementById('class-profile-form')
+      if (form) {
+        form.ketua_name.value = data.ketua_name || ''
+        form.ketua_instagram.value = data.ketua_instagram || ''
+        form.ketua_photo_url.value = data.ketua_photo_url || ''
+        form.wakil_name.value = data.wakil_name || ''
+        form.wakil_instagram.value = data.wakil_instagram || ''
+        form.wakil_photo_url.value = data.wakil_photo_url || ''
+        form.wali_name.value = data.wali_name || ''
+        form.wali_instagram.value = data.wali_instagram || ''
+        form.wali_photo_url.value = data.wali_photo_url || ''
+        form.total_students.value = data.total_students || 0
+        form.school_name.value = data.school_name || ''
+      }
+
+      // also update public preview if present on admin page (preview area uses same render function)
+      try { parent && parent.renderClassProfile && parent.renderClassProfile(data) } catch(e) {}
+    }
+  } catch (error) {
+    console.error('loadClassProfileAdmin error', error)
   }
-})
+}
 
 // ============================================
 // SIDEBAR (Mobile: icon-only, no toggle)
@@ -1949,13 +2019,6 @@ document.querySelector('#modal-student .btn-close').addEventListener('click', ()
 window.editStudent = editStudent
 window.deleteStudent = deleteStudent
 window.openStudentForm = openStudentForm
-
-function initializeAdmin() {
-  loadDashboardStats()
-  loadAllTags()
-  showStudentsTab()
-  feather.replace()
-}
 
 supabase.auth.getSession().then(({ data, error }) => {
   if (data?.session) {
