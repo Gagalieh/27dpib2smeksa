@@ -12,7 +12,7 @@ let allGuestbook = []
 let allStudents = []
 let allTags = []
 let selectedTags = []
-let itemsPerPage = 16
+let itemsPerPage = 20
 let currentPage = 1
 let studentClickCount = 0
 

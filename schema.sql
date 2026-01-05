@@ -78,6 +78,7 @@ CREATE TABLE gallery (
   title TEXT,
   caption TEXT,
   status TEXT DEFAULT 'public' CHECK (status IN ('public', 'private', 'draft')),
+  file_size BIGINT DEFAULT 0,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );

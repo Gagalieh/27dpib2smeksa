@@ -231,25 +231,87 @@ function loadTabData(tabName) {
 async function loadDashboardStats() {
   try {
     const [photosRes, memoriesRes, newsRes, eventsRes, guestsRes] = await Promise.all([
-      supabase.from('gallery').select('id, created_at', { count: 'exact' }),
+      supabase.from('gallery').select('id, created_at, image_url, file_size', { count: 'exact' }),
       supabase.from('memories').select('id', { count: 'exact' }),
       supabase.from('news').select('id', { count: 'exact' }),
       supabase.from('events').select('id', { count: 'exact' }),
       supabase.from('guestbook').select('id', { count: 'exact' })
     ])
 
-    $('#stat-photos').textContent = photosRes.count || 0
+    // Set photo counters
+    if (photosRes.error) {
+      console.error('Photos query error:', photosRes.error)
+      $('#stat-photos').textContent = '0'
+    } else {
+      $('#stat-photos').textContent = photosRes.count || 0
+    }
+
     $('#stat-memories').textContent = memoriesRes.count || 0
     $('#stat-news').textContent = newsRes.count || 0
     $('#stat-events').textContent = eventsRes.count || 0
     $('#stat-guests').textContent = guestsRes.count || 0
 
-    // Calculate storage: estimate ~500KB per compressed image on Cloudinary
-    const estimatedSizePerImage = 0.5 // MB
-    const totalSize = (photosRes.count || 0) * estimatedSizePerImage
-    $('#stat-storage').textContent = totalSize.toFixed(1) + ' MB'
+    // Calculate storage from file sizes in database
+    let totalSizeBytes = 0
+    
+    if (photosRes.data && Array.isArray(photosRes.data) && photosRes.data.length > 0) {
+      // First try: use database file_size values
+      let databaseHasFileSizes = false
+      
+      photosRes.data.forEach((photo) => {
+        if (photo.file_size && photo.file_size > 0) {
+          databaseHasFileSizes = true
+          totalSizeBytes += photo.file_size
+        }
+      })
+      
+      // If database has real file sizes, we're done
+      if (databaseHasFileSizes && totalSizeBytes > 0) {
+        // Good - use database values
+      } else {
+        // Fallback: try to fetch actual file sizes from Cloudinary URLs using HEAD requests
+        const fileSizeMap = {}
+        
+        for (const photo of photosRes.data) {
+          if (photo.image_url && !fileSizeMap[photo.image_url]) {
+            try {
+              const headRes = await fetch(photo.image_url, { method: 'HEAD' })
+              const contentLength = headRes.headers.get('content-length')
+              if (contentLength) {
+                fileSizeMap[photo.image_url] = parseInt(contentLength)
+                totalSizeBytes += parseInt(contentLength)
+              }
+            } catch (e) {
+              console.warn('Could not fetch size for', photo.image_url, e.message)
+            }
+          }
+        }
+        
+        // Save sizes to database for next time
+        if (Object.keys(fileSizeMap).length > 0) {
+          photosRes.data.forEach(async (photo) => {
+            if (fileSizeMap[photo.image_url] && (!photo.file_size || photo.file_size === 0)) {
+              await supabase
+                .from('gallery')
+                .update({ file_size: fileSizeMap[photo.image_url] })
+                .eq('id', photo.id)
+                .catch(e => console.warn('Could not update file_size:', e))
+            }
+          })
+        }
+      }
+      
+      // Last resort: estimate if we still have nothing
+      if (totalSizeBytes === 0 && photosRes.count > 0) {
+        totalSizeBytes = (photosRes.count || 0) * 0.5 * 1024 * 1024 // 0.5 MB estimate
+      }
+    }
+    
+    const totalSizeMB = totalSizeBytes / (1024 * 1024)
+    $('#stat-storage').textContent = totalSizeMB.toFixed(1) + ' MB'
   } catch (error) {
     console.error('Dashboard stats error:', error)
+    $('#stat-photos').textContent = '0'
     $('#stat-storage').textContent = '0 MB'
   }
 }
@@ -768,7 +830,8 @@ $('#btn-upload-all').addEventListener('click', async () => {
           image_url: cloudResult.secure_url,
           title,
           caption,
-          status: 'public'
+          status: 'public',
+          file_size: compressed.size
         })
         .select()
 
