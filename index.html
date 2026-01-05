@@ -913,19 +913,17 @@
 
     /* Photo frame */
     .film-strip {
-      flex: 0 0 100%;
+      flex: 0 0 280px;
       position: relative;
       z-index: 1;
       display: flex;
       justify-content: center;
-      width: 100%;
     }
 
     .film-frame {
       position: relative;
-      width: 280px !important;
-      aspect-ratio: 16 / 9 !important;
-      height: auto !important;
+      width: 280px;
+      aspect-ratio: 16 / 9;
       background: #000;
       border-radius: 12px;
       overflow: hidden;
@@ -1046,7 +1044,6 @@
         width: 100% !important;
         height: auto !important;
         aspect-ratio: 16 / 9 !important;
-        max-width: 100% !important;
         border-radius: 10px;
         box-shadow: 0 6px 20px rgba(0,0,0,0.32);
         position: relative;
@@ -1185,70 +1182,23 @@
       object-fit: cover;
     }
 
-    @media (max-width: 1024px) {
-      .film-strip {
-        flex: 0 0 100% !important;
-        width: 100% !important;
-      }
-      .film-frame {
-        width: 100% !important;
-        aspect-ratio: 16 / 9 !important;
-        height: auto !important;
-      }
-    }
-
     @media (max-width: 900px) {
       .timeline-item { 
         flex-direction: column; 
         gap: 1rem; 
-        margin-bottom: 5rem !important;
+        margin-bottom: 4rem !important;
         padding: 2rem 0;
       }
       .timeline-line { left: 20px; }
       .memory-photos-grid {
         grid-template-columns: 1fr;
       }
-      .film-strip {
-        flex: 0 0 100% !important;
-        width: 100% !important;
-      }
-      .film-frame {
-        width: 100% !important;
-        aspect-ratio: 16 / 9 !important;
-        height: auto !important;
-        max-width: 100% !important;
-      }
-    }
-
-    @media (max-width: 768px) {
-      .film-strip {
-        flex: 0 0 100% !important;
-        width: 100% !important;
-      }
-      .film-frame {
-        width: 100% !important;
-        aspect-ratio: 16 / 9 !important;
-        height: auto !important;
-      }
-      .timeline-item {
-        margin-bottom: 4rem !important;
-      }
     }
 
     @media (max-width: 500px) {
       .timeline-item {
-        margin-bottom: 6rem !important;
+        margin-bottom: 5rem !important;
         padding: 2rem 0;
-      }
-      .film-strip {
-        flex: 0 0 100% !important;
-        width: 100% !important;
-      }
-      .film-frame {
-        width: 100% !important;
-        max-width: 100% !important;
-        aspect-ratio: 16 / 9 !important;
-        height: auto !important;
       }
     }
 
@@ -3143,10 +3093,8 @@
 
         const frame = document.createElement('div')
         frame.className = 'film-frame'
-        frame.style.aspectRatio = '16/9'
+        frame.style.aspectRatio = '16 / 9'
         frame.style.width = '280px'
-        frame.style.height = 'auto'
-        frame.style.maxWidth = '100%'
         const img = document.createElement('img')
         img.src = photoUrls[0]
         img.alt = memory.title
