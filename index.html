@@ -2900,7 +2900,6 @@
     function renderTagFilter() {
       const tagList = $('#tagList')
       tagList.innerHTML = ''
-
       allTags.forEach(tag => {
         const id = `tag-${tag.id}`
         const checkbox = document.createElement('input')
@@ -2917,27 +2916,50 @@
         label.style.backgroundColor = tag.color + '40'
         label.style.borderColor = tag.color
 
-        const wrapper = document.createElement('div')
-        wrapper.style.display = 'flex'
-        wrapper.appendChild(checkbox)
-        wrapper.appendChild(label)
+        // Store tag color in dataset for later use
+        checkbox.dataset.tagColor = tag.color
 
         // Auto-apply filter on checkbox change
         checkbox.addEventListener('change', () => {
           selectedTags = Array.from($$('.tag-checkbox:checked')).map(el => parseInt(el.dataset.tagId))
+
+          // Update visual state of labels
+          $$('.tag-checkbox').forEach(cb => {
+            const lbl = document.querySelector(`label[for="${cb.id}"]`)
+            if (lbl) {
+              if (cb.checked) {
+                lbl.style.backgroundColor = cb.dataset.tagColor
+                lbl.style.color = 'white'
+                lbl.style.borderColor = cb.dataset.tagColor
+              } else {
+                const tagObj = allTags.find(t => t.id == cb.dataset.tagId)
+                if (tagObj) {
+                  lbl.style.backgroundColor = tagObj.color + '40'
+                  lbl.style.borderColor = tagObj.color
+                  lbl.style.color = 'var(--text-primary)'
+                }
+              }
+            }
+          })
+
           currentPage = 1
           renderGallery()
         })
 
-        tagList.appendChild(wrapper)
+        tagList.appendChild(checkbox)
+        tagList.appendChild(label)
       })
     }
 
     function getFilteredPhotos() {
-      if(selectedTags.length === 0) return allPhotos
+      if (selectedTags.length === 0) return allPhotos
 
       return allPhotos.filter(photo => {
-        return photo.gallery_tags.some(gt => selectedTags.includes(gt.tag_id))
+        if (!photo.gallery_tags || photo.gallery_tags.length === 0) return false
+        return photo.gallery_tags.some(gt => {
+          const tid = (gt.tag_id) ? gt.tag_id : (gt.tags && gt.tags.id) ? gt.tags.id : null
+          return tid && selectedTags.includes(tid)
+        })
       })
     }
 

@@ -410,7 +410,10 @@ function getFilteredPhotos() {
   if(selectedTags.length === 0) return allPhotos
 
   return allPhotos.filter(photo => {
-    return photo.gallery_tags.some(gt => selectedTags.includes(gt.tag_id))
+    return photo.gallery_tags.some(gt => {
+      const tid = (gt.tag_id) ? gt.tag_id : (gt.tags && gt.tags.id) ? gt.tags.id : null
+      return tid && selectedTags.includes(tid)
+    })
   })
 }
 
