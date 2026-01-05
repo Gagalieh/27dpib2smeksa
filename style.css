@@ -454,12 +454,14 @@ html, body {
 }
 
 .memory-photo {
-  width: 100%;
-  aspect-ratio: 16 / 9;
+  width: 100% !important;
+  aspect-ratio: 16 / 9 !important;
   border-radius: 8px;
   object-fit: cover;
   cursor: pointer;
   transition: transform 0.3s;
+  display: block !important;
+  max-width: 100%;
 }
 
 .memory-photo:hover {
@@ -783,8 +785,15 @@ textarea.input-field {
     grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
   }
 
-  .memory-photos {
+  .memory-photos,
+  .memory-photos-grid {
     grid-template-columns: 1fr;
+    gap: 2rem !important;
+  }
+
+  .memory-photo,
+  .memory-photo-thumb {
+    aspect-ratio: 16 / 9 !important;
   }
 
   .memories-roll {
@@ -801,5 +810,26 @@ textarea.input-field {
 
   .news-grid {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 500px) {
+  .memory-photos,
+  .memory-photos-grid {
+    gap: 3rem !important;
+  }
+
+  .memories-roll {
+    gap: 5rem !important;
+  }
+
+  .memory-frame {
+    margin-bottom: 3rem !important;
+  }
+
+  .memory-photo,
+  .memory-photo-thumb {
+    aspect-ratio: 16 / 9 !important;
+    height: auto !important;
   }
 }
