@@ -1255,8 +1255,9 @@
 
     /* MASONRY GALLERY */
     .gallery-grid {
-      column-count: 4;
-      column-gap: 1rem;
+      display: block !important;
+      column-count: 4 !important;
+      column-gap: 1rem !important;
     }
 
     .gallery-item {
@@ -1333,8 +1334,8 @@
       }
 
       .gallery-grid {
-        column-count: 2;
-        column-gap: 0.7rem;
+        column-count: 2 !important;
+        column-gap: 0.7rem !important;
       }
 
       .gallery-item {
@@ -1349,7 +1350,12 @@
 
     @media (max-width: 480px) {
       .gallery-grid {
-        column-count: 1;
+        column-count: 2 !important;
+        column-gap: 0.5rem !important;
+      }
+
+      .gallery-item {
+        margin-bottom: 0.5rem;
       }
     }
 
