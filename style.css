@@ -336,7 +336,7 @@ html, body {
   align-items: center;
   justify-content: center;
   z-index: 1000;
-  padding: 1rem;
+  padding: 0.5rem;
 }
 
 .lightbox.active {
@@ -357,9 +357,24 @@ html, body {
   opacity: 0.7;
 }
 
+/* Ensure lightbox image fits the viewport and respects different ID/class usages */
+.lightbox-content {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.lightbox-img,
+#lightboxImg,
 #lightbox-img {
-  max-width: 90%;
-  max-height: 80%;
+  max-width: 100%;
+  max-height: calc(100vh - 3.5rem);
+  width: auto;
+  height: auto;
+  object-fit: contain;
   border-radius: 8px;
 }
 
