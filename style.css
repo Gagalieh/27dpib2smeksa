@@ -449,13 +449,13 @@ html, body {
 
 .memory-photos {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1.5rem;
 }
 
 .memory-photo {
   width: 100%;
-  height: 120px;
+  aspect-ratio: 16 / 9;
   border-radius: 8px;
   object-fit: cover;
   cursor: pointer;
@@ -781,6 +781,18 @@ textarea.input-field {
 
   .gallery-grid {
     grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  }
+
+  .memory-photos {
+    grid-template-columns: 1fr;
+  }
+
+  .memories-roll {
+    gap: 4rem;
+  }
+
+  .memory-frame {
+    margin-bottom: 2rem;
   }
 
   .profil-grid {
