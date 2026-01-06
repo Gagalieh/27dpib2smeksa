@@ -1992,23 +1992,33 @@
 
     /* Ocean creature swim animations */
     @keyframes fish-swim {
-      0% { transform: translateX(0) translateY(0) scaleX(1); }
-      25% { transform: translateX(6vw) translateY(-6px) scaleX(1.03); }
-      50% { transform: translateX(12vw) translateY(0) scaleX(1); }
-      75% { transform: translateX(6vw) translateY(6px) scaleX(0.97); }
-      100% { transform: translateX(0) translateY(0) scaleX(1); }
+      0% { transform: translateX(-100vw) translateY(0) scaleX(1); }
+      12% { transform: translateX(-60vw) translateY(-8px) scaleX(1.05); }
+      25% { transform: translateX(-20vw) translateY(-12px) scaleX(1.02); }
+      38% { transform: translateX(20vw) translateY(-8px) scaleX(1.03); }
+      50% { transform: translateX(60vw) translateY(0) scaleX(1); }
+      62% { transform: translateX(100vw) translateY(8px) scaleX(0.98); }
+      75% { transform: translateX(140vw) translateY(12px) scaleX(1.01); }
+      100% { transform: translateX(180vw) translateY(0) scaleX(1); }
     }
 
     @keyframes jellyfish-swim {
-      0% { transform: translateY(0) translateX(0); }
-      50% { transform: translateY(20px) translateX(4px); }
-      100% { transform: translateY(0) translateX(0); }
+      0% { transform: translateY(0) translateX(-80vw); }
+      15% { transform: translateY(-25px) translateX(-40vw); }
+      30% { transform: translateY(30px) translateX(0); }
+      50% { transform: translateY(-15px) translateX(50vw); }
+      70% { transform: translateY(35px) translateX(100vw); }
+      85% { transform: translateY(-10px) translateX(140vw); }
+      100% { transform: translateY(0) translateX(180vw); }
     }
 
     @keyframes crab-swim {
-      0% { transform: translateX(0) translateY(0); }
-      50% { transform: translateX(2vw) translateY(0); }
-      100% { transform: translateX(0) translateY(0); }
+      0% { transform: translateX(-100vw) translateY(0); }
+      20% { transform: translateX(-40vw) translateY(-4px); }
+      40% { transform: translateX(20vw) translateY(0); }
+      60% { transform: translateX(80vw) translateY(-3px); }
+      80% { transform: translateX(140vw) translateY(0); }
+      100% { transform: translateX(200vw) translateY(0); }
     }
 
     /* Retro: paper texture overlay */
@@ -2094,9 +2104,10 @@
 
     @keyframes leaf-fall {
       0% { transform: translate3d(0, -5vh, 0) rotate(0deg) scale(var(--s,1)); opacity: 0; }
-      10% { opacity: 1; }
-      50% { transform: translate3d(var(--x,0px), 50vh, 0) rotate(180deg) scale(var(--s,1)); }
-      100% { transform: translate3d(calc(var(--x,0px) * 1.2), 110vh, 0) rotate(360deg) scale(var(--s,1)); opacity: 0.85; }
+      8% { opacity: 1; }
+      40% { transform: translate3d(var(--x,0px), 45vh, 0) rotate(180deg) scale(var(--s,1)); }
+      70% { transform: translate3d(calc(var(--x,0px) * 1.1), 95vh, 0) rotate(280deg) scale(var(--s,1)); }
+      100% { transform: translate3d(calc(var(--x,0px) * 1.3), 120vh, 0) rotate(360deg) scale(var(--s,1) * 0.9); opacity: 0; }
     }
 
     /* Forest leaves falling */
@@ -2138,10 +2149,11 @@
     .sakura-falling svg { width: 100%; height: 100%; display: block; }
 
     @keyframes sakura-fall {
-      0% { transform: translate3d(0, 0, 0) rotate(0deg) scale(1); opacity: 0; }
-      8% { opacity: 1; }
-      50% { transform: translate3d(var(--x, 0px), 50vh, 0) rotate(180deg) scale(1.1); }
-      100% { transform: translate3d(calc(var(--x, 0px) * 0.8), 110vh, 0) rotate(var(--r, 360deg)); opacity: 0; }
+      0% { transform: translate3d(0, -2vh, 0) rotate(0deg) scale(1); opacity: 0; }
+      6% { opacity: 1; }
+      35% { transform: translate3d(var(--x, 0px), 40vh, 0) rotate(120deg) scale(1.08); }
+      65% { transform: translate3d(calc(var(--x, 0px) * 0.9), 80vh, 0) rotate(240deg) scale(1.05); }
+      100% { transform: translate3d(calc(var(--x, 0px) * 0.7), 120vh, 0) rotate(var(--r, 360deg)); opacity: 0; }
     }
 
     /* Sakura theme background with soft gradient */
@@ -2164,8 +2176,13 @@
     }
 
     @keyframes petals-drift {
-      0% { transform: translateY(0) translateX(0); }
-      100% { transform: translateY(100vh) translateX(50px); }
+      0% { transform: translateY(0) translateX(0) rotate(0deg); }
+      100% { transform: translateY(100vh) translateX(50px) rotate(360deg); }
+    }
+
+    @keyframes forest-breath {
+      0%, 100% { filter: brightness(1) saturate(1); }
+      50% { filter: brightness(1.08) saturate(1.1); }
     }
 
     /* Sakura theme: softer, more elegant */
@@ -2245,9 +2262,9 @@
     }
 
     @keyframes wave-motion {
-      0%, 100% { transform: translateY(0); }
-      25% { transform: translateY(-8px); }
-      75% { transform: translateY(8px); }
+      0%, 100% { transform: translateY(0) scaleY(1); }
+      25% { transform: translateY(-12px) scaleY(1.02); }
+      75% { transform: translateY(12px) scaleY(1.01); }
     }
 
     @keyframes cyber-pulse {
@@ -2302,23 +2319,62 @@
 
     /* Ocean fish swimming */
     @keyframes swim-fish {
-      0%, 100% { transform: translateX(-100vw) translateY(0); opacity: 0.6; }
-      10%, 90% { opacity: 0.7; }
-      50% { transform: translateX(50vw) translateY(15px); opacity: 0.75; }
+      0% { transform: translateX(-100vw) translateY(0); opacity: 0; }
+      2% { opacity: 0.65; }
+      50% { transform: translateX(50vw) translateY(var(--swim-y, 0px)); opacity: 0.8; }
+      98% { opacity: 0.65; }
+      100% { transform: translateX(120vw) translateY(var(--swim-y, 0px)); opacity: 0; }
+    }
+
+    /* Mirrored (right-to-left) and sine-wave swim variants for more natural motion */
+    @keyframes swim-fish-rtl {
+      0% { transform: translateX(120vw) translateY(0); opacity: 0; }
+      2% { opacity: 0.65; }
+      50% { transform: translateX(50vw) translateY(var(--swim-y, 0px)); opacity: 0.8; }
+      98% { opacity: 0.65; }
+      100% { transform: translateX(-100vw) translateY(var(--swim-y, 0px)); opacity: 0; }
+    }
+
+    @keyframes swim-fish-sine {
+      0% { transform: translateX(-100vw) translateY(0); opacity: 0; }
+      6% { opacity: 0.65; }
+      20% { transform: translateX(-40vw) translateY(-12px); }
+      40% { transform: translateX(10vw) translateY(8px); }
+      60% { transform: translateX(60vw) translateY(-10px); opacity: 0.8; }
+      80% { transform: translateX(100vw) translateY(6px); }
+      100% { transform: translateX(120vw) translateY(0); opacity: 0; }
+    }
+
+    @keyframes swim-fish-sine-rtl {
+      0% { transform: translateX(120vw) translateY(0); opacity: 0; }
+      6% { opacity: 0.65; }
+      20% { transform: translateX(60vw) translateY(8px); }
+      40% { transform: translateX(10vw) translateY(-10px); }
+      60% { transform: translateX(-40vw) translateY(10px); opacity: 0.8; }
+      80% { transform: translateX(-90vw) translateY(-6px); }
+      100% { transform: translateX(-100vw) translateY(0); opacity: 0; }
     }
 
     /* Ocean jellyfish floating */
     @keyframes jellyfish-swim {
-      0%, 100% { transform: translateX(-120vw) translateY(-50px); opacity: 0.5; }
-      25% { transform: translateX(-40vw) translateY(30px); opacity: 0.6; }
-      50% { transform: translateX(40vw) translateY(-20px); opacity: 0.65; }
-      75% { transform: translateX(100vw) translateY(50px); opacity: 0.55; }
+      0% { transform: translateX(-100vw) translateY(-50px); opacity: 0; }
+      3% { opacity: 0.55; }
+      25% { transform: translateX(-20vw) translateY(30px); }
+      50% { transform: translateX(50vw) translateY(-25px); opacity: 0.70; }
+      75% { transform: translateX(120vw) translateY(40px); }
+      97% { opacity: 0.55; }
+      100% { transform: translateX(150vw) translateY(50px); opacity: 0; }
     }
 
     /* Ocean crab crawling on bottom */
     @keyframes crab-swim {
-      0%, 100% { transform: translateX(-120vw); opacity: 0.5; }
-      50% { transform: translateX(40vw) translateY(-15px); opacity: 0.65; }
+      0% { transform: translateX(-100vw) translateY(0); opacity: 0; }
+      3% { opacity: 0.60; }
+      25% { transform: translateX(-30vw) translateY(-8px); }
+      50% { transform: translateX(50vw) translateY(-12px); opacity: 0.70; }
+      75% { transform: translateX(130vw) translateY(-6px); }
+      97% { opacity: 0.60; }
+      100% { transform: translateX(160vw) translateY(0); opacity: 0; }
     }
 
     /* Minimal: clean geometric elements floating subtly */
@@ -2746,10 +2802,11 @@
     applyThemeExtras(savedTheme)
 
     function applyThemeExtras(themeName) {
-      // Remove existing layers - remove ALL animation layers (back AND front)
+      // Remove existing layers
       const existing = document.querySelector('.theme-deco')
       if(existing) existing.remove()
-      document.querySelectorAll('[class*="theme-anim"]').forEach(el => el.remove())
+      const existingAnims = document.querySelectorAll('.theme-anim')
+      if(existingAnims && existingAnims.length) existingAnims.forEach(a => a.remove())
       const existingToast = document.querySelector('.theme-toast')
       if(existingToast) existingToast.remove()
 
@@ -2761,6 +2818,11 @@
       deco.style.pointerEvents = 'none'
       deco.style.zIndex = '-1'
       document.body.appendChild(deco)
+
+      // Clean up any lingering elements from previous theme
+      $$('.sakura-falling').forEach(el => el.remove())
+      $$('.forest-leaf').forEach(el => el.remove())
+      $$('.arch-falling').forEach(el => el.remove())
 
       // ANIMATION LAYERS - separate back/front so some elements can appear above content
       const animBack = document.createElement('div')
@@ -2780,7 +2842,7 @@
       document.body.appendChild(animFront)
 
       if(themeName === 'ocean') {
-        deco.style.background = 'linear-gradient(180deg, rgba(30,220,255,0.7) 0%, rgba(20,180,240,0.65) 20%, rgba(10,140,210,0.6) 40%, rgba(5,100,180,0.55) 60%, rgba(0,80,160,0.6) 85%, rgba(0,60,140,0.7) 100%)'
+        deco.style.background = 'linear-gradient(180deg, rgba(15,140,200,0.85) 0%, rgba(25,110,180,0.75) 20%, rgba(5,90,160,0.70) 40%, rgba(0,70,140,0.75) 100%)'
         deco.style.animation = 'wave-motion 8s ease-in-out infinite'
         const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
         svg.setAttribute('viewBox', '0 0 1920 1080')
@@ -2814,36 +2876,67 @@
         `
         deco.appendChild(svg)
         const creatures = [
-          { name: 'fish', count: 8, colors: ['rgba(255,140,0,0.8)','rgba(100,180,220,0.8)','rgba(150,220,120,0.8)','rgba(220,150,80,0.8)'] },
-          { name: 'jellyfish', count: 5, colors: ['rgba(200,100,255,0.6)','rgba(100,200,255,0.6)','rgba(150,100,200,0.55)'] },
-          { name: 'crab', count: 4, colors: ['rgba(220,80,50,0.7)','rgba(180,100,40,0.7)','rgba(200,120,60,0.65)'] }
+          { name: 'fish', count: 8, speed: 'fish', colors: ['rgba(255,140,0,0.85)','rgba(100,180,220,0.85)','rgba(150,220,120,0.85)','rgba(220,150,80,0.85)','rgba(255,200,100,0.8)','rgba(80,200,240,0.85)'] },
+          { name: 'jellyfish', count: 5, speed: 'jellyfish', colors: ['rgba(200,100,255,0.7)','rgba(100,200,255,0.7)','rgba(150,120,255,0.65)'] },
+          { name: 'crab', count: 4, speed: 'crab', colors: ['rgba(220,80,50,0.75)','rgba(180,100,40,0.75)','rgba(200,90,60,0.75)'] }
         ]
         creatures.forEach(creature => {
           for(let i=0;i<creature.count;i++){
             const elem = document.createElement('div')
-            // more variety in vertical positions - some higher, some lower
-            const topPos = creature.name === 'crab' ? 800+Math.random()*200 : 150+Math.random()*500
-            // slower, more varied speeds for natural feel
-            let speed
-            if(creature.name === 'fish') speed = 12 + Math.random() * 20  // 12-32s slower
-            else if(creature.name === 'jellyfish') speed = 18 + Math.random() * 15  // 18-33s
-            else speed = 16 + Math.random() * 18  // 16-34s crabs
+            const topPos = creature.name === 'crab' ? 750+Math.random()*250 : 250+Math.random()*400
+            const speed = creature.speed === 'fish' ? (7+Math.random()*6) : creature.speed === 'jellyfish' ? (16+Math.random()*12) : (7+Math.random()*6)
             // Random front/back assignment
-            const shouldBeInFront = Math.random() > 0.45
-            // Use cubic-bezier for more natural easing, longer delays for staggered entry
-            elem.style.cssText = `position:fixed;left:${Math.random()*100}%;top:${topPos}px;pointer-events:none;opacity:${0.5+Math.random()*0.35};animation-duration:${speed}s;animation-delay:${-Math.random()*20}s;animation-timing-function:cubic-bezier(0.25, 0.46, 0.45, 0.94);animation-iteration-count:infinite;transform-origin:center;`
+            const shouldBeInFront = Math.random() > 0.50
             const col = creature.colors[i%creature.colors.length]
+            
             if(creature.name === 'fish'){
-              // use the broader crossing animation so fish visibly swim across the viewport
-              elem.style.animationName = 'swim-fish'
-              elem.innerHTML = `<svg viewBox="0 0 35 22" xmlns="http://www.w3.org/2000/svg" width="40" height="25"><ellipse cx="13" cy="11" rx="12" ry="9" fill="${col}"/><polygon points="26,11 35,14 35,8" fill="${col}"/><circle cx="5" cy="9" r="2.5" fill="rgba(255,255,255,0.9)"/></svg>`
+              // Create varied fish with different shapes and directions
+              const fishTypes = [
+                // Type A: Round body, small tail (tropical fish) - facing RIGHT
+                `<svg viewBox="0 0 35 22" xmlns="http://www.w3.org/2000/svg" width="40" height="25"><ellipse cx="22" cy="11" rx="12" ry="9" fill="${col}"/><polygon points="9,11 0,14 0,8" fill="${col}"/><circle cx="30" cy="9" r="2.5" fill="rgba(255,255,255,0.9)"/></svg>`,
+                // Type B: Elongated body, flowing tail - facing RIGHT
+                `<svg viewBox="0 0 40 20" xmlns="http://www.w3.org/2000/svg" width="40" height="25"><ellipse cx="26" cy="10" rx="14" ry="7" fill="${col}"/><polygon points="12,10 -2,13 4,7" fill="${col}"/><circle cx="36" cy="8" r="2" fill="rgba(255,255,255,0.9)"/><path d="M14 7 Q10 5 5 8" stroke="${col}" stroke-width="1.5" fill="none" opacity="0.6"/></svg>`,
+                // Type C: Compressed body, striped pattern - facing RIGHT
+                `<svg viewBox="0 0 32 18" xmlns="http://www.w3.org/2000/svg" width="40" height="25"><ellipse cx="20" cy="9" rx="10" ry="7" fill="${col}"/><polygon points="10,9 0,12 0,6" fill="${col}"/><circle cx="29" cy="8" r="2" fill="rgba(255,255,255,0.9)"/><line x1="22" y1="5" x2="22" y2="13" stroke="rgba(255,255,255,0.3)" stroke-width="1"/><line x1="17" y1="4" x2="17" y2="14" stroke="rgba(255,255,255,0.3)" stroke-width="1"/></svg>`,
+                // Type D: Slender body, forked tail - facing RIGHT
+                `<svg viewBox="0 0 38 18" xmlns="http://www.w3.org/2000/svg" width="40" height="25"><ellipse cx="25" cy="9" rx="11" ry="6" fill="${col}"/><polygon points="14,9 0,5 6,9 0,13" fill="${col}"/><circle cx="35" cy="8" r="2.5" fill="rgba(255,255,255,0.9)"/><path d="M26 4 Q23 3 20 4" stroke="rgba(255,255,255,0.4)" stroke-width="1" fill="none"/></svg>`
+              ]
+              
+              // Randomly pick fish type, direction, and motion style
+              const fishType = Math.floor(Math.random() * fishTypes.length)
+              const moveLeft = Math.random() > 0.45
+              const variant = Math.random() > 0.6 ? 'sine' : 'straight'
+              const swimName = variant === 'sine' ? (moveLeft ? 'swim-fish-sine-rtl' : 'swim-fish-sine') : (moveLeft ? 'swim-fish-rtl' : 'swim-fish')
+              const scaleDir = moveLeft ? -1 : 1
+              const swimY = (-12 + Math.random()*24).toFixed(1) + 'px'
+
+              elem.style.cssText = `position:fixed;left:${Math.random()*100}%;top:${topPos}px;pointer-events:none;opacity:${0.65+Math.random()*0.25};animation-duration:${speed}s;animation-delay:${-Math.random()*12}s;animation-timing-function:ease-in-out;animation-iteration-count:infinite;transform-origin:center;transform:scaleX(${scaleDir});`
+              elem.style.setProperty('--swim-y', swimY)
+              elem.style.animationName = swimName
+              elem.innerHTML = fishTypes[fishType]
+              
             } else if(creature.name === 'jellyfish'){
+              // Jellyfish with varied body sizes
+              const jellySizes = [
+                // Small jellyfish
+                `<svg viewBox="0 0 24 40" xmlns="http://www.w3.org/2000/svg" width="20" height="35"><ellipse cx="12" cy="6" rx="10" ry="6" fill="${col}"/><path d="M7 12 Q5 25 6 38" stroke="${col}" stroke-width="1.5" fill="none" opacity="0.7"/><path d="M12 12 Q12 25 12 38" stroke="${col}" stroke-width="1.5" fill="none" opacity="0.7"/><path d="M17 12 Q19 25 18 38" stroke="${col}" stroke-width="1.5" fill="none" opacity="0.7"/></svg>`,
+                // Medium jellyfish
+                `<svg viewBox="0 0 30 50" xmlns="http://www.w3.org/2000/svg" width="25" height="45"><ellipse cx="15" cy="8" rx="12" ry="8" fill="${col}"/><path d="M8 16 Q6 30 7 45" stroke="${col}" stroke-width="2" fill="none" opacity="0.7"/><path d="M15 16 Q15 30 15 45" stroke="${col}" stroke-width="2" fill="none" opacity="0.7"/><path d="M22 16 Q24 30 23 45" stroke="${col}" stroke-width="2" fill="none" opacity="0.7"/></svg>`,
+                // Large jellyfish
+                `<svg viewBox="0 0 36 55" xmlns="http://www.w3.org/2000/svg" width="30" height="50"><ellipse cx="18" cy="10" rx="14" ry="9" fill="${col}"/><path d="M9 18 Q6 35 8 50" stroke="${col}" stroke-width="2.5" fill="none" opacity="0.7"/><path d="M18 18 Q18 35 18 50" stroke="${col}" stroke-width="2.5" fill="none" opacity="0.7"/><path d="M27 18 Q30 35 28 50" stroke="${col}" stroke-width="2.5" fill="none" opacity="0.7"/><path d="M13 18 Q10 32 12 48" stroke="${col}" stroke-width="1.5" fill="none" opacity="0.5"/><path d="M23 18 Q26 32 24 48" stroke="${col}" stroke-width="1.5" fill="none" opacity="0.5"/></svg>`
+              ]
+              const jellyType = Math.floor(Math.random() * jellySizes.length)
+              elem.style.cssText = `position:fixed;left:${Math.random()*100}%;top:${topPos}px;pointer-events:none;opacity:${0.55+Math.random()*0.3};animation-duration:${speed}s;animation-delay:${-Math.random()*14}s;animation-timing-function:ease-in-out;animation-iteration-count:infinite;transform-origin:center;`
               elem.style.animationName = 'jellyfish-swim'
-              elem.innerHTML = `<svg viewBox="0 0 30 50" xmlns="http://www.w3.org/2000/svg" width="25" height="45"><ellipse cx="15" cy="8" rx="12" ry="8" fill="${col}"/><path d="M8 16 Q6 30 7 45" stroke="${col}" stroke-width="2" fill="none" opacity="0.7"/><path d="M15 16 Q15 30 15 45" stroke="${col}" stroke-width="2" fill="none" opacity="0.7"/><path d="M22 16 Q24 30 23 45" stroke="${col}" stroke-width="2" fill="none" opacity="0.7"/></svg>`
+              elem.innerHTML = jellySizes[jellyType]
+              
             } else if(creature.name === 'crab'){
+              elem.style.cssText = `position:fixed;left:${Math.random()*100}%;top:${topPos}px;pointer-events:none;opacity:${0.65+Math.random()*0.25};animation-duration:${speed}s;animation-delay:${-Math.random()*10}s;animation-timing-function:ease-in-out;animation-iteration-count:infinite;transform-origin:center;`
               elem.style.animationName = 'crab-swim'
               elem.innerHTML = `<svg viewBox="0 0 40 25" xmlns="http://www.w3.org/2000/svg" width="40" height="25"><ellipse cx="20" cy="13" rx="10" ry="8" fill="${col}"/><circle cx="8" cy="10" r="4" fill="${col}"/><circle cx="32" cy="10" r="4" fill="${col}"/><path d="M5 15 L2 22" stroke="${col}" stroke-width="2" fill="none"/><path d="M35 15 L38 22" stroke="${col}" stroke-width="2" fill="none"/><circle cx="20" cy="10" r="2" fill="rgba(255,255,255,0.8)"/></svg>`
             }
+            
+            // append to front or back animation layer
             if(shouldBeInFront) animFront.appendChild(elem)
             else animBack.appendChild(elem)
           }
@@ -2953,68 +3046,76 @@
         deco.appendChild(svg)
       }
       else if(themeName === 'forest') {
-        deco.style.background = 'linear-gradient(135deg, rgba(21,128,61,0.18) 0%, rgba(5,46,22,0.12) 100%)'
+        deco.style.background = 'linear-gradient(135deg, rgba(21,128,61,0.22) 0%, rgba(16,99,48,0.16) 50%, rgba(5,46,22,0.14) 100%)'
+        deco.style.animation = 'forest-breath 40s ease-in-out infinite'
         const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
         svg.setAttribute('viewBox', '0 0 1920 1080')
-        svg.setAttribute('style', 'position:absolute;inset:0;width:100%;height:100%;opacity:0.5')
+        svg.setAttribute('style', 'position:absolute;inset:0;width:100%;height:100%;opacity:0.55')
         svg.innerHTML = `
-          <defs><filter id="shadow"><feGaussianBlur stdDeviation="3"/></filter></defs>
-          <path d="M 100 0 Q 120 150, 80 300 Q 60 450, 100 600 Q 120 750, 80 1080" stroke="#15803d" stroke-width="12" fill="none" opacity="0.45" filter="url(#shadow)"/>
-          <path d="M 1800 0 Q 1780 150, 1820 300 Q 1840 450, 1800 600 Q 1780 750, 1820 1080" stroke="#15803d" stroke-width="12" fill="none" opacity="0.45" filter="url(#shadow)"/>
-          <rect x="250" y="400" width="80" height="600" fill="rgba(78,35,12,0.2)" filter="url(#shadow)"/>
-          <rect x="1650" y="450" width="100" height="550" fill="rgba(78,35,12,0.2)" filter="url(#shadow)"/>
-          <g fill="rgba(34,139,34,0.35)" filter="url(#shadow)">
-            <circle cx="200" cy="350" r="140"/><circle cx="300" cy="300" r="110"/>
-            <circle cx="1700" cy="400" r="130"/><circle cx="1800" cy="320" r="105"/>
+          <defs><filter id="shadow"><feGaussianBlur stdDeviation="4"/></filter><radialGradient id="canopy"><stop offset="0%" stop-color="#059669" stop-opacity="0.5"/><stop offset="100%" stop-color="#059669" stop-opacity="0"/></radialGradient></defs>
+          <path d="M 100 0 Q 120 150, 80 300 Q 60 450, 100 600 Q 120 750, 80 1080" stroke="#15803d" stroke-width="14" fill="none" opacity="0.5" filter="url(#shadow)"/>
+          <path d="M 1800 0 Q 1780 150, 1820 300 Q 1840 450, 1800 600 Q 1780 750, 1820 1080" stroke="#15803d" stroke-width="14" fill="none" opacity="0.5" filter="url(#shadow)"/>
+          <rect x="250" y="400" width="80" height="600" fill="rgba(78,35,12,0.25)" filter="url(#shadow)"/>
+          <rect x="1650" y="450" width="100" height="550" fill="rgba(78,35,12,0.25)" filter="url(#shadow)"/>
+          <g fill="rgba(21,128,61,0.4)" filter="url(#shadow)">
+            <circle cx="200" cy="350" r="160"/><circle cx="300" cy="280" r="130"/>
+            <circle cx="1700" cy="400" r="150"/><circle cx="1800" cy="320" r="120"/>
+            <circle cx="950" cy="200" r="140"/>
           </g>
+          <circle cx="200" cy="350" r="180" fill="url(#canopy)" opacity="0.4"/>
+          <circle cx="1700" cy="400" r="170" fill="url(#canopy)" opacity="0.35"/>
         `
         deco.appendChild(svg)
-        for(let i=0;i<25;i++){
+        for(let i=0;i<35;i++){
           const leaf = document.createElement('div')
           leaf.className = 'forest-leaf'
-          leaf.style.left = Math.random()*100+'%'
-          leaf.style.top = Math.random()*-30-10+'px'
-          leaf.style.setProperty('--delay', -Math.random()*10+'s')
-          leaf.style.setProperty('--duration', (8+Math.random()*8)+'s')
-          leaf.style.setProperty('--x', (Math.random()*100-50)+'px')
-          // random front/back so some leaves are in front of content
-          const leafFront = Math.random() > 0.45
-          leaf.innerHTML = '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="rgba(21,128,61,0.95)"><path d="M12 2C12 2 8 6 8 12C8 16 10 20 12 22C14 20 16 16 16 12C16 6 12 2 12 2Z"/></svg>'
+          leaf.dataset.themeId = 'forest-' + Math.random()
+          leaf.style.left = (Math.random()*100)+'%'
+          leaf.style.top = (Math.random()*-40-15)+'px'
+          leaf.style.setProperty('--delay', (-Math.random()*12)+'s')
+          leaf.style.setProperty('--duration', (11+Math.random()*10)+'s')
+          leaf.style.setProperty('--x', (Math.random()*140-70)+'px')
+          leaf.style.setProperty('--s', (0.7+Math.random()*0.6))
+          const leafFront = Math.random() > 0.50
+          leaf.innerHTML = '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="rgba(34,197,94,0.9)"><path d="M12 2C12 2 8 6 8 12C8 16 10 20 12 22C14 20 16 16 16 12C16 6 12 2 12 2Z"/></svg>'
           if(leafFront) animFront.appendChild(leaf)
           else animBack.appendChild(leaf)
         }
       }
       else if(themeName === 'sakura') {
-        deco.style.background = 'linear-gradient(135deg, rgba(229,156,196,0.2) 0%, rgba(219,123,160,0.15) 40%, rgba(190,35,60,0.08) 100%)'
-        deco.style.animation = 'sakura-drift 50s ease-in-out infinite'
+        deco.style.background = 'linear-gradient(135deg, rgba(245,180,210,0.25) 0%, rgba(232,121,163,0.18) 35%, rgba(219,123,160,0.12) 65%, rgba(255,230,240,0) 100%)'
+        deco.style.animation = 'sakura-drift 60s ease-in-out infinite'
         const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
         svg.setAttribute('viewBox', '0 0 1920 1080')
-        svg.setAttribute('style', 'position:absolute;inset:0;width:100%;height:100%;opacity:0.6')
+        svg.setAttribute('style', 'position:absolute;inset:0;width:100%;height:100%;opacity:0.65')
         svg.innerHTML = `
           <defs>
-            <radialGradient id="bloom1"><stop offset="0%" stop-color="#db7ba0" stop-opacity="0.6"/><stop offset="100%" stop-color="#db7ba0" stop-opacity="0"/></radialGradient>
-            <radialGradient id="bloom2"><stop offset="0%" stop-color="#e59cc4" stop-opacity="0.5"/><stop offset="100%" stop-color="#e59cc4" stop-opacity="0"/></radialGradient>
-            <filter id="bloom-glow"><feGaussianBlur stdDeviation="12"/></filter>
+            <radialGradient id="bloom1"><stop offset="0%" stop-color="#e879a3" stop-opacity="0.7"/><stop offset="100%" stop-color="#e879a3" stop-opacity="0"/></radialGradient>
+            <radialGradient id="bloom2"><stop offset="0%" stop-color="#f0c4d4" stop-opacity="0.6"/><stop offset="100%" stop-color="#f0c4d4" stop-opacity="0"/></radialGradient>
+            <filter id="bloom-glow"><feGaussianBlur stdDeviation="16"/></filter>
           </defs>
-          <ellipse cx="250" cy="800" rx="220" ry="160" fill="rgba(219,123,160,0.3)"/>
-          <ellipse cx="1650" cy="850" rx="240" ry="180" fill="rgba(229,156,196,0.28)"/>
-          <circle cx="250" cy="320" r="190" fill="url(#bloom1)" filter="url(#bloom-glow)"/>
-          <circle cx="1650" cy="250" r="180" fill="url(#bloom2)" filter="url(#bloom-glow)" opacity="0.85"/>
-          <circle cx="960" cy="100" r="140" fill="url(#bloom1)" filter="url(#bloom-glow)" opacity="0.65"/>
+          <ellipse cx="250" cy="800" rx="260" ry="200" fill="rgba(232,121,163,0.35)"/>
+          <ellipse cx="1650" cy="850" rx="280" ry="220" fill="rgba(240,196,212,0.32)"/>
+          <circle cx="300" cy="280" r="220" fill="url(#bloom1)" filter="url(#bloom-glow)"/>
+          <circle cx="1600" cy="200" r="210" fill="url(#bloom2)" filter="url(#bloom-glow)" opacity="0.88"/>
+          <circle cx="960" cy="80" r="160" fill="url(#bloom1)" filter="url(#bloom-glow)" opacity="0.70"/>
+          <circle cx="500" cy="600" r="140" fill="url(#bloom2)" filter="url(#bloom-glow)" opacity="0.55"/>
+          <circle cx="1400" cy="700" r="150" fill="url(#bloom1)" filter="url(#bloom-glow)" opacity="0.60"/>
         `
         deco.appendChild(svg)
-        for(let i=0;i<50;i++){
+        // Create sakura petals ONLY for this theme in animFront/animBack (not fixed elements)
+        for(let i=0;i<60;i++){
           const petal = document.createElement('div')
           petal.className = 'sakura-falling'
+          petal.dataset.themeId = 'sakura-' + Math.random() // Track origin theme
           petal.style.left = Math.random()*100+'%'
-          petal.style.top = Math.random()*-30-10+'px'
-          petal.style.setProperty('--delay', -Math.random()*14+'s')
-          petal.style.setProperty('--duration', (16+Math.random()*12)+'s')
-          petal.style.setProperty('--x', (Math.random()*160-80)+'px')
-          petal.style.setProperty('--r', Math.random()*360+'deg')
-          // match forest leaf shape but in sakura color; random front/back
-          const petalFront = Math.random() > 0.45
-          petal.innerHTML = '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="rgba(232,121,163,0.95)"><path d="M12 2C12 2 8 6 8 12C8 16 10 20 12 22C14 20 16 16 16 12C16 6 12 2 12 2Z"/></svg>'
+          petal.style.top = (Math.random()*-40-20)+'px'
+          petal.style.setProperty('--delay', (-Math.random()*16)+'s')
+          petal.style.setProperty('--duration', (18+Math.random()*14)+'s')
+          petal.style.setProperty('--x', (Math.random()*200-100)+'px')
+          petal.style.setProperty('--r', (Math.random()*720)+'deg')
+          const petalFront = Math.random() > 0.50
+          petal.innerHTML = '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="rgba(232,121,163,0.92)"><path d="M12 2C12 2 8 6 8 12C8 16 10 20 12 22C14 20 16 16 16 12C16 6 12 2 12 2Z"/></svg>'
           if(petalFront) animFront.appendChild(petal)
           else animBack.appendChild(petal)
         }
