@@ -148,15 +148,15 @@
     }
 
     body.theme-sakura {
-      --primary: #d946a6;
-      --primary-rgb: 217,70,166;
-      --secondary: #ec4899;
-      --text-primary: #fdf2f8;
-      --text-secondary: #f472b6;
-      --bg-dark: #831843;
-      --bg-card: #be123c;
-      --border: #ec4899;
-      --nav-bg: rgba(131, 24, 67, 0.92);
+      --primary: #e879a3;
+      --primary-rgb: 232,121,163;
+      --secondary: #f0c4d4;
+      --text-primary: #fffbfe;
+      --text-secondary: #f1d9e5;
+      --bg-dark: #fefaf0;
+      --bg-card: #fff5f9;
+      --border: #f0c4d4;
+      --nav-bg: rgba(255, 251, 254, 0.95);
     }
 
     html {
@@ -231,6 +231,7 @@
       font-size: 1.05rem;
       font-weight: 700;
       background: linear-gradient(135deg, var(--primary), var(--secondary));
+      background-clip: text;
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       white-space: nowrap;
@@ -667,6 +668,8 @@
       max-width: 1400px;
       margin: 4rem auto;
       padding: 0 1rem;
+      position: relative;
+      z-index: 2;
     }
 
     /* HERO */
@@ -682,6 +685,7 @@
       font-size: 3rem;
       margin-bottom: 0.5rem;
       background: linear-gradient(135deg, var(--primary), var(--secondary));
+      background-clip: text;
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
     }
@@ -1878,6 +1882,41 @@
 
     .theme-deco svg { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; }
 
+    /* Dark/Night: dramatic cityscape at bottom with building silhouettes and glowing windows */
+    .deco-dark::before {
+      background: linear-gradient(180deg, rgba(15,23,42,0) 0%, rgba(5,10,20,0.6) 60%, rgba(0,0,0,0.95) 100%);
+      opacity: 1;
+    }
+
+    .deco-dark .deco-cityscape {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 35vh;
+      pointer-events: none;
+      background-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 1200 400" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="bldg" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" style="stop-color:rgba(30,41,59,0.8)"/><stop offset="100%" style="stop-color:rgba(15,23,42,0.95)"/></linearGradient></defs><rect x="0" y="200" width="100" height="200" fill="url(%23bldg)"/><rect x="120" y="120" width="90" height="280" fill="url(%23bldg)"/><rect x="230" y="150" width="110" height="250" fill="url(%23bldg)"/><rect x="360" y="100" width="95" height="300" fill="url(%23bldg)"/><rect x="475" y="180" width="85" height="220" fill="url(%23bldg)"/><rect x="580" y="140" width="100" height="260" fill="url(%23bldg)"/><rect x="700" y="110" width="120" height="290" fill="url(%23bldg)"/><rect x="840" y="160" width="95" height="240" fill="url(%23bldg)"/><rect x="955" y="130" width="110" height="270" fill="url(%23bldg)"/><rect x="1080" y="170" width="100" height="230" fill="url(%23bldg)"/></svg>');
+      background-size: cover;
+      background-position: bottom;
+      background-repeat: no-repeat;
+    }
+
+    /* Window lights in buildings */
+    .deco-dark .deco-cityscape::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 1200 400" xmlns="http://www.w3.org/2000/svg"><g fill="rgba(255,200,0,0.6)" opacity="0.8"><rect x="10" y="220" width="12" height="12"/><rect x="30" y="220" width="12" height="12"/><rect x="50" y="240" width="12" height="12"/><rect x="70" y="260" width="12" height="12"/><rect x="130" y="140" width="12" height="12"/><rect x="150" y="160" width="12" height="12"/><rect x="170" y="180" width="12" height="12"/><rect x="190" y="200" width="12" height="12"/><rect x="240" y="170" width="12" height="12"/><rect x="260" y="190" width="12" height="12"/><rect x="280" y="210" width="12" height="12"/><rect x="370" y="120" width="12" height="12"/><rect x="390" y="140" width="12" height="12"/><rect x="410" y="160" width="12" height="12"/><rect x="485" y="200" width="12" height="12"/><rect x="505" y="220" width="12" height="12"/><rect x="590" y="160" width="12" height="12"/><rect x="610" y="180" width="12" height="12"/><rect x="710" y="130" width="12" height="12"/><rect x="730" y="150" width="12" height="12"/><rect x="750" y="170" width="12" height="12"/><rect x="850" y="180" width="12" height="12"/><rect x="870" y="200" width="12" height="12"/><rect x="965" y="150" width="12" height="12"/><rect x="985" y="170" width="12" height="12"/><rect x="1090" y="190" width="12" height="12"/><rect x="1110" y="210" width="12" height="12"/></g></svg>');
+      background-size: cover;
+      background-repeat: no-repeat;
+      animation: window-flicker 3s ease-in-out infinite;
+    }
+
+    @keyframes window-flicker {
+      0%, 100% { opacity: 0.6; }
+      50% { opacity: 0.9; }
+    }
+
     /* Cyberpunk: subtle neon grid that slowly moves */
     .deco-cyberpunk::before {
       background: linear-gradient(90deg, rgba(255,0,255,0.12) 1px, transparent 1px), linear-gradient(0deg, rgba(0,255,255,0.08) 1px, transparent 1px);
@@ -1977,14 +2016,47 @@
 
     @keyframes deco-sun { 0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)} }
 
-    /* Forest: subtle leaf silhouettes */
+    /* Forest: vine-like vertical line connecting memories like plant grows */
+    body.theme-forest .memories-timeline:before,
+    body.theme-forest .memories-timeline-container:before {
+      background: linear-gradient(180deg, #15803d 0%, #059669 50%, #065f46 100%);
+      box-shadow: 0 0 20px rgba(21,128,61,0.4);
+      width: 4px;
+    }
+
+    body.theme-forest .timeline-item:before {
+      background: #059669;
+      box-shadow: 0 0 12px rgba(5,150,105,0.6), inset 0 0 8px rgba(21,128,61,0.8);
+    }
+
+    /* Forest: subtle vine decoration */
     .deco-forest::before {
-      background-image: radial-gradient(circle at 10% 80%, rgba(21,128,61,0.09), transparent 12%), radial-gradient(circle at 90% 20%, rgba(5,150,105,0.07), transparent 12%);
+      background: radial-gradient(circle at 5% 85%, rgba(21,128,61,0.15), transparent 15%), radial-gradient(circle at 95% 10%, rgba(5,150,105,0.12), transparent 15%);
       opacity: 0.95;
     }
 
     .deco-forest .deco-leaves {
-      position: absolute; inset: -10% -10% auto -10%; height: 30vh; pointer-events: none; background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="60"><g fill="rgba(21,128,61,0.08)"><ellipse cx="20" cy="20" rx="18" ry="6"/><ellipse cx="60" cy="10" rx="28" ry="8"/><ellipse cx="120" cy="16" rx="22" ry="6"/></g></svg>'); background-repeat: repeat-x; animation: leaves-drift 18s linear infinite; opacity:0.95}
+      position: absolute; 
+      inset: -10% -10% auto -10%; 
+      height: 40vh; 
+      pointer-events: none;
+      background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="280" height="80"><g fill="rgba(21,128,61,0.12)"><path d="M20,40 Q30,20 40,40 Q35,50 20,40"/><path d="M80,35 Q95,10 110,35 Q100,55 80,35"/><path d="M140,42 Q155,25 170,42 Q160,52 140,42"/><path d="M200,38 Q220,15 240,38 Q225,58 200,38"/></g></svg>'); 
+      background-repeat: repeat-x; 
+      animation: leaves-drift 20s linear infinite; 
+      opacity: 0.9;
+    }
+
+    /* Forest ground vegetation */
+    .deco-forest::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 25vh;
+      background: linear-gradient(180deg, transparent 0%, rgba(21,128,61,0.15) 50%, rgba(5,46,22,0.3) 100%);
+      pointer-events: none;
+    }
 
     @keyframes leaves-drift { 0%{transform:translateX(0)}100%{transform:translateX(-50%)} }
 
@@ -2036,25 +2108,115 @@
       100% { transform: translate3d(var(--x, 0px), 120vh, 0) rotate(var(--r, 360deg)); opacity: 0; }
     }
 
-    /* Sakura petals falling */
+    /* Sakura petals falling - like forest leaves but with sakura colors */
     .sakura-falling {
       position: fixed;
       pointer-events: none;
       z-index: 10000;
-      width: 28px;
-      height: 28px;
+      width: 24px;
+      height: 24px;
       animation: sakura-fall var(--duration) ease-in var(--delay) infinite;
+      filter: drop-shadow(0 4px 8px rgba(232,121,163,0.3));
     }
     .sakura-falling svg { width: 100%; height: 100%; display: block; }
 
     @keyframes sakura-fall {
-      0% { transform: translate3d(0, 0, 0) rotateY(0deg) scale(1); opacity: 0; }
+      0% { transform: translate3d(0, 0, 0) rotate(0deg) scale(1); opacity: 0; }
       8% { opacity: 1; }
-      90% { opacity: 1; }
-      100% { transform: translate3d(var(--x, 0px), 120vh, 0) rotateY(360deg) scale(0.7); opacity: 0; }
+      50% { transform: translate3d(var(--x, 0px), 50vh, 0) rotate(180deg) scale(1.1); }
+      100% { transform: translate3d(calc(var(--x, 0px) * 0.8), 110vh, 0) rotate(var(--r, 360deg)); opacity: 0; }
     }
 
-    /* Theme-specific animations */
+    /* Sakura theme background with soft gradient */
+    .deco-sakura::before {
+      background: linear-gradient(180deg, rgba(232,121,163,0.08) 0%, rgba(240,196,212,0.06) 50%, rgba(255,251,254,0) 100%);
+      opacity: 1;
+    }
+
+    /* Sakura petals in background */
+    .deco-sakura .deco-petals {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="60"><g fill="rgba(232,121,163,0.08)"><ellipse cx="20" cy="20" rx="14" ry="8"/><ellipse cx="70" cy="15" rx="16" ry="10"/><ellipse cx="130" cy="25" rx="12" ry="7"/></g></svg>');
+      background-repeat: repeat;
+      animation: petals-drift 25s linear infinite;
+    }
+
+    @keyframes petals-drift {
+      0% { transform: translateY(0) translateX(0); }
+      100% { transform: translateY(100vh) translateX(50px); }
+    }
+
+    /* Sakura theme: softer, more elegant */
+    body.theme-sakura .timeline-item:before {
+      background: #e879a3;
+      box-shadow: 0 0 10px rgba(232,121,163,0.5), inset 0 0 4px rgba(255,251,254,0.8);
+    }
+
+    body.theme-sakura .memories-timeline:before,
+    body.theme-sakura .memories-timeline-container:before {
+      background: linear-gradient(180deg, #e879a3 0%, #f0c4d4 50%, #fffbfe 100%);
+      box-shadow: 0 0 15px rgba(232,121,163,0.3);
+    }
+
+    /* Dark theme: dramatic skyline at night */
+    body.theme-dark .timeline-item:before {
+      background: #7c3aed;
+      box-shadow: 0 0 15px rgba(124,58,237,0.6);
+    }
+
+    /* Ocean theme: enhanced bubbles and waves */
+    body.theme-ocean .timeline-item:before {
+      background: #0ea5e9;
+      box-shadow: 0 0 12px rgba(14,165,233,0.5), inset 0 0 6px rgba(255,255,255,0.4);
+    }
+
+    /* Light/Default theme: subtle indigo glow */
+    body.theme-light .timeline-item:before {
+      background: #6366f1;
+      box-shadow: 0 0 10px rgba(99,102,241,0.3);
+    }
+
+    /* Sunset theme: warm orange glow */
+    body.theme-sunset .timeline-item:before {
+      background: #f97316;
+      box-shadow: 0 0 12px rgba(249,115,22,0.5), inset 0 0 4px rgba(255,217,61,0.4);
+    }
+
+    /* Neon theme: electric pink glow */
+    body.theme-neon .timeline-item:before {
+      background: #ff006e;
+      box-shadow: 0 0 15px rgba(255,0,110,0.6), inset 0 0 6px rgba(0,245,255,0.3);
+    }
+
+    /* Cyberpunk theme: bright magenta with cyan halo */
+    body.theme-cyberpunk .timeline-item:before {
+      background: #ff00ff;
+      box-shadow: 0 0 20px rgba(255,0,255,0.7), 0 0 30px rgba(0,255,255,0.3);
+    }
+
+    /* Minimal theme: subtle indigo */
+    body.theme-minimal .timeline-item:before {
+      background: #4f46e5;
+      box-shadow: 0 0 8px rgba(79,70,229,0.25);
+    }
+
+    /* Retro theme: warm coral */
+    body.theme-retro .timeline-item:before {
+      background: #ff6b6b;
+      box-shadow: 0 0 10px rgba(255,107,107,0.4), inset 0 0 4px rgba(255,217,61,0.25);
+    }
+
+    /* Nord theme: cool blue */
+    body.theme-nord .timeline-item:before {
+      background: #88c0d0;
+      box-shadow: 0 0 12px rgba(136,192,208,0.4), inset 0 0 4px rgba(255,255,255,0.2);
+    }
+
     @keyframes cosmic-shift {
       0%, 100% { filter: brightness(1) hue-rotate(0deg); }
       50% { filter: brightness(1.1) hue-rotate(10deg); }
@@ -2128,6 +2290,45 @@
       50% { transform: translateX(50vw) translateY(15px); opacity: 0.75; }
     }
 
+    /* Ocean jellyfish floating */
+    @keyframes jellyfish-swim {
+      0%, 100% { transform: translateX(-120vw) translateY(-50px); opacity: 0.5; }
+      25% { transform: translateX(-40vw) translateY(30px); opacity: 0.6; }
+      50% { transform: translateX(40vw) translateY(-20px); opacity: 0.65; }
+      75% { transform: translateX(100vw) translateY(50px); opacity: 0.55; }
+    }
+
+    /* Ocean crab crawling on bottom */
+    @keyframes crab-swim {
+      0%, 100% { transform: translateX(-120vw); opacity: 0.5; }
+      50% { transform: translateX(40vw) translateY(-15px); opacity: 0.65; }
+    }
+
+    /* Minimal: clean geometric elements floating subtly */
+    .deco-minimal::before {
+      background: radial-gradient(circle at 15% 25%, rgba(79,70,229,0.08), transparent 15%), radial-gradient(circle at 85% 75%, rgba(100,116,139,0.06), transparent 15%);
+      opacity: 0.6;
+      animation: minimal-float 20s ease-in-out infinite;
+    }
+
+    .deco-minimal .deco-shapes {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      opacity: 0.5;
+    }
+
+    .deco-minimal .deco-shapes svg {
+      position: absolute;
+      width: 180px;
+      height: 180px;
+    }
+
+    @keyframes minimal-float {
+      0%, 100% { transform: translateY(0); filter: opacity(0.6); }
+      50% { transform: translateY(-12px); filter: opacity(0.75); }
+    }
+
     /* Neon: quick shimmer */
     .deco-neon::before {
       background: linear-gradient(90deg, rgba(255,0,110,0.12), rgba(0,255,200,0.06));
@@ -2140,18 +2341,23 @@
     /* Toast/mini-popup that appears briefly on theme change */
     .theme-toast {
       position: fixed;
-      right: 18px;
-      top: 78px;
-      background: rgba(0,0,0,0.6);
+      right: 20px;
+      top: 90px;
+      background: linear-gradient(135deg, rgba(0,0,0,0.75) 0%, rgba(50,50,50,0.65) 100%);
       color: #fff;
-      padding: 0.5rem 0.75rem;
-      border-radius: 8px;
+      padding: 0.75rem 1.25rem;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.15);
+      backdrop-filter: blur(12px);
       z-index: 60;
       pointer-events: none;
-      transform: translateY(-6px);
+      transform: translateY(-10px);
       opacity: 0;
-      transition: all 300ms ease;
+      transition: all 300ms cubic-bezier(0.34, 1.56, 0.64, 1);
       font-weight: 700;
+      font-size: 0.95rem;
+      letter-spacing: 0.5px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.3);
     }
 
     .theme-toast.show { opacity: 1; transform: translateY(0); }
@@ -2245,9 +2451,23 @@
     }
 
     .section-title {
-      font-size: 2rem;
+      font-size: 2.2rem;
       margin-bottom: 2rem;
       text-align: center;
+      color: var(--primary);
+      font-weight: 800;
+      letter-spacing: -0.015em;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.15);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.75rem;
+    }
+
+    .section-title svg {
+      width: 2.2rem;
+      height: 2.2rem;
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
     }
   </style>
 </head>
@@ -2269,14 +2489,14 @@
         <button class="theme-btn" data-theme="dark" title="Dark"><i data-feather="moon"></i></button>
         <button class="theme-btn" data-theme="light" title="Light"><i data-feather="sun"></i></button>
         <button class="theme-btn" data-theme="sunset" title="Sunset"><i data-feather="sunrise"></i></button>
-        <button class="theme-btn" data-theme="ocean" title="Ocean"><i data-feather="cloud"></i></button>
-        <button class="theme-btn" data-theme="forest" title="Forest"><i data-feather="layers"></i></button>
+        <button class="theme-btn" data-theme="ocean" title="Ocean"><i data-feather="droplets"></i></button>
+        <button class="theme-btn" data-theme="forest" title="Forest"><i data-feather="leaf"></i></button>
         <button class="theme-btn" data-theme="neon" title="Neon"><i data-feather="zap"></i></button>
         <button class="theme-btn" data-theme="cyberpunk" title="Cyberpunk"><i data-feather="shield"></i></button>
         <button class="theme-btn" data-theme="minimal" title="Minimal"><i data-feather="square"></i></button>
         <button class="theme-btn" data-theme="retro" title="Retro"><i data-feather="award"></i></button>
         <button class="theme-btn" data-theme="nord" title="Nord"><i data-feather="wind"></i></button>
-        <button class="theme-btn" data-theme="sakura" title="Sakura"><i data-feather="flower-2"></i></button>
+        <button class="theme-btn" data-theme="sakura" title="Sakura"><i data-feather="flower"></i></button>
       </div>
     </div>
   </nav>
@@ -2416,14 +2636,10 @@
       <div class="filter-section">
         <label for="itemsPerPage">Item Per Halaman</label>
         <select id="itemsPerPage" style="width: 100%; padding: 0.6rem; background: var(--bg-dark); color: var(--text-primary); border: 1px solid var(--border); border-radius: 8px;">
-          <option value="6">6</option>
-          <option value="9">9</option>
-          <option value="12">12</option>
-          <option value="15">15</option>
-          <option value="20" selected>20</option>
           <option value="30">30</option>
-          <option value="40">40</option>
-          <option value="50">50</option>
+          <option value="50" selected>50</option>
+          <option value="80">80</option>
+          <option value="100">100</option>
         </select>
       </div>
 
@@ -2474,7 +2690,7 @@
     let allStudents = []
     let allTags = []
     let selectedTags = []
-    let itemsPerPage = 20
+    let itemsPerPage = 50
     let currentPage = 1
     let studentClickCount = 0
 
@@ -2514,7 +2730,6 @@
       if(existingAnim) existingAnim.remove()
       const existingToast = document.querySelector('.theme-toast')
       if(existingToast) existingToast.remove()
-      if(themeName === 'minimal') return
 
       // BACKGROUND LAYER - static, with color/gradient & SVG only
       const deco = document.createElement('div')
@@ -2535,89 +2750,146 @@
       document.body.appendChild(anim)
 
       if(themeName === 'ocean') {
-        deco.style.background = 'linear-gradient(180deg, rgba(15,118,110,0.4) 0%, rgba(6,182,212,0.3) 40%, rgba(3,105,161,0.35) 100%)'
+        deco.style.background = 'linear-gradient(180deg, rgba(6,182,212,0.5) 0%, rgba(3,105,161,0.4) 50%, rgba(1,58,100,0.5) 100%)'
         deco.style.animation = 'wave-motion 6s ease-in-out infinite'
         const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
         svg.setAttribute('viewBox', '0 0 1920 1080')
-        svg.setAttribute('style', 'position:absolute;inset:0;width:100%;height:100%;opacity:0.8')
+        svg.setAttribute('style', 'position:absolute;inset:0;width:100%;height:100%;opacity:0.85')
         svg.innerHTML = `
           <defs>
-            <filter id="water-light"><feGaussianBlur stdDeviation="2.5"/></filter>
+            <filter id="water-glow"><feGaussianBlur stdDeviation="3"/></filter>
             <linearGradient id="sand-grad" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stop-color="#daa520" stop-opacity="0.25"/><stop offset="100%" stop-color="#8b6914" stop-opacity="0.2"/>
+              <stop offset="0%" stop-color="#daa520" stop-opacity="0.4"/><stop offset="100%" stop-color="#8b6914" stop-opacity="0.25"/>
             </linearGradient>
+            <radialGradient id="light-rays"><stop offset="0%" stop-color="#87ceeb" stop-opacity="0.4"/><stop offset="100%" stop-color="#87ceeb" stop-opacity="0"/></radialGradient>
           </defs>
-          <path d="M0,120 Q480,70 960,120 T1920,120" stroke="#06b6d4" stroke-width="2.5" fill="none" opacity="0.6" filter="url(#water-light)"/>
-          <path d="M0,300 Q480,240 960,300 T1920,300" stroke="#0891b2" stroke-width="2" fill="none" opacity="0.45" filter="url(#water-light)"/>
-          <path d="M0,500 Q480,450 960,500 T1920,500" stroke="#06b6d4" stroke-width="1.5" fill="none" opacity="0.4" filter="url(#water-light)"/>
-          <path d="M0,750 Q480,700 960,750 T1920,750" stroke="#0369a1" stroke-width="1.5" fill="none" opacity="0.35" filter="url(#water-light)"/>
-          <g opacity="0.3" stroke="#fbbf24" stroke-width="45">
-            <line x1="300" y1="-50" x2="280" y2="450"/><line x1="600" y1="-50" x2="630" y2="450"/>
-            <line x1="900" y1="-50" x2="900" y2="450"/><line x1="1200" y1="-50" x2="1200" y2="450"/><line x1="1500" y1="-50" x2="1480" y2="450"/>
+          <defs>
+            <pattern id="bubbles-pattern" x="0" y="0" width="100" height="100" patternUnits="userSpaceOnUse">
+              <circle cx="20" cy="30" r="3" fill="rgba(255,255,255,0.15)"/>
+              <circle cx="60" cy="60" r="2" fill="rgba(255,255,255,0.1)"/>
+              <circle cx="80" cy="20" r="2.5" fill="rgba(255,255,255,0.12)"/>
+            </pattern>
+          </defs>
+          <rect width="1920" height="1080" fill="url(#bubbles-pattern)"/>
+          <path d="M0,200 Q480,150 960,200 T1920,200" stroke="#06b6d4" stroke-width="3" fill="none" opacity="0.6" filter="url(#water-glow)"/>
+          <path d="M0,450 Q480,380 960,450 T1920,450" stroke="#0891b2" stroke-width="2.5" fill="none" opacity="0.5" filter="url(#water-glow)"/>
+          <path d="M0,700 Q480,630 960,700 T1920,700" stroke="#06b6d4" stroke-width="2" fill="none" opacity="0.4" filter="url(#water-glow)"/>
+          <path d="M0,900 Q480,850 960,900 T1920,900" stroke="#0369a1" stroke-width="1.5" fill="none" opacity="0.35" filter="url(#water-glow)"/>
+          <ellipse cx="960" cy="1000" rx="1200" ry="140" fill="url(#sand-grad)"/>
+          <g opacity="0.3">
+            <circle cx="200" cy="300" r="80" fill="url(#light-rays)"/>
+            <circle cx="1700" cy="400" r="100" fill="url(#light-rays)"/>
+            <circle cx="950" cy="200" r="70" fill="url(#light-rays)"/>
           </g>
-          <g opacity="0.5">
-            <g fill="rgba(236,72,153,0.5)"><circle cx="200" cy="700" r="65"/><circle cx="220" cy="760" r="50"/><ellipse cx="200" cy="820" rx="45" ry="70"/></g>
-            <g fill="rgba(59,130,246,0.5)"><ellipse cx="400" cy="720" rx="55" ry="75"/><circle cx="460" cy="790" r="42"/><path d="M380,850 L400,920 L420,850 Z" fill="rgba(59,130,246,0.6)"/></g>
-            <g fill="rgba(34,197,94,0.5)"><circle cx="800" cy="750" r="60"/><circle cx="860" cy="715" r="48"/><ellipse cx="830" cy="820" rx="40" ry="70"/></g>
-            <g fill="rgba(249,115,22,0.45)"><polygon points="1200,750 1225,840 1175,840"/><polygon points="1260,700 1285,790 1235,790"/><circle cx="1350" cy="770" r="55"/></g>
-            <g fill="rgba(168,85,247,0.45)"><ellipse cx="1650" cy="790" rx="50" ry="65"/><circle cx="1710" cy="730" r="43"/><circle cx="1690" cy="820" r="38"/></g>
-          </g>
-          <g opacity="0.6" stroke="rgba(135,206,250,0.7)" stroke-width="2.5" fill="none">
-            <circle cx="250" cy="600" r="12"/><circle cx="350" cy="480" r="9"/><circle cx="520" cy="720" r="8"/>
-            <circle cx="780" cy="420" r="11"/><circle cx="1050" cy="610" r="10"/><circle cx="1350" cy="510" r="12"/><circle cx="1620" cy="680" r="9"/>
-          </g>
-          <g stroke="rgba(34,139,34,0.45)" stroke-width="3" fill="none" opacity="0.6">
-            <path d="M 150 1000 Q 140 900, 145 800 Q 150 700, 140 600"/>
-            <path d="M 450 1000 Q 440 900, 455 800 Q 460 700, 450 600"/>
-            <path d="M 900 1000 Q 890 900, 910 800 Q 920 700, 905 600"/>
-            <path d="M 1350 1000 Q 1340 900, 1365 800 Q 1370 700, 1355 600"/>
-          </g>
-          <ellipse cx="960" cy="1050" rx="1050" ry="120" fill="url(#sand-grad)"/>
         `
         deco.appendChild(svg)
-        for(let i=0;i<8;i++){
-          const fish = document.createElement('div')
-          fish.style.cssText = `position:fixed;left:${Math.random()*100}%;top:${350+Math.random()*300}px;width:35px;height:22px;pointer-events:none;opacity:0.65;animation:swim-fish ${5+Math.random()*5}s ease-in-out infinite;animation-delay:${-Math.random()*6}s`
-          const colors = ['rgba(255,140,0,0.75)','rgba(100,180,220,0.75)','rgba(150,220,120,0.75)','rgba(220,150,80,0.75)']
-          const col = colors[i%colors.length]
-          fish.innerHTML = `<svg viewBox="0 0 35 22" xmlns="http://www.w3.org/2000/svg"><ellipse cx="13" cy="11" rx="12" ry="9" fill="${col}"/><polygon points="26,11 35,14 35,8" fill="${col}"/><circle cx="5" cy="9" r="2.5" fill="rgba(255,255,255,0.85)"/></svg>`
-          anim.appendChild(fish)
-        }
+        const creatures = [
+          { name: 'fish', count: 6, speed: 'fish', colors: ['rgba(255,140,0,0.8)','rgba(100,180,220,0.8)','rgba(150,220,120,0.8)','rgba(220,150,80,0.8)'] },
+          { name: 'jellyfish', count: 4, speed: 'jellyfish', colors: ['rgba(200,100,255,0.6)','rgba(100,200,255,0.6)'] },
+          { name: 'crab', count: 3, speed: 'crab', colors: ['rgba(220,80,50,0.7)','rgba(180,100,40,0.7)'] }
+        ]
+        creatures.forEach(creature => {
+          for(let i=0;i<creature.count;i++){
+            const elem = document.createElement('div')
+            const topPos = creature.name === 'crab' ? 750+Math.random()*250 : 250+Math.random()*400
+            const speed = creature.speed === 'fish' ? (5+Math.random()*5) : creature.speed === 'jellyfish' ? (8+Math.random()*6) : (6+Math.random()*5)
+            elem.style.cssText = `position:fixed;left:${Math.random()*100}%;top:${topPos}px;pointer-events:none;opacity:${0.6+Math.random()*0.3};animation:${creature.speed}-swim ${speed}s ease-in-out infinite;animation-delay:${-Math.random()*8}s;z-index:${creature.name==='crab'?1:2}`
+            const col = creature.colors[i%creature.colors.length]
+            if(creature.name === 'fish'){
+              elem.innerHTML = `<svg viewBox="0 0 35 22" xmlns="http://www.w3.org/2000/svg" width="40" height="25"><ellipse cx="13" cy="11" rx="12" ry="9" fill="${col}"/><polygon points="26,11 35,14 35,8" fill="${col}"/><circle cx="5" cy="9" r="2.5" fill="rgba(255,255,255,0.9)"/></svg>`
+            } else if(creature.name === 'jellyfish'){
+              elem.innerHTML = `<svg viewBox="0 0 30 50" xmlns="http://www.w3.org/2000/svg" width="25" height="45"><ellipse cx="15" cy="8" rx="12" ry="8" fill="${col}"/><path d="M8 16 Q6 30 7 45" stroke="${col}" stroke-width="2" fill="none" opacity="0.7"/><path d="M15 16 Q15 30 15 45" stroke="${col}" stroke-width="2" fill="none" opacity="0.7"/><path d="M22 16 Q24 30 23 45" stroke="${col}" stroke-width="2" fill="none" opacity="0.7"/></svg>`
+            } else if(creature.name === 'crab'){
+              elem.innerHTML = `<svg viewBox="0 0 40 25" xmlns="http://www.w3.org/2000/svg" width="40" height="25"><ellipse cx="20" cy="13" rx="10" ry="8" fill="${col}"/><circle cx="8" cy="10" r="4" fill="${col}"/><circle cx="32" cy="10" r="4" fill="${col}"/><path d="M5 15 L2 22" stroke="${col}" stroke-width="2" fill="none"/><path d="M35 15 L38 22" stroke="${col}" stroke-width="2" fill="none"/><circle cx="20" cy="10" r="2" fill="rgba(255,255,255,0.8)"/></svg>`
+            }
+            anim.appendChild(elem)
+          }
+        })
       }
       else if(themeName === 'dark') {
-        deco.style.background = 'radial-gradient(ellipse at 20% 50%, rgba(124,58,237,0.15) 0%, transparent 50%), radial-gradient(ellipse at 80% 80%, rgba(14,165,233,0.1) 0%, transparent 50%)'
+        deco.style.background = 'radial-gradient(ellipse at 20% 50%, rgba(124,58,237,0.2) 0%, transparent 50%), radial-gradient(ellipse at 80% 80%, rgba(14,165,233,0.15) 0%, transparent 50%), linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.4) 100%)'
         deco.style.animation = 'cosmic-shift 40s ease-in-out infinite'
         const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
         svg.setAttribute('viewBox', '0 0 1920 1080')
-        svg.setAttribute('style', 'position:absolute;inset:0;width:100%;height:100%;opacity:0.75')
+        svg.setAttribute('style', 'position:absolute;inset:0;width:100%;height:100%;opacity:0.9')
         svg.innerHTML = `
           <defs>
-            <filter id="star-glow"><feGaussianBlur stdDeviation="1.5"/></filter>
-            <radialGradient id="nebula1"><stop offset="0%" stop-color="#7c3aed" stop-opacity="0.35"/><stop offset="100%" stop-color="#7c3aed" stop-opacity="0"/></radialGradient>
-            <radialGradient id="nebula2"><stop offset="0%" stop-color="#0ea5e9" stop-opacity="0.3"/><stop offset="100%" stop-color="#0ea5e9" stop-opacity="0"/></radialGradient>
+            <filter id="star-glow"><feGaussianBlur stdDeviation="2"/></filter>
+            <filter id="city-glow"><feGaussianBlur stdDeviation="4"/></filter>
+            <radialGradient id="nebula1"><stop offset="0%" stop-color="#7c3aed" stop-opacity="0.4"/><stop offset="100%" stop-color="#7c3aed" stop-opacity="0"/></radialGradient>
+            <radialGradient id="nebula2"><stop offset="0%" stop-color="#0ea5e9" stop-opacity="0.35"/><stop offset="100%" stop-color="#0ea5e9" stop-opacity="0"/></radialGradient>
+            <linearGradient id="building-fade" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="rgba(20,30,50,0.3)"/>
+              <stop offset="100%" stop-color="rgba(10,15,25,0.8)"/>
+            </linearGradient>
           </defs>
-          <ellipse cx="300" cy="250" rx="400" ry="300" fill="url(#nebula1)" opacity="0.5"/>
-          <ellipse cx="1600" cy="600" rx="350" ry="280" fill="url(#nebula2)" opacity="0.4"/>
-          <ellipse cx="960" cy="850" rx="300" ry="250" fill="url(#nebula1)" opacity="0.35"/>
-          <g fill="#fff" filter="url(#star-glow)" opacity="0.95">
-            <circle cx="150" cy="120" r="2"/><circle cx="350" cy="80" r="1.2"/><circle cx="520" cy="200" r="1.5"/><circle cx="750" cy="100" r="1"/>
-            <circle cx="950" cy="150" r="2"/><circle cx="1150" cy="80" r="1.2"/><circle cx="1400" cy="200" r="1.5"/><circle cx="1650" cy="120" r="1"/>
-            <circle cx="1800" cy="250" r="1.5"/><circle cx="100" cy="400" r="1.2"/><circle cx="400" cy="500" r="2"/><circle cx="800" cy="450" r="1"/>
-            <circle cx="1200" cy="550" r="1.5"/><circle cx="1600" cy="480" r="1.2"/><circle cx="1850" cy="600" r="1.5"/><circle cx="300" cy="800" r="1.2"/>
-            <circle cx="700" cy="900" r="2"/><circle cx="1100" cy="850" r="1.5"/><circle cx="1500" cy="950" r="1"/>
+          <!-- Sky nebulas -->
+          <ellipse cx="300" cy="250" rx="400" ry="300" fill="url(#nebula1)" opacity="0.6"/>
+          <ellipse cx="1600" cy="600" rx="350" ry="280" fill="url(#nebula2)" opacity="0.5"/>
+          <ellipse cx="960" cy="850" rx="300" ry="250" fill="url(#nebula1)" opacity="0.4"/>
+          <!-- Stars -->
+          <g fill="#fff" filter="url(#star-glow)" opacity="1">
+            <circle cx="150" cy="120" r="2.5"/><circle cx="350" cy="80" r="1.5"/><circle cx="520" cy="200" r="2"/><circle cx="750" cy="100" r="1.2"/>
+            <circle cx="950" cy="150" r="2.5"/><circle cx="1150" cy="80" r="1.5"/><circle cx="1400" cy="200" r="2"/><circle cx="1650" cy="120" r="1.2"/>
+            <circle cx="1800" cy="250" r="2"/><circle cx="100" cy="400" r="1.5"/><circle cx="400" cy="500" r="2.5"/><circle cx="800" cy="450" r="1.2"/>
+            <circle cx="1200" cy="550" r="2"/><circle cx="1600" cy="480" r="1.5"/><circle cx="1850" cy="600" r="2"/><circle cx="300" cy="800" r="1.5"/>
+            <circle cx="700" cy="900" r="2.5"/><circle cx="1100" cy="850" r="2"/><circle cx="1500" cy="950" r="1.2"/>
+            <circle cx="250" cy="350" r="1.5"/><circle cx="600" cy="250" r="1.2"/><circle cx="1300" cy="350" r="1.8"/>
           </g>
-          <g stroke="rgba(124,58,237,0.35)" stroke-width="1" fill="none" opacity="0.6">
-            <polyline points="150,120 350,80 520,200 750,100 950,150"/>
-            <polyline points="100,400 400,500 800,450 1200,550"/>
-            <polyline points="1150,80 1400,200 1650,120 1800,250"/>
+          <!-- Moon -->
+          <circle cx="1800" cy="120" r="65" fill="rgba(255,220,100,0.2)"/>
+          <circle cx="1800" cy="120" r="50" fill="none" stroke="rgba(255,200,0,0.25)" stroke-width="2.5"/>
+          <!-- City buildings at bottom -->
+          <rect x="0" y="750" width="1920" height="330" fill="url(#building-fade)"/>
+          <g opacity="0.85">
+            <!-- Left side buildings -->
+            <rect x="20" y="620" width="140" height="310" fill="rgba(15,20,35,0.9)" rx="2"/>
+            <rect x="180" y="550" width="160" height="380" fill="rgba(20,30,45,0.85)" rx="2"/>
+            <rect x="360" y="680" width="130" height="250" fill="rgba(18,25,40,0.88)" rx="2"/>
+            <rect x="510" y="600" width="170" height="330" fill="rgba(22,32,50,0.86)" rx="2"/>
+            <!-- Center buildings -->
+            <rect x="700" y="500" width="220" height="430" fill="rgba(25,35,55,0.87)" rx="2"/>
+            <rect x="940" y="580" width="180" height="350" fill="rgba(20,28,45,0.89)" rx="2"/>
+            <!-- Right side buildings -->
+            <rect x="1140" y="640" width="150" height="290" fill="rgba(18,26,40,0.88)" rx="2"/>
+            <rect x="1310" y="560" width="200" height="370" fill="rgba(23,33,52,0.86)" rx="2"/>
+            <rect x="1530" y="620" width="140" height="310" fill="rgba(19,27,42,0.87)" rx="2"/>
+            <rect x="1690" y="500" width="180" height="430" fill="rgba(24,34,54,0.85)" rx="2"/>
           </g>
-          <g opacity="0.25">
-            <circle cx="200" cy="700" r="40" fill="none" stroke="rgba(124,58,237,0.45)" stroke-width="1.5"/>
-            <circle cx="200" cy="700" r="25" fill="none" stroke="rgba(124,58,237,0.3)" stroke-width="1"/>
-            <circle cx="1700" cy="250" r="35" fill="none" stroke="rgba(14,165,233,0.45)" stroke-width="1.5"/>
+          <!-- Windows lights -->
+          <g fill="rgba(255,200,80,0.7)" filter="url(#city-glow)" opacity="0.8">
+            <!-- Left buildings windows -->
+            <rect x="40" y="650" width="18" height="22"/><rect x="70" y="650" width="18" height="22"/><rect x="100" y="650" width="18" height="22"/>
+            <rect x="40" y="700" width="18" height="22"/><rect x="70" y="700" width="18" height="22"/><rect x="100" y="700" width="18" height="22"/>
+            <rect x="40" y="750" width="18" height="22"/><rect x="70" y="750" width="18" height="22"/><rect x="100" y="750" width="18" height="22"/>
+            <rect x="40" y="800" width="18" height="22"/><rect x="70" y="800" width="18" height="22"/>
+            <!-- Second left building -->
+            <rect x="210" y="580" width="20" height="25"/><rect x="250" y="580" width="20" height="25"/><rect x="290" y="580" width="20" height="25"/>
+            <rect x="210" y="650" width="20" height="25"/><rect x="250" y="650" width="20" height="25"/><rect x="290" y="650" width="20" height="25"/>
+            <rect x="210" y="720" width="20" height="25"/><rect x="250" y="720" width="20" height="25"/><rect x="290" y="720" width="20" height="25"/>
+            <rect x="210" y="790" width="20" height="25"/><rect x="250" y="790" width="20" height="25"/>
+            <!-- Center tall building -->
+            <rect x="730" y="530" width="22" height="28"/><rect x="780" y="530" width="22" height="28"/><rect x="830" y="530" width="22" height="28"/><rect x="880" y="530" width="22" height="28"/>
+            <rect x="730" y="600" width="22" height="28"/><rect x="780" y="600" width="22" height="28"/><rect x="830" y="600" width="22" height="28"/><rect x="880" y="600" width="22" height="28"/>
+            <rect x="730" y="670" width="22" height="28"/><rect x="780" y="670" width="22" height="28"/><rect x="830" y="670" width="22" height="28"/><rect x="880" y="670" width="22" height="28"/>
+            <rect x="730" y="740" width="22" height="28"/><rect x="780" y="740" width="22" height="28"/><rect x="830" y="740" width="22" height="28"/>
+            <!-- Right buildings -->
+            <rect x="1350" y="610" width="20" height="24"/><rect x="1400" y="610" width="20" height="24"/><rect x="1450" y="610" width="20" height="24"/>
+            <rect x="1350" y="680" width="20" height="24"/><rect x="1400" y="680" width="20" height="24"/><rect x="1450" y="680" width="20" height="24"/>
+            <rect x="1350" y="750" width="20" height="24"/><rect x="1400" y="750" width="20" height="24"/>
+            <!-- Far right tall building -->
+            <rect x="1730" y="540" width="22" height="28"/><rect x="1785" y="540" width="22" height="28"/>
+            <rect x="1730" y="620" width="22" height="28"/><rect x="1785" y="620" width="22" height="28"/>
+            <rect x="1730" y="700" width="22" height="28"/><rect x="1785" y="700" width="22" height="28"/>
+            <rect x="1730" y="780" width="22" height="28"/><rect x="1785" y="780" width="22" height="28"/>
           </g>
-          <circle cx="1800" cy="100" r="60" fill="rgba(255,200,0,0.15)"/>
-          <circle cx="1800" cy="100" r="45" fill="none" stroke="rgba(255,200,0,0.2)" stroke-width="2"/>
+          <!-- Window flicker overlay -->
+          <g fill="rgba(255,200,80,0.3)" opacity="0.4" animation="window-flicker 4s ease-in-out infinite">
+            <rect x="40" y="650" width="18" height="22"/><rect x="70" y="700" width="18" height="22"/><rect x="100" y="750" width="18" height="22"/>
+            <rect x="250" y="650" width="20" height="25"/><rect x="290" y="720" width="20" height="25"/>
+            <rect x="780" y="600" width="22" height="28"/><rect x="830" y="670" width="22" height="28"/>
+            <rect x="1400" y="680" width="20" height="24"/><rect x="1785" y="700" width="22" height="28"/>
+          </g>
         `
         deco.appendChild(svg)
       }
@@ -2678,7 +2950,7 @@
           petal.style.setProperty('--duration', (16+Math.random()*12)+'s')
           petal.style.setProperty('--x', (Math.random()*160-80)+'px')
           petal.style.setProperty('--r', Math.random()*360+'deg')
-          petal.innerHTML = '<svg viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" fill="rgba(229,156,196,0.85)"><circle cx="10" cy="10" r="6"/><circle cx="10" cy="2" r="3"/></svg>'
+          petal.innerHTML = '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="rgba(232,121,163,0.9)"><path d="M12 2C12 2 8 6 8 12C8 16 10 20 12 22C14 20 16 16 16 12C16 6 12 2 12 2Z"/><circle cx="12" cy="12" r="2.5" fill="rgba(255,251,254,0.8)"/></svg>'
           anim.appendChild(petal)
         }
       }
@@ -2726,6 +2998,39 @@
           arch.innerHTML = tools[i%3]
           anim.appendChild(arch)
         }
+      }
+      else if(themeName === 'minimal') {
+        deco.style.background = 'radial-gradient(circle at 15% 25%, rgba(79,70,229,0.08), transparent 15%), radial-gradient(circle at 85% 75%, rgba(100,116,139,0.06), transparent 15%)'
+        deco.style.animation = 'minimal-float 20s ease-in-out infinite'
+        const shapesDiv = document.createElement('div')
+        shapesDiv.className = 'deco-shapes'
+        
+        const shapes = [
+          { cx: 10, cy: 15, size: 140, delay: 0 },
+          { cx: 90, cy: 85, size: 160, delay: -5 },
+          { cx: 70, cy: 20, size: 100, delay: -10 },
+          { cx: 15, cy: 70, size: 120, delay: -7 }
+        ]
+        
+        shapes.forEach(shape => {
+          const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
+          svg.setAttribute('viewBox', '0 0 180 180')
+          svg.setAttribute('style', `left:${shape.cx}%;top:${shape.cy}%;animation:minimal-float 20s ease-in-out infinite;animation-delay:${shape.delay}s`)
+          svg.innerHTML = `
+            <defs>
+              <linearGradient id="minimal-grad-${shape.delay}" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="rgba(79,70,229,0.25)" />
+                <stop offset="100%" stop-color="rgba(100,116,139,0.15)" />
+              </linearGradient>
+            </defs>
+            <circle cx="90" cy="90" r="${shape.size/2}" fill="url(#minimal-grad-${shape.delay})" opacity="0.35"/>
+            <rect x="${45 - shape.size/6}" y="${45 - shape.size/6}" width="${shape.size/3}" height="${shape.size/3}" fill="rgba(79,70,229,0.1)" opacity="0.4"/>
+            <path d="M ${90 - shape.size/4} 90 L 90 ${90 - shape.size/4} L ${90 + shape.size/4} 90 L 90 ${90 + shape.size/4} Z" fill="none" stroke="rgba(79,70,229,0.15)" stroke-width="1.5" opacity="0.5"/>
+          `
+          shapesDiv.appendChild(svg)
+        })
+        
+        deco.appendChild(shapesDiv)
       }
       else {
         const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg')

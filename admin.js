@@ -708,13 +708,32 @@ function renderUploadPreview() {
   if (!container) return
   container.innerHTML = ''
 
+  // Show/hide floating upload button and warning
+  const uploadButtonContainer = $('#upload-button-container')
+  if (filesToUpload.length > 0) {
+    uploadButtonContainer.classList.remove('hidden')
+    // Warn if too many files
+    if (filesToUpload.length > 100) {
+      showToast(`⚠️ ${filesToUpload.length} foto banyak. Upload mungkin lambat. Pertimbangkan upload dalam batch kecil (20-50 foto)`, 'warning')
+    }
+  } else {
+    uploadButtonContainer.classList.add('hidden')
+  }
+
+  // Update file count
+  $('#file-count').textContent = filesToUpload.length
+
   filesToUpload.forEach((file, index) => {
     const reader = new FileReader()
     reader.onload = (e) => {
       const item = document.createElement('div')
       item.className = 'upload-preview-item'
+      item.dataset.fileIndex = index
       item.innerHTML = `
-        <img class="upload-preview-img" src="${e.target.result}" alt="preview">
+        <div style="position: relative;">
+          <img class="upload-preview-img" src="${e.target.result}" alt="preview">
+          <button type="button" class="btn-remove-file" data-file-index="${index}" style="position: absolute; top: 5px; right: 5px; background: rgba(255, 0, 0, 0.9); color: white; border: none; border-radius: 50%; width: 28px; height: 28px; cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; padding: 0; line-height: 1;">×</button>
+        </div>
         <div class="upload-preview-form">
           <div class="form-group" style="margin-bottom: 0.5rem;">
             <label style="font-size: 0.8rem;">Judul</label>
@@ -725,9 +744,12 @@ function renderUploadPreview() {
             <input type="text" class="upload-caption" placeholder="Caption (opsional)" style="font-size: 0.85rem;">
           </div>
           <div class="form-group" style="margin-bottom: 0;">
-            <label style="font-size: 0.8rem; display: block; margin-bottom: 0.5rem;">Tag</label>
+            <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+              <label style="font-size: 0.8rem; display: block;">Tag</label>
+              <button type="button" class="btn-toggle-tags" style="font-size: 0.7rem; padding: 0.2rem 0.6rem; background: var(--primary); color: white; border: none; border-radius: 4px; cursor: pointer;">Tampilkan</button>
+            </div>
             <div class="upload-tags-selected" data-file-index="${index}" data-tags="[]" style="display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 0.75rem; min-height: 24px;"></div>
-            <div class="upload-tags-list" style="display: flex; flex-wrap: wrap; gap: 0.4rem;"></div>
+            <div class="upload-tags-list" style="display: none; flex-wrap: wrap; gap: 0.4rem;"></div>
           </div>
         </div>
       `
@@ -735,6 +757,22 @@ function renderUploadPreview() {
 
       const selectedTagsDiv = item.querySelector('.upload-tags-selected')
       const tagsListDiv = item.querySelector('.upload-tags-list')
+      const toggleBtn = item.querySelector('.btn-toggle-tags')
+
+      // Toggle button event listener
+      toggleBtn.addEventListener('click', (e) => {
+        e.preventDefault()
+        const isVisible = tagsListDiv.style.display === 'flex'
+        if (isVisible) {
+          tagsListDiv.style.display = 'none'
+          toggleBtn.textContent = 'Tampilkan'
+          toggleBtn.style.background = 'var(--primary)'
+        } else {
+          tagsListDiv.style.display = 'flex'
+          toggleBtn.textContent = 'Sembunyikan'
+          toggleBtn.style.background = 'var(--danger)'
+        }
+      })
 
       allTags.forEach((tag) => {
         const btn = document.createElement('button')
@@ -774,6 +812,17 @@ function renderUploadPreview() {
 
         tagsListDiv.appendChild(btn)
       })
+
+      // Add event listener for delete button
+      const deleteBtn = item.querySelector('.btn-remove-file')
+      if (deleteBtn) {
+        deleteBtn.addEventListener('click', (e) => {
+          e.preventDefault()
+          const fileIndexToRemove = parseInt(deleteBtn.dataset.fileIndex)
+          filesToUpload = filesToUpload.filter((_, idx) => idx !== fileIndexToRemove)
+          renderUploadPreview()
+        })
+      }
     }
     reader.readAsDataURL(file)
   })
@@ -812,6 +861,8 @@ $('#btn-upload-all').addEventListener('click', async () => {
   const progressPercent = $('#progress-percent')
   let uploaded = 0
 
+  // Upload dalam batch kecil untuk menghindari memory/storage issues
+  const batchSize = 10
   for (let i = 0; i < filesToUpload.length; i++) {
     const file = filesToUpload[i]
     const item = $$('.upload-preview-item')[i]
@@ -852,6 +903,11 @@ $('#btn-upload-all').addEventListener('click', async () => {
       const percent = Math.round((uploaded / filesToUpload.length) * 100)
       progressFill.style.width = percent + '%'
       progressPercent.textContent = percent
+
+      // Delay setiap batch untuk menghindari overload server
+      if ((i + 1) % batchSize === 0 && i + 1 < filesToUpload.length) {
+        await new Promise(resolve => setTimeout(resolve, 500))
+      }
     } catch (error) {
       console.error('Upload error:', error)
       const msg = error?.responseBody?.error?.message || error.message || String(error)
@@ -862,7 +918,7 @@ $('#btn-upload-all').addEventListener('click', async () => {
   showToast('✅ Upload selesai!', 'success')
   filesToUpload = []
   $('#upload-preview-list').innerHTML = ''
-  $('#btn-upload-all').classList.add('hidden')
+  $('#upload-button-container').classList.add('hidden')
   $('#upload-progress').classList.add('hidden')
   $('#file-input').value = ''
   loadAllGalleryPhotos()
