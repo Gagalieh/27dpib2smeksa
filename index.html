@@ -1990,6 +1990,27 @@
       to { transform: translateY(0) scale(1); }
     }
 
+    /* Ocean creature swim animations */
+    @keyframes fish-swim {
+      0% { transform: translateX(0) translateY(0) scaleX(1); }
+      25% { transform: translateX(6vw) translateY(-6px) scaleX(1.03); }
+      50% { transform: translateX(12vw) translateY(0) scaleX(1); }
+      75% { transform: translateX(6vw) translateY(6px) scaleX(0.97); }
+      100% { transform: translateX(0) translateY(0) scaleX(1); }
+    }
+
+    @keyframes jellyfish-swim {
+      0% { transform: translateY(0) translateX(0); }
+      50% { transform: translateY(20px) translateX(4px); }
+      100% { transform: translateY(0) translateX(0); }
+    }
+
+    @keyframes crab-swim {
+      0% { transform: translateX(0) translateY(0); }
+      50% { transform: translateX(2vw) translateY(0); }
+      100% { transform: translateX(0) translateY(0); }
+    }
+
     /* Retro: paper texture overlay */
     .deco-retro::before {
       background-image: repeating-linear-gradient(45deg, rgba(255,255,240,0.04) 0 4px, transparent 4px 12px);
@@ -2065,7 +2086,6 @@
       position: fixed;
       top: -10vh;
       pointer-events: none;
-      z-index: 10000;
       will-change: transform, opacity;
       filter: drop-shadow(0 6px 10px rgba(0,0,0,0.12));
     }
@@ -2083,7 +2103,6 @@
     .forest-leaf {
       position: fixed;
       pointer-events: none;
-      z-index: 10000;
       width: 28px;
       height: 28px;
       animation: leaf-fall var(--duration) ease-in var(--delay) infinite;
@@ -2094,7 +2113,6 @@
     .arch-falling {
       position: fixed;
       pointer-events: none;
-      z-index: 10000;
       width: 32px;
       height: 32px;
       animation: arch-fall var(--duration) ease-in var(--delay) infinite;
@@ -2112,7 +2130,6 @@
     .sakura-falling {
       position: fixed;
       pointer-events: none;
-      z-index: 10000;
       width: 24px;
       height: 24px;
       animation: sakura-fall var(--duration) ease-in var(--delay) infinite;
@@ -2489,14 +2506,20 @@
         <button class="theme-btn" data-theme="dark" title="Dark"><i data-feather="moon"></i></button>
         <button class="theme-btn" data-theme="light" title="Light"><i data-feather="sun"></i></button>
         <button class="theme-btn" data-theme="sunset" title="Sunset"><i data-feather="sunrise"></i></button>
-        <button class="theme-btn" data-theme="ocean" title="Ocean"><i data-feather="droplets"></i></button>
-        <button class="theme-btn" data-theme="forest" title="Forest"><i data-feather="leaf"></i></button>
+        <button class="theme-btn" data-theme="ocean" title="Ocean">
+          <svg class="theme-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2 15c4-2 4-6 8-4s4 2 8 0v6" stroke="currentColor"/></svg>
+        </button>
+        <button class="theme-btn" data-theme="forest" title="Forest">
+          <svg class="theme-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2c-2 2-4 4-4 7 0 4 4 6 4 6s4-2 4-6c0-3-2-5-4-7z" fill="currentColor"/></svg>
+        </button>
         <button class="theme-btn" data-theme="neon" title="Neon"><i data-feather="zap"></i></button>
         <button class="theme-btn" data-theme="cyberpunk" title="Cyberpunk"><i data-feather="shield"></i></button>
         <button class="theme-btn" data-theme="minimal" title="Minimal"><i data-feather="square"></i></button>
         <button class="theme-btn" data-theme="retro" title="Retro"><i data-feather="award"></i></button>
         <button class="theme-btn" data-theme="nord" title="Nord"><i data-feather="wind"></i></button>
-        <button class="theme-btn" data-theme="sakura" title="Sakura"><i data-feather="flower"></i></button>
+        <button class="theme-btn" data-theme="sakura" title="Sakura">
+          <svg class="theme-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2c1.5 2.2 3.5 2.2 5 4 1.5 1.8 1.2 3.8 0 6-1.2 2.2-3.5 3-6 3s-4.8-0.8-6-3c-1.2-2.2-1.5-4.2 0-6 1.5-1.8 3.5-1.8 5-4z" fill="currentColor"/></svg>
+        </button>
       </div>
     </div>
   </nav>
@@ -2723,11 +2746,10 @@
     applyThemeExtras(savedTheme)
 
     function applyThemeExtras(themeName) {
-      // Remove existing layers
+      // Remove existing layers - remove ALL animation layers (back AND front)
       const existing = document.querySelector('.theme-deco')
       if(existing) existing.remove()
-      const existingAnim = document.querySelector('.theme-anim')
-      if(existingAnim) existingAnim.remove()
+      document.querySelectorAll('[class*="theme-anim"]').forEach(el => el.remove())
       const existingToast = document.querySelector('.theme-toast')
       if(existingToast) existingToast.remove()
 
@@ -2740,18 +2762,26 @@
       deco.style.zIndex = '-1'
       document.body.appendChild(deco)
 
-      // ANIMATION LAYER - fish, petals, leaves falling
-      const anim = document.createElement('div')
-      anim.className = 'theme-anim anim-' + themeName
-      anim.style.position = 'fixed'
-      anim.style.inset = '0'
-      anim.style.pointerEvents = 'none'
-      anim.style.zIndex = '1'
-      document.body.appendChild(anim)
+      // ANIMATION LAYERS - separate back/front so some elements can appear above content
+      const animBack = document.createElement('div')
+      animBack.className = 'theme-anim anim-' + themeName + '-back'
+      animBack.style.position = 'fixed'
+      animBack.style.inset = '0'
+      animBack.style.pointerEvents = 'none'
+      animBack.style.zIndex = '1'
+      document.body.appendChild(animBack)
+      const animFront = document.createElement('div')
+      animFront.className = 'theme-anim anim-' + themeName + '-front'
+      animFront.style.position = 'fixed'
+      animFront.style.inset = '0'
+      animFront.style.pointerEvents = 'none'
+      // place in front of main content (main sections use z-index:2)
+      animFront.style.zIndex = '10050'
+      document.body.appendChild(animFront)
 
       if(themeName === 'ocean') {
-        deco.style.background = 'linear-gradient(180deg, rgba(6,182,212,0.5) 0%, rgba(3,105,161,0.4) 50%, rgba(1,58,100,0.5) 100%)'
-        deco.style.animation = 'wave-motion 6s ease-in-out infinite'
+        deco.style.background = 'linear-gradient(180deg, rgba(30,220,255,0.7) 0%, rgba(20,180,240,0.65) 20%, rgba(10,140,210,0.6) 40%, rgba(5,100,180,0.55) 60%, rgba(0,80,160,0.6) 85%, rgba(0,60,140,0.7) 100%)'
+        deco.style.animation = 'wave-motion 8s ease-in-out infinite'
         const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
         svg.setAttribute('viewBox', '0 0 1920 1080')
         svg.setAttribute('style', 'position:absolute;inset:0;width:100%;height:100%;opacity:0.85')
@@ -2784,25 +2814,38 @@
         `
         deco.appendChild(svg)
         const creatures = [
-          { name: 'fish', count: 6, speed: 'fish', colors: ['rgba(255,140,0,0.8)','rgba(100,180,220,0.8)','rgba(150,220,120,0.8)','rgba(220,150,80,0.8)'] },
-          { name: 'jellyfish', count: 4, speed: 'jellyfish', colors: ['rgba(200,100,255,0.6)','rgba(100,200,255,0.6)'] },
-          { name: 'crab', count: 3, speed: 'crab', colors: ['rgba(220,80,50,0.7)','rgba(180,100,40,0.7)'] }
+          { name: 'fish', count: 8, colors: ['rgba(255,140,0,0.8)','rgba(100,180,220,0.8)','rgba(150,220,120,0.8)','rgba(220,150,80,0.8)'] },
+          { name: 'jellyfish', count: 5, colors: ['rgba(200,100,255,0.6)','rgba(100,200,255,0.6)','rgba(150,100,200,0.55)'] },
+          { name: 'crab', count: 4, colors: ['rgba(220,80,50,0.7)','rgba(180,100,40,0.7)','rgba(200,120,60,0.65)'] }
         ]
         creatures.forEach(creature => {
           for(let i=0;i<creature.count;i++){
             const elem = document.createElement('div')
-            const topPos = creature.name === 'crab' ? 750+Math.random()*250 : 250+Math.random()*400
-            const speed = creature.speed === 'fish' ? (5+Math.random()*5) : creature.speed === 'jellyfish' ? (8+Math.random()*6) : (6+Math.random()*5)
-            elem.style.cssText = `position:fixed;left:${Math.random()*100}%;top:${topPos}px;pointer-events:none;opacity:${0.6+Math.random()*0.3};animation:${creature.speed}-swim ${speed}s ease-in-out infinite;animation-delay:${-Math.random()*8}s;z-index:${creature.name==='crab'?1:2}`
+            // more variety in vertical positions - some higher, some lower
+            const topPos = creature.name === 'crab' ? 800+Math.random()*200 : 150+Math.random()*500
+            // slower, more varied speeds for natural feel
+            let speed
+            if(creature.name === 'fish') speed = 12 + Math.random() * 20  // 12-32s slower
+            else if(creature.name === 'jellyfish') speed = 18 + Math.random() * 15  // 18-33s
+            else speed = 16 + Math.random() * 18  // 16-34s crabs
+            // Random front/back assignment
+            const shouldBeInFront = Math.random() > 0.45
+            // Use cubic-bezier for more natural easing, longer delays for staggered entry
+            elem.style.cssText = `position:fixed;left:${Math.random()*100}%;top:${topPos}px;pointer-events:none;opacity:${0.5+Math.random()*0.35};animation-duration:${speed}s;animation-delay:${-Math.random()*20}s;animation-timing-function:cubic-bezier(0.25, 0.46, 0.45, 0.94);animation-iteration-count:infinite;transform-origin:center;`
             const col = creature.colors[i%creature.colors.length]
             if(creature.name === 'fish'){
+              // use the broader crossing animation so fish visibly swim across the viewport
+              elem.style.animationName = 'swim-fish'
               elem.innerHTML = `<svg viewBox="0 0 35 22" xmlns="http://www.w3.org/2000/svg" width="40" height="25"><ellipse cx="13" cy="11" rx="12" ry="9" fill="${col}"/><polygon points="26,11 35,14 35,8" fill="${col}"/><circle cx="5" cy="9" r="2.5" fill="rgba(255,255,255,0.9)"/></svg>`
             } else if(creature.name === 'jellyfish'){
+              elem.style.animationName = 'jellyfish-swim'
               elem.innerHTML = `<svg viewBox="0 0 30 50" xmlns="http://www.w3.org/2000/svg" width="25" height="45"><ellipse cx="15" cy="8" rx="12" ry="8" fill="${col}"/><path d="M8 16 Q6 30 7 45" stroke="${col}" stroke-width="2" fill="none" opacity="0.7"/><path d="M15 16 Q15 30 15 45" stroke="${col}" stroke-width="2" fill="none" opacity="0.7"/><path d="M22 16 Q24 30 23 45" stroke="${col}" stroke-width="2" fill="none" opacity="0.7"/></svg>`
             } else if(creature.name === 'crab'){
+              elem.style.animationName = 'crab-swim'
               elem.innerHTML = `<svg viewBox="0 0 40 25" xmlns="http://www.w3.org/2000/svg" width="40" height="25"><ellipse cx="20" cy="13" rx="10" ry="8" fill="${col}"/><circle cx="8" cy="10" r="4" fill="${col}"/><circle cx="32" cy="10" r="4" fill="${col}"/><path d="M5 15 L2 22" stroke="${col}" stroke-width="2" fill="none"/><path d="M35 15 L38 22" stroke="${col}" stroke-width="2" fill="none"/><circle cx="20" cy="10" r="2" fill="rgba(255,255,255,0.8)"/></svg>`
             }
-            anim.appendChild(elem)
+            if(shouldBeInFront) animFront.appendChild(elem)
+            else animBack.appendChild(elem)
           }
         })
       }
@@ -2839,56 +2882,72 @@
           <!-- Moon -->
           <circle cx="1800" cy="120" r="65" fill="rgba(255,220,100,0.2)"/>
           <circle cx="1800" cy="120" r="50" fill="none" stroke="rgba(255,200,0,0.25)" stroke-width="2.5"/>
-          <!-- City buildings at bottom -->
-          <rect x="0" y="750" width="1920" height="330" fill="url(#building-fade)"/>
+          <!-- City buildings at bottom - small, many, 1/8 height only -->
+          <rect x="0" y="945" width="1920" height="135" fill="url(#building-fade)"/>
           <g opacity="0.85">
-            <!-- Left side buildings -->
-            <rect x="20" y="620" width="140" height="310" fill="rgba(15,20,35,0.9)" rx="2"/>
-            <rect x="180" y="550" width="160" height="380" fill="rgba(20,30,45,0.85)" rx="2"/>
-            <rect x="360" y="680" width="130" height="250" fill="rgba(18,25,40,0.88)" rx="2"/>
-            <rect x="510" y="600" width="170" height="330" fill="rgba(22,32,50,0.86)" rx="2"/>
-            <!-- Center buildings -->
-            <rect x="700" y="500" width="220" height="430" fill="rgba(25,35,55,0.87)" rx="2"/>
-            <rect x="940" y="580" width="180" height="350" fill="rgba(20,28,45,0.89)" rx="2"/>
-            <!-- Right side buildings -->
-            <rect x="1140" y="640" width="150" height="290" fill="rgba(18,26,40,0.88)" rx="2"/>
-            <rect x="1310" y="560" width="200" height="370" fill="rgba(23,33,52,0.86)" rx="2"/>
-            <rect x="1530" y="620" width="140" height="310" fill="rgba(19,27,42,0.87)" rx="2"/>
-            <rect x="1690" y="500" width="180" height="430" fill="rgba(24,34,54,0.85)" rx="2"/>
+            <!-- Small buildings across the entire width -->
+            <rect x="0" y="980" width="70" height="100" fill="rgba(15,20,35,0.9)" rx="1"/>
+            <rect x="75" y="995" width="65" height="85" fill="rgba(20,30,45,0.85)" rx="1"/>
+            <rect x="145" y="975" width="60" height="105" fill="rgba(18,25,40,0.88)" rx="1"/>
+            <rect x="210" y="990" width="75" height="90" fill="rgba(22,32,50,0.86)" rx="1"/>
+            <rect x="290" y="970" width="70" height="110" fill="rgba(25,35,55,0.87)" rx="1"/>
+            <rect x="365" y="985" width="65" height="95" fill="rgba(20,28,45,0.89)" rx="1"/>
+            <rect x="435" y="975" width="72" height="105" fill="rgba(18,26,40,0.88)" rx="1"/>
+            <rect x="512" y="990" width="68" height="90" fill="rgba(23,33,52,0.86)" rx="1"/>
+            <rect x="585" y="980" width="70" height="100" fill="rgba(19,27,42,0.87)" rx="1"/>
+            <rect x="660" y="988" width="65" height="92" fill="rgba(24,34,54,0.85)" rx="1"/>
+            <rect x="730" y="975" width="75" height="105" fill="rgba(21,31,48,0.86)" rx="1"/>
+            <rect x="810" y="992" width="68" height="88" fill="rgba(20,30,45,0.85)" rx="1"/>
+            <rect x="883" y="978" width="72" height="102" fill="rgba(22,32,50,0.87)" rx="1"/>
+            <rect x="960" y="985" width="70" height="95" fill="rgba(25,35,55,0.88)" rx="1"/>
+            <rect x="1035" y="972" width="68" height="108" fill="rgba(18,25,40,0.85)" rx="1"/>
+            <rect x="1108" y="990" width="75" height="90" fill="rgba(20,28,45,0.86)" rx="1"/>
+            <rect x="1188" y="980" width="65" height="100" fill="rgba(23,33,52,0.88)" rx="1"/>
+            <rect x="1258" y="988" width="72" height="92" fill="rgba(19,27,42,0.87)" rx="1"/>
+            <rect x="1335" y="975" width="70" height="105" fill="rgba(24,34,54,0.86)" rx="1"/>
+            <rect x="1410" y="992" width="68" height="88" fill="rgba(21,31,48,0.85)" rx="1"/>
+            <rect x="1483" y="980" width="75" height="100" fill="rgba(22,32,50,0.87)" rx="1"/>
+            <rect x="1563" y="985" width="65" height="95" fill="rgba(25,35,55,0.88)" rx="1"/>
+            <rect x="1633" y="970" width="72" height="110" fill="rgba(20,28,45,0.85)" rx="1"/>
+            <rect x="1710" y="990" width="70" height="90" fill="rgba(18,26,40,0.86)" rx="1"/>
+            <rect x="1785" y="978" width="68" height="102" fill="rgba(23,33,52,0.87)" rx="1"/>
+            <rect x="1858" y="988" width="62" height="92" fill="rgba(19,27,42,0.88)" rx="1"/>
           </g>
-          <!-- Windows lights -->
+          <!-- Windows lights - smaller windows for smaller buildings -->
           <g fill="rgba(255,200,80,0.7)" filter="url(#city-glow)" opacity="0.8">
-            <!-- Left buildings windows -->
-            <rect x="40" y="650" width="18" height="22"/><rect x="70" y="650" width="18" height="22"/><rect x="100" y="650" width="18" height="22"/>
-            <rect x="40" y="700" width="18" height="22"/><rect x="70" y="700" width="18" height="22"/><rect x="100" y="700" width="18" height="22"/>
-            <rect x="40" y="750" width="18" height="22"/><rect x="70" y="750" width="18" height="22"/><rect x="100" y="750" width="18" height="22"/>
-            <rect x="40" y="800" width="18" height="22"/><rect x="70" y="800" width="18" height="22"/>
-            <!-- Second left building -->
-            <rect x="210" y="580" width="20" height="25"/><rect x="250" y="580" width="20" height="25"/><rect x="290" y="580" width="20" height="25"/>
-            <rect x="210" y="650" width="20" height="25"/><rect x="250" y="650" width="20" height="25"/><rect x="290" y="650" width="20" height="25"/>
-            <rect x="210" y="720" width="20" height="25"/><rect x="250" y="720" width="20" height="25"/><rect x="290" y="720" width="20" height="25"/>
-            <rect x="210" y="790" width="20" height="25"/><rect x="250" y="790" width="20" height="25"/>
-            <!-- Center tall building -->
-            <rect x="730" y="530" width="22" height="28"/><rect x="780" y="530" width="22" height="28"/><rect x="830" y="530" width="22" height="28"/><rect x="880" y="530" width="22" height="28"/>
-            <rect x="730" y="600" width="22" height="28"/><rect x="780" y="600" width="22" height="28"/><rect x="830" y="600" width="22" height="28"/><rect x="880" y="600" width="22" height="28"/>
-            <rect x="730" y="670" width="22" height="28"/><rect x="780" y="670" width="22" height="28"/><rect x="830" y="670" width="22" height="28"/><rect x="880" y="670" width="22" height="28"/>
-            <rect x="730" y="740" width="22" height="28"/><rect x="780" y="740" width="22" height="28"/><rect x="830" y="740" width="22" height="28"/>
-            <!-- Right buildings -->
-            <rect x="1350" y="610" width="20" height="24"/><rect x="1400" y="610" width="20" height="24"/><rect x="1450" y="610" width="20" height="24"/>
-            <rect x="1350" y="680" width="20" height="24"/><rect x="1400" y="680" width="20" height="24"/><rect x="1450" y="680" width="20" height="24"/>
-            <rect x="1350" y="750" width="20" height="24"/><rect x="1400" y="750" width="20" height="24"/>
-            <!-- Far right tall building -->
-            <rect x="1730" y="540" width="22" height="28"/><rect x="1785" y="540" width="22" height="28"/>
-            <rect x="1730" y="620" width="22" height="28"/><rect x="1785" y="620" width="22" height="28"/>
-            <rect x="1730" y="700" width="22" height="28"/><rect x="1785" y="700" width="22" height="28"/>
-            <rect x="1730" y="780" width="22" height="28"/><rect x="1785" y="780" width="22" height="28"/>
+            <rect x="10" y="995" width="12" height="14"/><rect x="30" y="995" width="12" height="14"/><rect x="10" y="1020" width="12" height="14"/>
+            <rect x="85" y="1008" width="12" height="12"/><rect x="105" y="1008" width="12" height="12"/>
+            <rect x="160" y="990" width="12" height="14"/><rect x="180" y="990" width="12" height="14"/>
+            <rect x="225" y="1003" width="12" height="12"/><rect x="245" y="1003" width="12" height="12"/><rect x="265" y="1003" width="12" height="12"/>
+            <rect x="305" y="985" width="12" height="14"/><rect x="325" y="985" width="12" height="14"/><rect x="345" y="985" width="12" height="14"/>
+            <rect x="380" y="1000" width="12" height="12"/><rect x="400" y="1000" width="12" height="12"/>
+            <rect x="450" y="990" width="12" height="14"/><rect x="470" y="990" width="12" height="14"/>
+            <rect x="530" y="1005" width="12" height="12"/><rect x="550" y="1005" width="12" height="12"/>
+            <rect x="600" y="995" width="12" height="14"/><rect x="620" y="995" width="12" height="14"/>
+            <rect x="680" y="1003" width="12" height="12"/><rect x="700" y="1003" width="12" height="12"/>
+            <rect x="750" y="990" width="12" height="14"/><rect x="770" y="990" width="12" height="14"/><rect x="790" y="990" width="12" height="14"/>
+            <rect x="830" y="1007" width="12" height="12"/><rect x="850" y="1007" width="12" height="12"/>
+            <rect x="900" y="993" width="12" height="14"/><rect x="920" y="993" width="12" height="14"/>
+            <rect x="980" y="1000" width="12" height="12"/><rect x="1000" y="1000" width="12" height="12"/><rect x="1020" y="1000" width="12" height="12"/>
+            <rect x="1055" y="987" width="12" height="14"/><rect x="1075" y="987" width="12" height="14"/>
+            <rect x="1130" y="1005" width="12" height="12"/><rect x="1150" y="1005" width="12" height="12"/>
+            <rect x="1205" y="995" width="12" height="14"/><rect x="1225" y="995" width="12" height="14"/>
+            <rect x="1280" y="1003" width="12" height="12"/><rect x="1300" y="1003" width="12" height="12"/>
+            <rect x="1355" y="990" width="12" height="14"/><rect x="1375" y="990" width="12" height="14"/>
+            <rect x="1430" y="1007" width="12" height="12"/><rect x="1450" y="1007" width="12" height="12"/>
+            <rect x="1500" y="995" width="12" height="14"/><rect x="1520" y="995" width="12" height="14"/><rect x="1540" y="995" width="12" height="14"/>
+            <rect x="1585" y="1000" width="12" height="12"/><rect x="1605" y="1000" width="12" height="12"/>
+            <rect x="1655" y="985" width="12" height="14"/><rect x="1675" y="985" width="12" height="14"/>
+            <rect x="1730" y="1005" width="12" height="12"/><rect x="1750" y="1005" width="12" height="12"/>
+            <rect x="1805" y="993" width="12" height="14"/><rect x="1825" y="993" width="12" height="14"/>
+            <rect x="1875" y="1003" width="12" height="12"/>
           </g>
           <!-- Window flicker overlay -->
           <g fill="rgba(255,200,80,0.3)" opacity="0.4" animation="window-flicker 4s ease-in-out infinite">
-            <rect x="40" y="650" width="18" height="22"/><rect x="70" y="700" width="18" height="22"/><rect x="100" y="750" width="18" height="22"/>
-            <rect x="250" y="650" width="20" height="25"/><rect x="290" y="720" width="20" height="25"/>
-            <rect x="780" y="600" width="22" height="28"/><rect x="830" y="670" width="22" height="28"/>
-            <rect x="1400" y="680" width="20" height="24"/><rect x="1785" y="700" width="22" height="28"/>
+            <rect x="30" y="995" width="12" height="14"/><rect x="100" y="1008" width="12" height="12"/><rect x="180" y="990" width="12" height="14"/>
+            <rect x="245" y="1003" width="12" height="12"/><rect x="325" y="985" width="12" height="14"/><rect x="400" y="1000" width="12" height="12"/>
+            <rect x="470" y="990" width="12" height="14"/><rect x="550" y="1005" width="12" height="12"/><rect x="620" y="995" width="12" height="14"/>
+            <rect x="700" y="1003" width="12" height="12"/><rect x="790" y="990" width="12" height="14"/><rect x="850" y="1007" width="12" height="12"/>
           </g>
         `
         deco.appendChild(svg)
@@ -2918,8 +2977,11 @@
           leaf.style.setProperty('--delay', -Math.random()*10+'s')
           leaf.style.setProperty('--duration', (8+Math.random()*8)+'s')
           leaf.style.setProperty('--x', (Math.random()*100-50)+'px')
-          leaf.innerHTML = '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="rgba(21,128,61,0.85)"><path d="M12 2C12 2 8 6 8 12C8 16 10 20 12 22C14 20 16 16 16 12C16 6 12 2 12 2Z"/></svg>'
-          anim.appendChild(leaf)
+          // random front/back so some leaves are in front of content
+          const leafFront = Math.random() > 0.45
+          leaf.innerHTML = '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="rgba(21,128,61,0.95)"><path d="M12 2C12 2 8 6 8 12C8 16 10 20 12 22C14 20 16 16 16 12C16 6 12 2 12 2Z"/></svg>'
+          if(leafFront) animFront.appendChild(leaf)
+          else animBack.appendChild(leaf)
         }
       }
       else if(themeName === 'sakura') {
@@ -2950,8 +3012,11 @@
           petal.style.setProperty('--duration', (16+Math.random()*12)+'s')
           petal.style.setProperty('--x', (Math.random()*160-80)+'px')
           petal.style.setProperty('--r', Math.random()*360+'deg')
-          petal.innerHTML = '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="rgba(232,121,163,0.9)"><path d="M12 2C12 2 8 6 8 12C8 16 10 20 12 22C14 20 16 16 16 12C16 6 12 2 12 2Z"/><circle cx="12" cy="12" r="2.5" fill="rgba(255,251,254,0.8)"/></svg>'
-          anim.appendChild(petal)
+          // match forest leaf shape but in sakura color; random front/back
+          const petalFront = Math.random() > 0.45
+          petal.innerHTML = '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="rgba(232,121,163,0.95)"><path d="M12 2C12 2 8 6 8 12C8 16 10 20 12 22C14 20 16 16 16 12C16 6 12 2 12 2Z"/></svg>'
+          if(petalFront) animFront.appendChild(petal)
+          else animBack.appendChild(petal)
         }
       }
       else if(themeName === 'default') {
@@ -2996,7 +3061,9 @@
           arch.style.setProperty('--r', Math.random()*360+'deg')
           const tools=['<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="rgba(124,58,237,0.9)"><rect x="2" y="3" width="20" height="3" rx="1"/><rect x="3" y="7" width="18" height="10" rx="0.5"/></svg>','<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="rgba(249,115,22,0.9)"><path d="M3 3 L21 3 L21 7 L3 7 Z"/><path d="M4 9 L5 22 L19 22 L20 9 Z"/></svg>','<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="rgba(59,130,246,0.9)"><rect x="2" y="3" width="20" height="2"/><rect x="2" y="6" width="20" height="14" rx="1"/></svg>']
           arch.innerHTML = tools[i%3]
-          anim.appendChild(arch)
+          const archFront = Math.random() > 0.45
+          if(archFront) animFront.appendChild(arch)
+          else animBack.appendChild(arch)
         }
       }
       else if(themeName === 'minimal') {
