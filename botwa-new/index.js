@@ -22,6 +22,83 @@ const PHOTOS_PATH = path.join(__dirname, '../photos-upload');
 console.log(`📂 Session path: ${SESSION_PATH}`);
 console.log(`📸 Photos path: ${PHOTOS_PATH}\n`);
 
+/**
+ * Download media dari URL WhatsApp
+ */
+async function downloadMediaBaileys(sock, msgKey, quotedMsg) {
+  try {
+    console.log('🔍 Checking quoted message structure...');
+
+    // Handle berbagai tipe media
+    let mediaMsg = null;
+    
+    if (quotedMsg.imageMessage) {
+      console.log('📷 Found imageMessage');
+      mediaMsg = quotedMsg.imageMessage;
+    } else if (quotedMsg.videoMessage) {
+      console.log('🎥 Found videoMessage');
+      mediaMsg = quotedMsg.videoMessage;
+    } else {
+      console.error('❌ No media message found');
+      return null;
+    }
+
+    // Get URL dari media message
+    const mediaUrl = mediaMsg.url;
+    if (!mediaUrl) {
+      console.error('❌ No URL found in media message');
+      return null;
+    }
+
+    console.log('📥 Downloading media dari URL:', mediaUrl.substring(0, 60) + '...');
+    
+    // Download dengan axios - dengan header yang proper
+    const response = await axios.get(mediaUrl, {
+      responseType: 'arraybuffer',
+      timeout: 30000,
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+      }
+    });
+    
+    const stream = Buffer.from(response.data);
+    
+    if (!stream || stream.length === 0) {
+      console.error('❌ Stream is empty');
+      return null;
+    }
+
+    console.log('✅ Downloaded, size:', stream.length, 'bytes');
+
+    // Save to file
+    const timestamp = new Date().getTime();
+    const senderName = msgKey.participant
+      .split('@')[0]
+      .replace(/[^a-z0-9]/gi, '-')
+      .toLowerCase();
+    const filename = `${timestamp}-${senderName}.jpg`;
+    const filepath = path.join(__dirname, '../photos-upload', filename);
+
+    // Create directory if not exists
+    const dirPath = path.dirname(filepath);
+    if (!fs.existsSync(dirPath)) {
+      fs.mkdirSync(dirPath, { recursive: true });
+      console.log(`📁 Created directory: ${dirPath}`);
+    }
+
+    // Save file
+    fs.writeFileSync(filepath, stream);
+    const fileSize = fs.statSync(filepath).size;
+    console.log(`✅ File saved: ${filepath} (${fileSize} bytes)`);
+
+    return filepath;
+  } catch (error) {
+    console.error('❌ Download error details:');
+    console.error('  Message:', error.message);
+    return null;
+  }
+}
+
 async function startBot() {
   try {
     console.log('📲 Initializing Baileys...\n');
@@ -252,103 +329,6 @@ Dikembangkan dengan cinta untuk kelas tercinta 💜`;
     console.error(error.stack);
     console.log('\n⏰ Restarting in 10 seconds...\n');
     setTimeout(startBot, 10000);
-  }
-}
-
-// Graceful shutdown
-process.on('SIGINT', () => {
-  console.log('\n🛑 Shutting down gracefully...');
-  process.exit(0);
-});
-
-process.on('uncaughtException', (error) => {
-  console.error('❌ Uncaught exception:', error);
-  process.exit(1);
-});
-
-process.on('unhandledRejection', (reason, promise) => {
-  console.error('❌ Unhandled rejection at:', promise, 'reason:', reason);
-});
-
-// Start bot
-console.log('Starting bot...\n');
-startBot().catch((err) => {
-  console.error('Failed to start bot:', err);
-  process.exit(1);
-});
-
-/**
- * Download media dari Baileys
- */
-async function downloadMediaBaileys(sock, msgKey, quotedMsg) {
-  try {
-    console.log('🔍 Checking quoted message structure...');
-
-    // Handle berbagai tipe media
-    let mediaMsg = null;
-    
-    if (quotedMsg.imageMessage) {
-      console.log('📷 Found imageMessage');
-      mediaMsg = quotedMsg.imageMessage;
-    } else if (quotedMsg.videoMessage) {
-      console.log('🎥 Found videoMessage');
-      mediaMsg = quotedMsg.videoMessage;
-    } else {
-      console.error('❌ No media message found');
-      return null;
-    }
-
-    // Get URL dari media message
-    const mediaUrl = mediaMsg.url;
-    if (!mediaUrl) {
-      console.error('❌ No URL found in media message');
-      return null;
-    }
-
-    console.log('📥 Downloading media dari URL:', mediaUrl.substring(0, 50) + '...');
-    
-    // Download dengan axios
-    const response = await axios.get(mediaUrl, {
-      responseType: 'arraybuffer',
-      timeout: 30000
-    });
-    
-    const stream = Buffer.from(response.data);
-    
-    if (!stream || stream.length === 0) {
-      console.error('❌ Stream is empty');
-      return null;
-    }
-
-    console.log('✅ Downloaded, size:', stream.length, 'bytes');
-
-    // Save to file
-    const timestamp = new Date().getTime();
-    const senderName = msgKey.participant
-      .split('@')[0]
-      .replace(/[^a-z0-9]/gi, '-')
-      .toLowerCase();
-    const filename = `${timestamp}-${senderName}.jpg`;
-    const filepath = path.join(__dirname, '../photos-upload', filename);
-
-    // Create directory if not exists
-    const dirPath = path.dirname(filepath);
-    if (!fs.existsSync(dirPath)) {
-      fs.mkdirSync(dirPath, { recursive: true });
-      console.log(`📁 Created directory: ${dirPath}`);
-    }
-
-    // Save file
-    fs.writeFileSync(filepath, stream);
-    const fileSize = fs.statSync(filepath).size;
-    console.log(`✅ File saved: ${filepath} (${fileSize} bytes)`);
-
-    return filepath;
-  } catch (error) {
-    console.error('❌ Download error details:');
-    console.error('  Message:', error.message);
-    console.error('  Stack:', error.stack);
-    return null;
   }
 }
 

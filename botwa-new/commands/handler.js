@@ -51,32 +51,48 @@ async function downloadMedia(media, sender) {
 }
 
 /**
- * Upload foto ke Cloudinary (media)
+ * Upload foto ke Cloudinary dengan fallback
  */
 async function uploadPhotoToWebsite(photoPath, sender) {
   try {
-    // Baca dan validate file
+    // Baca file
     const filedata = fs.readFileSync(photoPath);
     const filename = path.basename(photoPath);
     
-    console.log('📤 Validating and processing image...');
-    
-    // Compress dan validate dengan sharp
-    const processedBuffer = await sharp(filedata)
-      .resize(1920, 1080, {
-        fit: 'inside',
-        withoutEnlargement: true,
-      })
-      .jpeg({ quality: 85 })
-      .toBuffer();
+    console.log('📤 Processing image...');
+    console.log('📊 Original file size:', filedata.length, 'bytes');
 
-    console.log('✅ Image processed');
-    console.log('📊 Original size:', filedata.length, 'bytes');
-    console.log('📊 Processed size:', processedBuffer.length, 'bytes');
+    let uploadBuffer = filedata;
+
+    // Coba optimize dengan sharp, tapi jika gagal gunakan raw buffer
+    try {
+      console.log('🔧 Attempting to optimize with sharp...');
+      const optimized = await sharp(filedata, { failOnError: false })
+        .rotate()
+        .resize(2000, 2000, {
+          fit: 'inside',
+          withoutEnlargement: true,
+        })
+        .jpeg({ quality: 80 })
+        .toBuffer()
+        .catch(() => filedata); // Jika error, gunakan original
+
+      uploadBuffer = optimized;
+      console.log('✅ Image optimized - size:', uploadBuffer.length, 'bytes');
+    } catch (e) {
+      console.log('⚠️ Sharp optimization skipped, using raw buffer');
+      uploadBuffer = filedata;
+    }
+
+    // Verify buffer
+    if (!uploadBuffer || uploadBuffer.length === 0) {
+      throw new Error('Upload buffer is empty');
+    }
 
     // Upload ke Cloudinary
+    console.log('📤 Uploading to Cloudinary...');
     const formData = new FormData();
-    formData.append('file', processedBuffer, {
+    formData.append('file', uploadBuffer, {
       filename: filename,
       contentType: 'image/jpeg'
     });
@@ -86,7 +102,6 @@ async function uploadPhotoToWebsite(photoPath, sender) {
 
     const cloudinaryUrl = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`;
 
-    console.log('📤 Uploading to Cloudinary...');
     const cloudResponse = await axios.post(cloudinaryUrl, formData, {
       headers: formData.getHeaders(),
       timeout: 60000,
@@ -95,11 +110,11 @@ async function uploadPhotoToWebsite(photoPath, sender) {
     });
 
     const cloudinaryResult = cloudResponse.data;
-    console.log('✅ Uploaded to Cloudinary');
+    console.log('✅ Uploaded to Cloudinary successfully!');
     console.log('📸 Public ID:', cloudinaryResult.public_id);
     console.log('🔗 URL:', cloudinaryResult.secure_url);
 
-    // Update index dengan URL Cloudinary
+    // Update index
     updatePhotosIndex(filename, sender, cloudinaryResult.secure_url);
 
     return {
@@ -110,10 +125,11 @@ async function uploadPhotoToWebsite(photoPath, sender) {
       cloudinary_id: cloudinaryResult.public_id,
     };
   } catch (error) {
-    console.error('❌ Error uploading to Cloudinary:');
-    console.error('  Status:', error.response?.status);
-    console.error('  Data:', error.response?.data);
+    console.error('❌ Upload error:');
     console.error('  Message:', error.message);
+    if (error.response?.data) {
+      console.error('  Response:', error.response.data);
+    }
     return {
       success: false,
       error: error.response?.data?.error?.message || error.message,
