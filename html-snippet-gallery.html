@@ -1,0 +1,81 @@
+<!-- 
+  GALERI BOT WhatsApp - Tambahkan section ini ke index.html
+  Letakkan di mana saja dalam <body> tag, misalnya sebelum closing </main>
+  
+  Pastikan sudah ada folder "/photos-upload" di root website
+  dan file "js/load-bot-photos.js" sudah di-include
+-->
+
+<section id="galeri-bot" class="py-16 px-6 md:px-12">
+  <div class="max-w-7xl mx-auto">
+    <!-- Header -->
+    <div class="mb-12 text-center">
+      <h2 class="text-4xl md:text-5xl font-bold mb-4">
+        <span class="bg-gradient-to-r from-primary via-secondary to-primary bg-clip-text text-transparent">
+          📸 Galeri Kiriman Kelas
+        </span>
+      </h2>
+      <p class="text-lg text-text-secondary max-w-2xl mx-auto">
+        Foto-foto kenangan dari anggota kelas yang dikirim langsung via WhatsApp Bot
+      </p>
+      <div class="mt-6 inline-block bg-card border border-border rounded-lg p-4">
+        <p class="text-sm text-text-secondary">
+          💡 <strong>Cara kirim foto:</strong> Kirim foto ke bot, balas dengan <code class="bg-bg-dark px-2 py-1 rounded">!upload</code>
+        </p>
+      </div>
+    </div>
+
+    <!-- Photo Grid -->
+    <div id="photo-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <!-- Photos akan dimuat oleh JavaScript -->
+      <div class="col-span-full flex items-center justify-center h-64">
+        <div class="text-center">
+          <div class="inline-block">
+            <div class="animate-spin mb-4">
+              <svg class="w-12 h-12 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+              </svg>
+            </div>
+          </div>
+          <p class="text-text-secondary">Memuat foto...</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Empty State -->
+    <div id="empty-state" class="hidden text-center py-12">
+      <p class="text-2xl text-text-secondary mb-4">📷 Belum ada foto</p>
+      <p class="text-text-secondary mb-6">
+        Jadilah yang pertama mengupload foto kenangan kelas!
+      </p>
+      <a href="#guestbook" class="inline-block bg-gradient-to-r from-primary to-secondary text-white font-semibold py-3 px-8 rounded-lg hover:shadow-lg transition">
+        Hubungi Bot WhatsApp
+      </a>
+    </div>
+
+    <!-- Stats -->
+    <div class="mt-12 pt-8 border-t border-border grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+      <div>
+        <p id="photo-count" class="text-3xl font-bold text-primary">0</p>
+        <p class="text-sm text-text-secondary">Foto Terupload</p>
+      </div>
+      <div>
+        <p id="contributor-count" class="text-3xl font-bold text-secondary">0</p>
+        <p class="text-sm text-text-secondary">Kontributor</p>
+      </div>
+      <div>
+        <p class="text-3xl font-bold text-primary">⚡</p>
+        <p class="text-sm text-text-secondary">Auto Upload</p>
+      </div>
+      <div>
+        <p class="text-3xl font-bold text-secondary">🔄</p>
+        <p class="text-sm text-text-secondary">Real-time Update</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Modal untuk view full size -->
+<!-- Modal akan dibuat oleh JavaScript jika belum ada -->
+
+<script src="/js/load-bot-photos.js"></script>
