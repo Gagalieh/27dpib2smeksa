@@ -44,6 +44,10 @@ const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const SAVE_LOCAL_INDEX = parseBoolean(process.env.SAVE_LOCAL_INDEX);
 const LOCAL_INDEX_DIR = path.resolve(process.env.LOCAL_INDEX_DIR);
 const TEMP_WORK_DIR = path.join(os.tmpdir(), 'botwa-new-media');
+const WA_PENDING_TITLE_PREFIX = (() => {
+  const raw = process.env.WA_PENDING_TITLE_PREFIX || '[WA-PENDING]';
+  return raw.endsWith(' ') ? raw : `${raw} `;
+})();
 
 if (!fs.existsSync(TEMP_WORK_DIR)) {
   fs.mkdirSync(TEMP_WORK_DIR, { recursive: true });
@@ -76,6 +80,17 @@ function sanitizeForFilename(input) {
     .replace(/-+/g, '-')
     .replace(/^-|-$/g, '')
     .toLowerCase();
+}
+
+function ensureWaPendingTitlePrefix(inputTitle) {
+  const clean = String(inputTitle || '').trim();
+  if (!clean) {
+    return `${WA_PENDING_TITLE_PREFIX}Kiriman WhatsApp`;
+  }
+  if (clean.toLowerCase().startsWith(WA_PENDING_TITLE_PREFIX.toLowerCase())) {
+    return clean;
+  }
+  return `${WA_PENDING_TITLE_PREFIX}${clean}`;
 }
 
 function removeFileIfExists(filePath) {
@@ -159,12 +174,17 @@ function buildGalleryPayload(sender, cloudinaryResult, fileSize, context = {}) {
   const defaultCaption = quotedShort
     ? `Dikirim via WhatsApp oleh ${senderShort} (quoted: ${quotedShort})`
     : `Dikirim via WhatsApp oleh ${senderShort}`;
+  const batchSuffix =
+    context.batch_total && context.batch_total > 1
+      ? ` (${context.batch_index || 1}/${context.batch_total})`
+      : '';
+  const defaultTitle = `Kiriman WhatsApp ${today}${batchSuffix}`;
 
   return {
     image_url: cloudinaryResult.secure_url,
-    title: context.title || `Kiriman WhatsApp ${today}`,
-    caption: context.caption || defaultCaption,
-    status: 'public',
+    title: ensureWaPendingTitlePrefix(context.title || defaultTitle),
+    caption: context.caption || `${defaultCaption}. Menunggu persetujuan admin.`,
+    status: 'draft',
     file_size: Number(cloudinaryResult.bytes || fileSize || 0),
   };
 }

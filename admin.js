@@ -12,12 +12,15 @@ let allGalleryPhotos = []
 let allTags = []
 let filesToUpload = []
 let selectedGalleryIds = new Set()
+let waPendingPhotos = []
+let selectedWaPendingIds = new Set()
 let editingMemoryId = null
 let editingNewsId = null
 let editingEventId = null
 let editingGalleryId = null
 let selectedMemoryPhotos = []
 let selectedBulkTagId = null
+const WA_PENDING_TITLE_PREFIX = '[WA-PENDING] '
 
 // ============================================
 // NOTIFICATIONS
@@ -132,7 +135,13 @@ async function initializeAdmin() {
   try {
     await loadDashboardStats()
     // pre-load common datasets for admin
-    await Promise.allSettled([loadAllTags(), loadAllGalleryPhotos(), loadAllMemories(), loadAllEvents()])
+    await Promise.allSettled([
+      loadAllTags(),
+      loadAllGalleryPhotos(),
+      loadAllWaPendingPhotos(),
+      loadAllMemories(),
+      loadAllEvents()
+    ])
     // ensure class profile data is loaded into the admin form and preview
     await loadClassProfileAdmin()
     // ensure students tab visibility and icon replacement
@@ -206,6 +215,8 @@ $$('.sidebar-link').forEach((link) => {
 function loadTabData(tabName) {
   if (tabName === 'gallery-upload') {
     loadAllTags()
+  } else if (tabName === 'wa-pending') {
+    loadAllWaPendingPhotos()
   } else if (tabName === 'gallery') {
     loadAllGalleryPhotos()
     loadAllTags()
@@ -231,7 +242,10 @@ function loadTabData(tabName) {
 async function loadDashboardStats() {
   try {
     const [photosRes, memoriesRes, newsRes, eventsRes, guestsRes] = await Promise.all([
-      supabase.from('gallery').select('id, created_at, image_url, file_size', { count: 'exact' }),
+      supabase
+        .from('gallery')
+        .select('id, created_at, image_url, file_size', { count: 'exact' })
+        .eq('status', 'public'),
       supabase.from('memories').select('id', { count: 'exact' }),
       supabase.from('news').select('id', { count: 'exact' }),
       supabase.from('events').select('id', { count: 'exact' }),
@@ -926,11 +940,284 @@ $('#btn-upload-all').addEventListener('click', async () => {
 })
 
 // ============================================
+// WHATSAPP PENDING QUEUE
+// ============================================
+function cleanWaPendingTitle(title) {
+  const raw = String(title || '').trim()
+  if (!raw) return ''
+  const escapedPrefix = WA_PENDING_TITLE_PREFIX.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+  return raw.replace(new RegExp(`^${escapedPrefix}`, 'i'), '').trim()
+}
+
+function cleanWaPendingCaption(caption) {
+  const raw = String(caption || '').trim()
+  if (!raw) return ''
+  return raw.replace(/\s*Menunggu persetujuan admin\.\s*/i, ' ').trim()
+}
+
+function isWaPendingPhoto(photo) {
+  const title = String(photo?.title || '').trim().toLowerCase()
+  const caption = String(photo?.caption || '').trim().toLowerCase()
+  const hasWaPrefix = title.startsWith(WA_PENDING_TITLE_PREFIX.toLowerCase())
+  const hasWaCaption = caption.includes('dikirim via whatsapp')
+  return photo?.status === 'draft' && (hasWaPrefix || hasWaCaption)
+}
+
+function getFilteredWaPendingPhotos() {
+  const searchTerm = $('#wa-pending-search')?.value.toLowerCase().trim() || ''
+  if (!searchTerm) return waPendingPhotos
+  return waPendingPhotos.filter((photo) => {
+    const title = cleanWaPendingTitle(photo.title).toLowerCase()
+    const caption = String(photo.caption || '').toLowerCase()
+    return title.includes(searchTerm) || caption.includes(searchTerm) || String(photo.id).includes(searchTerm)
+  })
+}
+
+function updateWaPendingSelectionUI() {
+  const selectedCount = selectedWaPendingIds.size
+  const applyBtn = $('#btn-wa-pending-apply-selected')
+  const cancelBtn = $('#btn-wa-pending-cancel-selected')
+  const label = $('#wa-pending-select-label')
+
+  if (!applyBtn || !cancelBtn || !label) return
+
+  if (selectedCount === 0) {
+    applyBtn.classList.add('hidden')
+    cancelBtn.classList.add('hidden')
+    label.textContent = 'Belum ada yang dipilih'
+    return
+  }
+
+  applyBtn.classList.remove('hidden')
+  cancelBtn.classList.remove('hidden')
+  label.textContent = `${selectedCount} foto dipilih`
+}
+
+function toggleWaPendingSelection(id) {
+  if (selectedWaPendingIds.has(id)) {
+    selectedWaPendingIds.delete(id)
+  } else {
+    selectedWaPendingIds.add(id)
+  }
+  renderWaPendingGrid()
+  updateWaPendingSelectionUI()
+}
+
+function renderWaPendingGrid() {
+  const container = $('#wa-pending-grid')
+  if (!container) return
+
+  container.innerHTML = ''
+  const filtered = getFilteredWaPendingPhotos()
+
+  if (waPendingPhotos.length === 0) {
+    container.innerHTML = `
+      <div style="grid-column: 1/-1; text-align: center; padding: 3rem 1rem; color: var(--text-secondary);">
+        <div style="font-size: 2.4rem; margin-bottom: 1rem;">📥</div>
+        <p style="font-size: 1.05rem; font-weight: 600; margin-bottom: 0.5rem;">Tidak ada upload WhatsApp yang pending</p>
+        <p style="font-size: 0.9rem;">Jika ada kiriman dari bot WA, foto akan muncul di sini.</p>
+      </div>
+    `
+    updateWaPendingSelectionUI()
+    return
+  }
+
+  if (filtered.length === 0) {
+    container.innerHTML = `
+      <div style="grid-column: 1/-1; text-align: center; padding: 2rem 1rem; color: var(--text-secondary);">
+        <div style="font-size: 2rem; margin-bottom: 1rem;">🔍</div>
+        <p>Tidak ada foto pending yang cocok dengan pencarian</p>
+      </div>
+    `
+    updateWaPendingSelectionUI()
+    return
+  }
+
+  filtered.forEach((photo) => {
+    const item = document.createElement('div')
+    item.className = 'gallery-item'
+    if (selectedWaPendingIds.has(photo.id)) item.classList.add('selected')
+
+    const title = cleanWaPendingTitle(photo.title) || `Foto #${photo.id}`
+    const caption = cleanWaPendingCaption(photo.caption || '')
+    const createdAtLabel = photo.created_at
+      ? new Date(photo.created_at).toLocaleString('id-ID', {
+          dateStyle: 'medium',
+          timeStyle: 'short'
+        })
+      : '-'
+
+    item.innerHTML = `
+      <img class="gallery-item-img" src="${photo.image_url}" alt="${title}">
+      <div class="gallery-item-info">
+        <div class="gallery-item-title">${title}</div>
+        <small style="display: block; color: var(--text-secondary); margin-bottom: 0.4rem;">Pending sejak: ${createdAtLabel}</small>
+        ${caption ? `<small style="display: block; color: var(--text-secondary); margin-bottom: 0.6rem;">${caption}</small>` : ''}
+        <div class="gallery-item-actions">
+          <button class="btn btn-primary" style="font-size: 0.8rem; padding: 0.4rem 0.75rem; flex: 1;" data-action="apply" data-photo-id="${photo.id}">Apply</button>
+          <button class="btn btn-danger" style="font-size: 0.8rem; padding: 0.4rem 0.75rem; flex: 1;" data-action="cancel" data-photo-id="${photo.id}">Cancel</button>
+        </div>
+      </div>
+    `
+
+    item.addEventListener('click', (e) => {
+      if (e.target.closest('button')) return
+      toggleWaPendingSelection(photo.id)
+    })
+
+    const applyBtn = item.querySelector('[data-action="apply"]')
+    applyBtn.addEventListener('click', async (e) => {
+      e.preventDefault()
+      e.stopPropagation()
+      await applyWaPendingByIds([photo.id])
+    })
+
+    const cancelBtn = item.querySelector('[data-action="cancel"]')
+    cancelBtn.addEventListener('click', async (e) => {
+      e.preventDefault()
+      e.stopPropagation()
+      await cancelWaPendingByIds([photo.id], true)
+    })
+
+    container.appendChild(item)
+  })
+
+  updateWaPendingSelectionUI()
+}
+
+async function loadAllWaPendingPhotos() {
+  try {
+    const { data, error } = await supabase
+      .from('gallery')
+      .select('*')
+      .eq('status', 'draft')
+      .order('created_at', { ascending: false })
+
+    if (error) throw error
+
+    waPendingPhotos = (data || []).filter(isWaPendingPhoto)
+
+    // Hapus ID seleksi yang sudah tidak ada di daftar terbaru.
+    const activeIds = new Set(waPendingPhotos.map((photo) => photo.id))
+    selectedWaPendingIds.forEach((id) => {
+      if (!activeIds.has(id)) selectedWaPendingIds.delete(id)
+    })
+
+    renderWaPendingGrid()
+  } catch (error) {
+    console.error('WA pending load error:', error)
+    showToast('❌ Gagal memuat antrean WhatsApp: ' + error.message, 'error')
+  }
+}
+
+async function applyWaPendingByIds(ids) {
+  if (!Array.isArray(ids) || ids.length === 0) return
+
+  try {
+    showLoading('Menerapkan foto ke galeri...')
+    for (const id of ids) {
+      const photo = waPendingPhotos.find((item) => item.id === id)
+      const title = cleanWaPendingTitle(photo?.title) || `Kiriman WhatsApp ${id}`
+      const caption = cleanWaPendingCaption(photo?.caption)
+
+      const { error } = await supabase
+        .from('gallery')
+        .update({
+          status: 'public',
+          title,
+          caption: caption || null
+        })
+        .eq('id', id)
+
+      if (error) throw error
+    }
+
+    ids.forEach((id) => selectedWaPendingIds.delete(id))
+    showToast(`✅ ${ids.length} foto berhasil di-apply ke galeri`, 'success')
+    await Promise.all([loadAllWaPendingPhotos(), loadAllGalleryPhotos(), loadDashboardStats()])
+  } catch (error) {
+    showToast('❌ Gagal apply foto pending: ' + error.message, 'error')
+  } finally {
+    hideLoading()
+  }
+}
+
+async function cancelWaPendingByIds(ids, askConfirm = false) {
+  if (!Array.isArray(ids) || ids.length === 0) return
+
+  if (askConfirm) {
+    const ok = confirm(
+      ids.length === 1
+        ? 'Cancel foto ini dari antrean? Foto tidak akan masuk galeri.'
+        : `Cancel ${ids.length} foto dari antrean? Foto tidak akan masuk galeri.`
+    )
+    if (!ok) return
+  }
+
+  try {
+    showLoading('Membatalkan foto pending...')
+    for (const id of ids) {
+      await supabase.from('gallery_tags').delete().eq('gallery_id', id)
+      const { error } = await supabase.from('gallery').delete().eq('id', id)
+      if (error) throw error
+    }
+
+    ids.forEach((id) => selectedWaPendingIds.delete(id))
+    showToast(`✅ ${ids.length} foto berhasil di-cancel dari antrean`, 'success')
+    await Promise.all([loadAllWaPendingPhotos(), loadAllGalleryPhotos(), loadDashboardStats()])
+  } catch (error) {
+    showToast('❌ Gagal cancel foto pending: ' + error.message, 'error')
+  } finally {
+    hideLoading()
+  }
+}
+
+const waPendingSearchInput = $('#wa-pending-search')
+if (waPendingSearchInput) {
+  waPendingSearchInput.addEventListener('input', renderWaPendingGrid)
+}
+
+const waPendingSelectAllBtn = $('#btn-wa-pending-select-all')
+if (waPendingSelectAllBtn) {
+  waPendingSelectAllBtn.addEventListener('click', () => {
+    selectedWaPendingIds.clear()
+    getFilteredWaPendingPhotos().forEach((photo) => selectedWaPendingIds.add(photo.id))
+    renderWaPendingGrid()
+  })
+}
+
+const waPendingClearSelectionBtn = $('#btn-wa-pending-clear-selection')
+if (waPendingClearSelectionBtn) {
+  waPendingClearSelectionBtn.addEventListener('click', () => {
+    selectedWaPendingIds.clear()
+    renderWaPendingGrid()
+  })
+}
+
+const waPendingApplySelectedBtn = $('#btn-wa-pending-apply-selected')
+if (waPendingApplySelectedBtn) {
+  waPendingApplySelectedBtn.addEventListener('click', async () => {
+    await applyWaPendingByIds(Array.from(selectedWaPendingIds))
+  })
+}
+
+const waPendingCancelSelectedBtn = $('#btn-wa-pending-cancel-selected')
+if (waPendingCancelSelectedBtn) {
+  waPendingCancelSelectedBtn.addEventListener('click', async () => {
+    await cancelWaPendingByIds(Array.from(selectedWaPendingIds), true)
+  })
+}
+
+// ============================================
 // GALLERY MANAGEMENT
 // ============================================
 async function loadAllGalleryPhotos() {
   try {
-    const { data } = await supabase.from('gallery').select('*, gallery_tags(tags(*))').order('created_at', { ascending: false })
+    const { data } = await supabase
+      .from('gallery')
+      .select('*, gallery_tags(tags(*))')
+      .in('status', ['public', 'private'])
+      .order('created_at', { ascending: false })
     allGalleryPhotos = data || []
     selectedGalleryIds.clear()
     renderGalleryGrid()

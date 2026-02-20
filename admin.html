@@ -59,6 +59,9 @@
         <a href="#gallery-upload" data-tab="gallery-upload" class="sidebar-link">
           <i data-feather="upload"></i> <span>Upload Galeri</span>
         </a>
+        <a href="#wa-pending" data-tab="wa-pending" class="sidebar-link">
+          <i data-feather="inbox"></i> <span>Upload WA Pending</span>
+        </a>
         <a href="#gallery" data-tab="gallery" class="sidebar-link">
           <i data-feather="image"></i> <span>Kelola Galeri</span>
         </a>
@@ -328,6 +331,23 @@
         <div id="upload-button-container" class="upload-button-container hidden">
           <button id="btn-upload-all" class="btn btn-primary">Upload Semua (<span id="file-count">0</span>)</button>
         </div>
+      </section>
+
+      <!-- WHATSAPP PENDING TAB -->
+      <section id="wa-pending" class="tab-content">
+        <div class="content-header">
+          <h1>Upload WhatsApp Pending</h1>
+          <p>Pilih banyak foto dari antrean WhatsApp, lalu Apply ke galeri atau Cancel.</p>
+        </div>
+        <div class="gallery-filter" style="align-items: center;">
+          <input type="text" id="wa-pending-search" placeholder="Cari judul/caption pending...">
+          <button id="btn-wa-pending-select-all" class="btn btn-secondary" style="font-size: 0.9rem;">Pilih Semua</button>
+          <button id="btn-wa-pending-clear-selection" class="btn btn-secondary" style="font-size: 0.9rem;">Tidak Pilih</button>
+          <button id="btn-wa-pending-apply-selected" class="btn btn-primary hidden" style="font-size: 0.9rem;">Apply Terpilih</button>
+          <button id="btn-wa-pending-cancel-selected" class="btn btn-danger hidden" style="font-size: 0.9rem;">Cancel Terpilih</button>
+          <span id="wa-pending-select-label" style="color: var(--text-secondary); font-size: 0.9rem;">Belum ada yang dipilih</span>
+        </div>
+        <div id="wa-pending-grid" class="gallery-grid"></div>
       </section>
 
       <!-- GALLERY MANAGEMENT TAB -->
