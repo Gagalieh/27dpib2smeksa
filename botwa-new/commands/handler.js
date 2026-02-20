@@ -55,29 +55,38 @@ async function downloadMedia(media, sender) {
  */
 async function uploadPhotoToWebsite(photoPath, sender) {
   try {
-    // Baca file
+    // Baca dan validate file
     const filedata = fs.readFileSync(photoPath);
     const filename = path.basename(photoPath);
     
-    console.log('📤 Uploading to Cloudinary...');
-    console.log('📊 File info:', {
-      path: photoPath,
-      size: filedata.length,
-      filename: filename
-    });
-
-    // Create FormData dengan cara yang benar
-    const formData = new FormData();
+    console.log('📤 Validating and processing image...');
     
-    // Append file as Stream/Buffer
-    const fileStream = fs.createReadStream(photoPath);
-    formData.append('file', fileStream, { filename: filename });
+    // Compress dan validate dengan sharp
+    const processedBuffer = await sharp(filedata)
+      .resize(1920, 1080, {
+        fit: 'inside',
+        withoutEnlargement: true,
+      })
+      .jpeg({ quality: 85 })
+      .toBuffer();
+
+    console.log('✅ Image processed');
+    console.log('📊 Original size:', filedata.length, 'bytes');
+    console.log('📊 Processed size:', processedBuffer.length, 'bytes');
+
+    // Upload ke Cloudinary
+    const formData = new FormData();
+    formData.append('file', processedBuffer, {
+      filename: filename,
+      contentType: 'image/jpeg'
+    });
     formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
     formData.append('folder', 'kelas-11-dpib2');
     formData.append('tags', 'whatsapp-bot');
 
     const cloudinaryUrl = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`;
 
+    console.log('📤 Uploading to Cloudinary...');
     const cloudResponse = await axios.post(cloudinaryUrl, formData, {
       headers: formData.getHeaders(),
       timeout: 60000,
