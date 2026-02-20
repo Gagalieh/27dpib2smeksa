@@ -32,7 +32,9 @@ async function startBot() {
       browser: ['Ubuntu', 'Chrome', '121.0'],
       syncFullHistory: false,
       shouldIgnoreJid: (jid) => isJidBroadcast(jid),
-      logger: require('pino')({ level: 'warn' }),
+      logger: require('pino')({ level: 'error' }),
+      markOnlineOnConnect: true,
+      qrTimeout: 60000,
     });
 
     console.log('✅ Baileys initialized\n');
@@ -95,7 +97,7 @@ async function startBot() {
       }
     });
 
-    // Event: Credentials update
+    // Event: Credentials update (PENTING! Harus di-set sebelum connection update)
     sock.ev.on('creds.update', saveCreds);
 
     // Event: Messages
@@ -182,8 +184,18 @@ Dikembangkan dengan cinta untuk kelas tercinta 💜`;
             const media = await downloadMediaBaileys(sock, msg.key, quotedMsg);
 
             if (!media) {
+              console.error('Download media returned null');
               await sock.sendMessage(sender, {
-                text: '❌ Gagal download foto. Coba lagi!',
+                text: '❌ Gagal download foto. Pastikan foto sudah terdownload sepenuhnya. Coba lagi!',
+              });
+              return;
+            }
+
+            // Cek apakah file exist
+            if (!fs.existsSync(media)) {
+              console.error('Media file does not exist:', media);
+              await sock.sendMessage(sender, {
+                text: '❌ File foto tidak ditemukan. Coba lagi!',
               });
               return;
             }
@@ -197,7 +209,19 @@ Dikembangkan dengan cinta untuk kelas tercinta 💜`;
 
 📸 Foto Anda sekarang ada di galeri kelas.
 
-🔗 Lihat di: https://sebelasdpib2smeksa.netlify.app/#galeri
+🔗 Lihat di: https://sebelasdpib2smeksa.netlify.app/#galeri`,
+              });
+            } else {
+              await sock.sendMessage(sender, {
+                text: `❌ Gagal upload: ${result.error}`,
+              });
+            }
+          } catch (error) {
+            console.error('Upload error:', error);
+            await sock.sendMessage(sender, {
+              text: `❌ Terjadi kesalahan: ${error.message}`,
+            });
+          }
 
 Terima kasih atas kontribusimu! 💜`,
               });
@@ -265,13 +289,20 @@ startBot().catch((err) => {
  */
 async function downloadMediaBaileys(sock, msgKey, quotedMsg) {
   try {
-    const imageMsg = quotedMsg.imageMessage;
-    if (!imageMsg) return null;
+    const imageMsg = quotedMsg.imageMessage || quotedMsg.videoMessage;
+    if (!imageMsg) {
+      console.error('No image or video message found');
+      return null;
+    }
 
+    console.log('📥 Downloading media...');
     // Get stream
     const stream = await sock.downloadMediaMessage(quotedMsg);
     
-    if (!stream) return null;
+    if (!stream) {
+      console.error('Stream is null or undefined');
+      return null;
+    }
 
     // Save to file
     const timestamp = new Date().getTime();
@@ -283,17 +314,20 @@ async function downloadMediaBaileys(sock, msgKey, quotedMsg) {
     const filepath = path.join(__dirname, '../photos-upload', filename);
 
     // Create directory if not exists
-    if (!fs.existsSync(path.dirname(filepath))) {
-      fs.mkdirSync(path.dirname(filepath), { recursive: true });
+    const dirPath = path.dirname(filepath);
+    if (!fs.existsSync(dirPath)) {
+      fs.mkdirSync(dirPath, { recursive: true });
+      console.log(`📁 Created directory: ${dirPath}`);
     }
 
     // Save file
     fs.writeFileSync(filepath, stream);
-    console.log(`📸 Foto tersimpan: ${filepath}`);
+    console.log(`✅ Foto tersimpan: ${filepath}`);
 
     return filepath;
   } catch (error) {
-    console.error('Error downloading media:', error);
+    console.error('❌ Error downloading media:', error.message);
+    console.error(error);
     return null;
   }
 }
