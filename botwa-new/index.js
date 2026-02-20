@@ -1,4 +1,4 @@
-const { default: makeWASocket, useMultiFileAuthState, DisconnectReason, isJidBroadcast } = require('@whiskeysockets/baileys');
+const { default: makeWASocket, useMultiFileAuthState, DisconnectReason, isJidBroadcast, downloadMediaMessage } = require('@whiskeysockets/baileys');
 const path = require('path');
 const fs = require('fs');
 const axios = require('axios');
@@ -23,52 +23,25 @@ console.log(`📂 Session path: ${SESSION_PATH}`);
 console.log(`📸 Photos path: ${PHOTOS_PATH}\n`);
 
 /**
- * Download media dari URL WhatsApp
+ * Download media dari WhatsApp using Baileys native method
  */
 async function downloadMediaBaileys(sock, msgKey, quotedMsg) {
   try {
-    console.log('🔍 Checking quoted message structure...');
+    console.log('🔍 Processing media dengan Baileys...');
 
-    // Handle berbagai tipe media
-    let mediaMsg = null;
-    
-    if (quotedMsg.imageMessage) {
-      console.log('📷 Found imageMessage');
-      mediaMsg = quotedMsg.imageMessage;
-    } else if (quotedMsg.videoMessage) {
-      console.log('🎥 Found videoMessage');
-      mediaMsg = quotedMsg.videoMessage;
-    } else {
-      console.error('❌ No media message found');
-      return null;
-    }
-
-    // Get URL dari media message
-    const mediaUrl = mediaMsg.url;
-    if (!mediaUrl) {
-      console.error('❌ No URL found in media message');
-      return null;
-    }
-
-    console.log('📥 Downloading media dari URL:', mediaUrl.substring(0, 60) + '...');
-    
-    // Download dengan axios - dengan header yang proper
-    const response = await axios.get(mediaUrl, {
-      responseType: 'arraybuffer',
-      timeout: 30000,
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-      }
+    // Baileys auto-handles encryption/decryption
+    // quotedMsg sudah contains encrypted media info
+    const mediaBuffer = await downloadMediaMessage(quotedMsg, 'buffer', {}, {
+      logger: console,
+      reuploadRequest: sock.updateMediaMessage
     });
-    
-    const stream = Buffer.from(response.data);
-    
-    if (!stream || stream.length === 0) {
-      console.error('❌ Stream is empty');
+
+    if (!mediaBuffer || mediaBuffer.length === 0) {
+      console.error('❌ Media buffer is empty');
       return null;
     }
 
-    console.log('✅ Downloaded, size:', stream.length, 'bytes');
+    console.log('✅ Downloaded via Baileys, size:', mediaBuffer.length, 'bytes');
 
     // Save to file
     const timestamp = new Date().getTime();
@@ -87,14 +60,13 @@ async function downloadMediaBaileys(sock, msgKey, quotedMsg) {
     }
 
     // Save file
-    fs.writeFileSync(filepath, stream);
+    fs.writeFileSync(filepath, mediaBuffer);
     const fileSize = fs.statSync(filepath).size;
     console.log(`✅ File saved: ${filepath} (${fileSize} bytes)`);
 
     return filepath;
   } catch (error) {
-    console.error('❌ Download error details:');
-    console.error('  Message:', error.message);
+    console.error('❌ Download error:', error.message);
     return null;
   }
 }

@@ -3,34 +3,10 @@ const fs = require('fs');
 const sharp = require('sharp');
 const axios = require('axios');
 const FormData = require('form-data');
-const FetchBlob = require('fetch-blob');
 
 // Cloudinary config
 const CLOUDINARY_CLOUD_NAME = 'dlwrrojjw';
 const CLOUDINARY_UPLOAD_PRESET = 'kelas-unsigned';
-
-/**
- * Detect format dari magic bytes
- */
-function detectImageFormat(buffer) {
-  if (buffer.length < 4) return 'unknown';
-  
-  const magic = buffer.slice(0, 4);
-  
-  // JPEG: FF D8 FF
-  if (magic[0] === 0xFF && magic[1] === 0xD8) return 'jpeg';
-  
-  // PNG: 89 50 4E 47
-  if (magic[0] === 0x89 && magic[1] === 0x50) return 'png';
-  
-  // WEBP: RIFF ... WEBP
-  if (magic[0] === 0x52 && magic[1] === 0x49 && buffer.slice(8, 12).toString() === 'WEBP') return 'webp';
-  
-  // GIF: 47 49 46
-  if (magic[0] === 0x47 && magic[1] === 0x49) return 'gif';
-  
-  return 'unknown';
-}
 
 // Supabase config
 const SUPABASE_URL = 'https://rsbeptndwdramrcegwhs.supabase.co';
@@ -75,46 +51,57 @@ async function downloadMedia(media, sender) {
 }
 
 /**
- * Upload foto ke Cloudinary - menggunakan FETCH seperti browser
+ * Upload foto ke Cloudinary
  */
 async function uploadPhotoToWebsite(photoPath, sender) {
   try {
-    console.log('📤 Preparing upload...');
+    console.log('📤 Processing image dengan Sharp...');
     
     const fileBuffer = fs.readFileSync(photoPath);
-    console.log('📊 File size:', fileBuffer.length, 'bytes');
+    console.log('📊 Original size:', fileBuffer.length, 'bytes');
     
-    // Buat Blob-like object untuk fetch
-    const blob = new (require('fetch-blob'))(fileBuffer, { type: 'image/jpeg' });
+    // Convert dengan Sharp - auto-detect format dan convert ke JPEG
+    let jpegBuffer;
+    try {
+      jpegBuffer = await sharp(fileBuffer)
+        .toFormat('jpeg', { quality: 85, progressive: true })
+        .toBuffer();
+      console.log('✅ Converted to JPEG:', jpegBuffer.length, 'bytes');
+    } catch (sharpErr) {
+      console.error('⚠️ Sharp conversion failed:', sharpErr.message);
+      // Fallback ke buffer original jika sharp gagal
+      jpegBuffer = fileBuffer;
+      console.log('⚠️ Using original buffer as fallback');
+    }
     
-    // FormData untuk fetch
-    const formData = new (require('form-data'))();
-    formData.append('file', blob);
-    formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
-    formData.append('folder', 'kelas-11-dpib2');
+    // Upload ke Cloudinary menggunakan FormData + Stream
+    console.log('📤 Uploading to Cloudinary...');
+    
+    // Simpan JPEG ke temp file untuk streaming
+    const tempPath = photoPath + '.temp.jpg';
+    fs.writeFileSync(tempPath, jpegBuffer);
+    
+    const form = new FormData();
+    form.append('file', fs.createReadStream(tempPath));
+    form.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+    form.append('folder', 'kelas-11-dpib2');
     
     const url = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`;
     
-    console.log('📤 Uploading to Cloudinary via fetch...');
-    
-    // Gunakan native fetch (Node 18+)
-    const response = await fetch(url, {
-      method: 'POST',
-      body: formData,
+    const response = await axios.post(url, form, {
+      headers: form.getHeaders(),
+      timeout: 60000,
+      maxContentLength: Infinity,
+      maxBodyLength: Infinity,
     });
     
-    const text = await response.text();
-    let result;
-    try {
-      result = JSON.parse(text);
-    } catch (e) {
-      result = { raw: text };
-    }
+    const result = response.data;
     
-    if (!response.ok) {
-      console.error('❌ Cloudinary error:', response.status);
-      console.error('Response:', result);
-      throw new Error(`Cloudinary ${response.status}: ${result.error?.message || 'Upload failed'}`);
+    // Cleanup temp file
+    try {
+      fs.unlinkSync(tempPath);
+    } catch (e) {
+      console.warn('Could not delete temp file');
     }
     
     console.log('✅ UPLOAD BERHASIL KE CLOUDINARY!');
@@ -130,9 +117,12 @@ async function uploadPhotoToWebsite(photoPath, sender) {
     };
   } catch (error) {
     console.error('❌ Upload error:', error.message);
+    if (error.response?.data) {
+      console.error('Response:', error.response.data);
+    }
     return {
       success: false,
-      error: error.message,
+      error: error.response?.data?.error?.message || error.message,
     };
   }
 }
