@@ -223,21 +223,6 @@ Dikembangkan dengan cinta untuk kelas tercinta 💜`;
             });
           }
 
-Terima kasih atas kontribusimu! 💜`,
-              });
-              console.log(`✅ Foto dari ${sender} berhasil diupload`);
-            } else {
-              await sock.sendMessage(sender, {
-                text: `❌ Gagal upload foto.\n\nError: ${result.error}`,
-              });
-            }
-          } catch (error) {
-            console.error('Error uploading photo:', error);
-            await sock.sendMessage(sender, {
-              text: '❌ Terjadi error saat upload. Coba lagi nanti.',
-            });
-          }
-
           return;
         }
 
