@@ -282,7 +282,6 @@ startBot().catch((err) => {
 async function downloadMediaBaileys(sock, msgKey, quotedMsg) {
   try {
     console.log('🔍 Checking quoted message structure...');
-    console.log('quotedMsg keys:', Object.keys(quotedMsg || {}));
 
     // Handle berbagai tipe media
     let mediaMsg = null;
@@ -293,26 +292,30 @@ async function downloadMediaBaileys(sock, msgKey, quotedMsg) {
     } else if (quotedMsg.videoMessage) {
       console.log('🎥 Found videoMessage');
       mediaMsg = quotedMsg.videoMessage;
-    } else if (quotedMsg.documentMessage) {
-      console.log('📄 Found documentMessage');
-      mediaMsg = quotedMsg.documentMessage;
     } else {
-      console.error('❌ No media message found. Available:', Object.keys(quotedMsg));
+      console.error('❌ No media message found');
       return null;
     }
 
-    console.log('📥 Downloading media from WhatsApp servers...');
+    // Get URL dari media message
+    const mediaUrl = mediaMsg.url;
+    if (!mediaUrl) {
+      console.error('❌ No URL found in media message');
+      return null;
+    }
+
+    console.log('📥 Downloading media dari URL:', mediaUrl.substring(0, 50) + '...');
     
-    // Download dengan timeout
-    const stream = await Promise.race([
-      sock.downloadMediaMessage(quotedMsg),
-      new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Download timeout after 30s')), 30000)
-      )
-    ]);
+    // Download dengan axios
+    const response = await axios.get(mediaUrl, {
+      responseType: 'arraybuffer',
+      timeout: 30000
+    });
+    
+    const stream = Buffer.from(response.data);
     
     if (!stream || stream.length === 0) {
-      console.error('❌ Stream is empty or null');
+      console.error('❌ Stream is empty');
       return null;
     }
 
