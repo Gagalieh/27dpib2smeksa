@@ -10,6 +10,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 COPY botwa-new/package*.json ./
+RUN git config --global --add url."https://github.com/".insteadOf "ssh://git@github.com/" \
+    && git config --global --add url."https://github.com/".insteadOf "git@github.com:"
 RUN npm install --omit=dev --no-audit --no-fund && npm cache clean --force
 
 COPY botwa-new/ ./
