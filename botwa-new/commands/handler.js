@@ -55,23 +55,29 @@ async function downloadMedia(media, sender) {
  */
 async function uploadPhotoToWebsite(photoPath, sender) {
   try {
-    // Baca file
+    // Baca file dan convert ke base64
     const filedata = fs.readFileSync(photoPath);
     const filename = path.basename(photoPath);
+    const base64 = filedata.toString('base64');
     
     console.log('📤 Uploading to Cloudinary...');
 
-    // Upload ke Cloudinary
+    // Upload ke Cloudinary dengan base64
     const formData = new FormData();
-    formData.append('file', filedata);
+    formData.append('file', `data:image/jpeg;base64,${base64}`);
     formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
     formData.append('folder', 'kelas-11-dpib2');
     formData.append('tags', 'whatsapp-bot');
 
     const cloudinaryUrl = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`;
+    
+    console.log('🔗 Cloudinary URL:', cloudinaryUrl);
+    console.log('📁 Preset:', CLOUDINARY_UPLOAD_PRESET);
+    console.log('📊 File size:', filedata.length, 'bytes');
+
     const cloudResponse = await axios.post(cloudinaryUrl, formData, {
       headers: formData.getHeaders(),
-      timeout: 30000,
+      timeout: 60000,
     });
 
     const cloudinaryResult = cloudResponse.data;
@@ -94,7 +100,9 @@ async function uploadPhotoToWebsite(photoPath, sender) {
       localPath: localPath,
     };
   } catch (error) {
-    console.error('❌ Error uploading to Cloudinary:', error.response?.data || error.message);
+    console.error('❌ Error uploading to Cloudinary:');
+    console.error('  Status:', error.response?.status);
+    console.error('  Message:', error.response?.data || error.message);
     return {
       success: false,
       error: error.response?.data?.error?.message || error.message,
