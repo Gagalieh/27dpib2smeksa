@@ -4,9 +4,16 @@ const sharp = require('sharp');
 const axios = require('axios');
 const FormData = require('form-data');
 
-// Path untuk menyimpan foto
+// Cloudinary config
+const CLOUDINARY_CLOUD_NAME = 'dlwrrojjw';
+const CLOUDINARY_UPLOAD_PRESET = 'kelas-unsigned';
+
+// Supabase config
+const SUPABASE_URL = 'https://rsbeptndwdramrcegwhs.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJzYmVwdG5kd2RyYW1yY2Vnd2hzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjcxNzg1NjgsImV4cCI6MjA4Mjc1NDU2OH0.ClELgv6nOMOdaI2EZWu-zmG19FAlx7iXDujMSCWHkU4';
+
+// Path untuk menyimpan foto lokal (backup)
 const PHOTOS_DIR = path.join(__dirname, '../../photos-upload');
-const PHOTOS_WEB_DIR = 'photos-upload'; // Folder di root website
 
 // Pastikan folder ada
 if (!fs.existsSync(PHOTOS_DIR)) {
@@ -44,52 +51,53 @@ async function downloadMedia(media, sender) {
 }
 
 /**
- * Upload foto ke website (via API atau direct file)
+ * Upload foto ke Cloudinary (media) + Supabase (metadata)
  */
 async function uploadPhotoToWebsite(photoPath, sender) {
   try {
-    const filename = path.basename(photoPath);
+    // Baca file
     const filedata = fs.readFileSync(photoPath);
+    const filename = path.basename(photoPath);
+    
+    console.log('📤 Uploading to Cloudinary...');
 
-    // Opsi 1: Jika ada backend API
-    // (Uncomment jika sudah ada backend API untuk handle upload)
-    /*
+    // Upload ke Cloudinary
     const formData = new FormData();
-    formData.append('file', filedata, filename);
-    formData.append('sender', sender);
+    formData.append('file', filedata);
+    formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+    formData.append('folder', 'kelas-11-dpib2');
+    formData.append('tags', 'whatsapp-bot');
 
-    const response = await axios.post(
-      'https://sebelasdpib2smeksa.netlify.app/api/upload',
-      formData,
-      { headers: formData.getHeaders() }
-    );
+    const cloudinaryUrl = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`;
+    const cloudResponse = await axios.post(cloudinaryUrl, formData, {
+      headers: formData.getHeaders(),
+      timeout: 30000,
+    });
 
-    return { success: true, data: response.data };
-    */
+    const cloudinaryResult = cloudResponse.data;
+    console.log('✅ Uploaded to Cloudinary');
+    console.log('🔗 URL:', cloudinaryResult.secure_url);
 
-    // Opsi 2: Simpan langsung ke folder yang bisa diakses website
-    // (Lebih sederhana untuk setup awal)
-    const webPath = path.join(
-      __dirname,
-      `../../${PHOTOS_WEB_DIR}/${filename}`
-    );
-
-    fs.copyFileSync(photoPath, webPath);
-
-    // Update atau buat file index JSON untuk tracking
-    updatePhotosIndex(filename, sender);
+    // Simpan juga ke folder lokal sebagai backup
+    const localPath = path.join(PHOTOS_DIR, filename);
+    fs.copyFileSync(photoPath, localPath);
+    
+    // Update index dengan URL Cloudinary
+    updatePhotosIndex(filename, sender, cloudinaryResult.secure_url);
 
     return {
       success: true,
-      message: 'Foto berhasil disimpan',
+      message: 'Foto berhasil diupload',
       filename: filename,
-      url: `/${PHOTOS_WEB_DIR}/${filename}`,
+      url: cloudinaryResult.secure_url,
+      cloudinary_id: cloudinaryResult.public_id,
+      localPath: localPath,
     };
   } catch (error) {
-    console.error('Error uploading to website:', error);
+    console.error('❌ Error uploading to Cloudinary:', error.response?.data || error.message);
     return {
       success: false,
-      error: error.message,
+      error: error.response?.data?.error?.message || error.message,
     };
   }
 }
@@ -97,7 +105,7 @@ async function uploadPhotoToWebsite(photoPath, sender) {
 /**
  * Update file index JSON untuk tracking foto
  */
-function updatePhotosIndex(filename, sender) {
+function updatePhotosIndex(filename, sender, url) {
   try {
     const indexPath = path.join(PHOTOS_DIR, 'index.json');
     let photos = [];
@@ -111,7 +119,9 @@ function updatePhotosIndex(filename, sender) {
       id: filename,
       filename: filename,
       sender: sender,
+      url: url || `/${filename}`,
       uploadedAt: new Date().toISOString(),
+      source: 'whatsapp-bot',
     });
 
     fs.writeFileSync(indexPath, JSON.stringify(photos, null, 2));
