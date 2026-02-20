@@ -1,4 +1,4 @@
-const { Client, LocalAuth, MessageMedia } = require('whatsapp-web.js');
+const { Client, MessageMedia } = require('whatsapp-web.js');
 const qrcode = require('qrcode-terminal');
 const path = require('path');
 const fs = require('fs');
@@ -6,7 +6,6 @@ const { downloadMedia, uploadPhotoToWebsite } = require('./commands/handler');
 
 // Inisialisasi WhatsApp Client
 const client = new Client({
-  authStrategy: new LocalAuth(),
   puppeteer: {
     headless: true,
     args: ['--no-sandbox', '--disable-setuid-sandbox'],
