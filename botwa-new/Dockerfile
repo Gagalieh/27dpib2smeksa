@@ -4,9 +4,11 @@ ENV NODE_ENV=production
 WORKDIR /app/botwa-new
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
+    ca-certificates \
     ffmpeg \
     git \
     imagemagick \
+    && update-ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
 COPY botwa-new/package*.json ./
