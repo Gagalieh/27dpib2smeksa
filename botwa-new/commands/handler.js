@@ -51,43 +51,45 @@ async function downloadMedia(media, sender) {
 }
 
 /**
- * Upload foto ke Cloudinary (media) + Supabase (metadata)
+ * Upload foto ke Cloudinary (media)
  */
 async function uploadPhotoToWebsite(photoPath, sender) {
   try {
-    // Baca file dan convert ke base64
+    // Baca file
     const filedata = fs.readFileSync(photoPath);
     const filename = path.basename(photoPath);
-    const base64 = filedata.toString('base64');
     
     console.log('📤 Uploading to Cloudinary...');
+    console.log('📊 File info:', {
+      path: photoPath,
+      size: filedata.length,
+      filename: filename
+    });
 
-    // Upload ke Cloudinary dengan base64
+    // Create FormData dengan cara yang benar
     const formData = new FormData();
-    formData.append('file', `data:image/jpeg;base64,${base64}`);
+    
+    // Append file as Stream/Buffer
+    const fileStream = fs.createReadStream(photoPath);
+    formData.append('file', fileStream, { filename: filename });
     formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
     formData.append('folder', 'kelas-11-dpib2');
     formData.append('tags', 'whatsapp-bot');
 
     const cloudinaryUrl = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`;
-    
-    console.log('🔗 Cloudinary URL:', cloudinaryUrl);
-    console.log('📁 Preset:', CLOUDINARY_UPLOAD_PRESET);
-    console.log('📊 File size:', filedata.length, 'bytes');
 
     const cloudResponse = await axios.post(cloudinaryUrl, formData, {
       headers: formData.getHeaders(),
       timeout: 60000,
+      maxContentLength: Infinity,
+      maxBodyLength: Infinity,
     });
 
     const cloudinaryResult = cloudResponse.data;
     console.log('✅ Uploaded to Cloudinary');
+    console.log('📸 Public ID:', cloudinaryResult.public_id);
     console.log('🔗 URL:', cloudinaryResult.secure_url);
 
-    // Simpan juga ke folder lokal sebagai backup
-    const localPath = path.join(PHOTOS_DIR, filename);
-    fs.copyFileSync(photoPath, localPath);
-    
     // Update index dengan URL Cloudinary
     updatePhotosIndex(filename, sender, cloudinaryResult.secure_url);
 
@@ -97,12 +99,12 @@ async function uploadPhotoToWebsite(photoPath, sender) {
       filename: filename,
       url: cloudinaryResult.secure_url,
       cloudinary_id: cloudinaryResult.public_id,
-      localPath: localPath,
     };
   } catch (error) {
     console.error('❌ Error uploading to Cloudinary:');
     console.error('  Status:', error.response?.status);
-    console.error('  Message:', error.response?.data || error.message);
+    console.error('  Data:', error.response?.data);
+    console.error('  Message:', error.message);
     return {
       success: false,
       error: error.response?.data?.error?.message || error.message,
