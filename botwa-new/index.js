@@ -158,24 +158,31 @@ Dikembangkan dengan cinta untuk kelas tercinta 💜`;
 
         // Command: !upload
         if (text === '!upload') {
+          console.log('🔍 Processing upload command...');
+          
           // Cek apakah pesan sebelumnya adalah foto
           const quotedMsg = msg.message.extendedTextMessage?.contextInfo?.quotedMessage;
 
           if (!quotedMsg) {
+            console.log('❌ quotedMsg is null/undefined');
             await sock.sendMessage(sender, {
               text: '❌ Balas pesan foto dengan "!upload"!\n\nContoh:\n1. Kirim foto\n2. Balas foto dengan: !upload',
             });
             return;
           }
 
+          console.log('✅ quotedMsg found, keys:', Object.keys(quotedMsg));
           const imageMsg = quotedMsg.imageMessage || quotedMsg.videoMessage;
 
           if (!imageMsg) {
+            console.log('❌ No imageMsg or videoMsg');
             await sock.sendMessage(sender, {
               text: '❌ Pesan yang dibales bukan foto/video!\n\nKirim foto dulu, terus balas dengan: !upload',
             });
             return;
           }
+
+          console.log('✅ Found media message type');
 
           try {
             await sock.sendMessage(sender, { text: '⏳ Sedang upload foto...' });
