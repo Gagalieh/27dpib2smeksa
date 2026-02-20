@@ -51,67 +51,64 @@ async function downloadMedia(media, sender) {
 }
 
 /**
- * Upload foto ke Cloudinary dengan fallback
+ * Upload foto ke Cloudinary - PROPER APPROACH
  */
 async function uploadPhotoToWebsite(photoPath, sender) {
   try {
-    // Baca file
-    const filedata = fs.readFileSync(photoPath);
-    const filename = path.basename(photoPath);
-    
     console.log('📤 Processing image...');
-    console.log('📊 Original file size:', filedata.length, 'bytes');
-
-    // Gunakan raw buffer (tidak perlu optimize jika Cloudinary bisa handle)
-    let uploadBuffer = filedata;
-
-    // Verify buffer
-    if (!uploadBuffer || uploadBuffer.length === 0) {
-      throw new Error('Upload buffer is empty');
-    }
-
-    // Create FormData - simple approach
-    const formData = new FormData();
     
-    // Append file as Buffer
-    formData.append('file', Buffer.from(uploadBuffer), filename);
-    formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
-    formData.append('folder', 'kelas-11-dpib2');
-
-    const cloudinaryUrl = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`;
-
+    // Baca dan validate dengan sharp
+    const fileBuffer = fs.readFileSync(photoPath);
+    console.log('📊 File size:', fileBuffer.length, 'bytes');
+    
+    // Convert ke JPEG yang guarantee valid
+    const jpegBuffer = await sharp(fileBuffer)
+      .toFormat('jpeg', { quality: 85 })
+      .toBuffer();
+    
+    console.log('✅ Converted to JPEG:', jpegBuffer.length, 'bytes');
+    
+    // Simpan JPEG ke temp file (untuk stream)
+    const tempPath = photoPath + '.converted.jpg';
+    fs.writeFileSync(tempPath, jpegBuffer);
+    
     console.log('📤 Uploading to Cloudinary...');
-    console.log('   URL:', cloudinaryUrl);
-    console.log('   Preset:', CLOUDINARY_UPLOAD_PRESET);
-    console.log('   File size:', uploadBuffer.length, 'bytes');
-
-    const cloudResponse = await axios.post(cloudinaryUrl, formData, {
-      headers: formData.getHeaders(),
+    
+    // Create FormData dengan STREAM (bukan buffer)
+    const form = new FormData();
+    form.append('file', fs.createReadStream(tempPath));  // ← STREAM!
+    form.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+    form.append('folder', 'kelas-11-dpib2');
+    
+    const url = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`;
+    
+    const response = await axios.post(url, form, {
+      headers: form.getHeaders(),  // ← CRITICAL!
       timeout: 60000,
       maxContentLength: Infinity,
       maxBodyLength: Infinity,
     });
-
-    const cloudinaryResult = cloudResponse.data;
-    console.log('✅ Uploaded to Cloudinary successfully!');
-    console.log('📸 Public ID:', cloudinaryResult.public_id);
-    console.log('🔗 URL:', cloudinaryResult.secure_url);
-
+    
+    const result = response.data;
+    console.log('✅ Upload BERHASIL ke Cloudinary!');
+    console.log('🔗 URL:', result.secure_url);
+    
+    // Cleanup temp file
+    fs.unlinkSync(tempPath);
+    
     // Update index
-    updatePhotosIndex(filename, sender, cloudinaryResult.secure_url);
-
+    updatePhotosIndex(path.basename(photoPath), sender, result.secure_url);
+    
     return {
       success: true,
       message: 'Foto berhasil diupload',
-      filename: filename,
-      url: cloudinaryResult.secure_url,
-      cloudinary_id: cloudinaryResult.public_id,
+      url: result.secure_url,
+      cloudinary_id: result.public_id,
     };
   } catch (error) {
-    console.error('❌ Upload error:');
-    console.error('  Message:', error.message);
+    console.error('❌ Upload error:', error.message);
     if (error.response?.data) {
-      console.error('  Response:', error.response.data);
+      console.error('Response:', error.response.data);
     }
     return {
       success: false,
