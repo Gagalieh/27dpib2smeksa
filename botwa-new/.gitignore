@@ -1,0 +1,10 @@
+node_modules/
+.wwebjs_auth/
+.env
+.env.local
+.DS_Store
+.vscode/
+*.log
+npm-debug.log*
+photos-upload/
+.session/
