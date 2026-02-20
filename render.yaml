@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: dpib2-bot
+    runtime: node
+    rootDir: botwa-new
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3000

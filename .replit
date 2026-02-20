@@ -1,0 +1,2 @@
+run = "cd botwa-new && npm install && npm start"
+language = "nodejs"
