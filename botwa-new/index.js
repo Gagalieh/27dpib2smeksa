@@ -102,8 +102,6 @@ async function startBot() {
 
     // Event: Messages
     sock.ev.on('messages.upsert', async (m) => {
-      console.log('📨 Message received');
-
       const msg = m.messages[0];
       if (!msg.message || msg.key.fromMe || msg.key.remoteJid === 'status@broadcast')
         return;
@@ -115,8 +113,10 @@ async function startBot() {
         ''
       ).toLowerCase().trim();
 
-      console.log(`👤 From: ${sender}`);
-      console.log(`💬 Text: ${text}`);
+      console.log('📨 Message received');
+      console.log('👤 From:', sender);
+      console.log('💬 Text:', text);
+      console.log('📦 Message structure:', JSON.stringify(msg.message, null, 2).substring(0, 500));
 
       try {
         // Command: !help
