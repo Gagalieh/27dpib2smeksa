@@ -1,19 +1,30 @@
 const { default: makeWASocket, useMultiFileAuthState, DisconnectReason, isJidBroadcast } = require('@whiskeysockets/baileys');
-const { Boom } = require('@hapi/boom');
 const path = require('path');
 const fs = require('fs');
 const { downloadMedia, uploadPhotoToWebsite } = require('./commands/handler');
 
-console.log('🚀 Bot WhatsApp dimulai...');
+console.log('====================================');
+console.log('🚀 Bot WhatsApp Starting...');
+console.log('====================================\n');
 
 const SESSION_PATH = path.join(__dirname, '.session');
+const PHOTOS_PATH = path.join(__dirname, '../photos-upload');
 
-if (!fs.existsSync(SESSION_PATH)) {
-  fs.mkdirSync(SESSION_PATH, { recursive: true });
-}
+// Ensure directories exist
+[SESSION_PATH, PHOTOS_PATH].forEach((dir) => {
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, { recursive: true });
+    console.log(`✅ Created directory: ${dir}`);
+  }
+});
+
+console.log(`📂 Session path: ${SESSION_PATH}`);
+console.log(`📸 Photos path: ${PHOTOS_PATH}\n`);
 
 async function startBot() {
   try {
+    console.log('📲 Initializing Baileys...\n');
+    
     const { state, saveCreds } = await useMultiFileAuthState(SESSION_PATH);
 
     const sock = makeWASocket({
@@ -22,15 +33,27 @@ async function startBot() {
       browser: ['Ubuntu', 'Chrome', '121.0'],
       syncFullHistory: false,
       shouldIgnoreJid: (jid) => isJidBroadcast(jid),
+      logger: require('pino')({ level: 'warn' }),
     });
+
+    console.log('✅ Baileys initialized\n');
 
     // Event: QR Code
     sock.ev.on('connection.update', async (update) => {
       const { connection, lastDisconnect, qr } = update;
 
       if (qr) {
-        console.log('\n📱 Scan QR Code dengan WhatsApp Anda:');
-        console.log('Atau gunakan WhatsApp Web di perangkat lain untuk login.\n');
+        console.log('\n' + '='.repeat(50));
+        console.log('📱 SCAN QR CODE BELOW WITH YOUR PHONE');
+        console.log('='.repeat(50));
+        const QRCode = require('qrcode');
+        const qrString = await QRCode.toString(qr, {
+          errorCorrectionLevel: 'M',
+          type: 'terminal',
+          margin: 2,
+        });
+        console.log(qrString);
+        console.log('='.repeat(50) + '\n');
       }
 
       if (connection === 'connecting') {
@@ -38,9 +61,14 @@ async function startBot() {
       }
 
       if (connection === 'open') {
-        console.log('✅ Bot WhatsApp siap digunakan!');
-        console.log('📸 Gunakan command: !upload untuk kirim foto ke website');
-        console.log('Gunakan: !help untuk melihat semua command\n');
+        console.log('\n' + '='.repeat(50));
+        console.log('✅ BOT IS READY!');
+        console.log('='.repeat(50));
+        console.log('📸 Commands:');
+        console.log('  • !help - Show all commands');
+        console.log('  • !info - Bot information');
+        console.log('  • !upload - Upload photo to gallery');
+        console.log('='.repeat(50) + '\n');
       }
 
       if (connection === 'close') {
@@ -48,9 +76,10 @@ async function startBot() {
           lastDisconnect?.error?.output?.statusCode !==
           DisconnectReason.loggedOut
         ) {
+          console.log('⚠️ Connection lost. Reconnecting...');
           startBot();
         } else {
-          console.log('⚠️ Connection closed. Please scan QR code again.');
+          console.log('🔐 Logged out. Scan QR code again.');
         }
       }
     });
@@ -191,11 +220,34 @@ Terima kasih atas kontribusimu! 💜`,
       }
     });
   } catch (error) {
-    console.error('❌ Fatal error:', error);
-    console.log('Restarting in 5 seconds...');
-    setTimeout(startBot, 5000);
+    console.error('❌ Fatal error:', error.message);
+    console.error(error.stack);
+    console.log('\n⏰ Restarting in 10 seconds...\n');
+    setTimeout(startBot, 10000);
   }
 }
+
+// Graceful shutdown
+process.on('SIGINT', () => {
+  console.log('\n🛑 Shutting down gracefully...');
+  process.exit(0);
+});
+
+process.on('uncaughtException', (error) => {
+  console.error('❌ Uncaught exception:', error);
+  process.exit(1);
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('❌ Unhandled rejection at:', promise, 'reason:', reason);
+});
+
+// Start bot
+console.log('Starting bot...\n');
+startBot().catch((err) => {
+  console.error('Failed to start bot:', err);
+  process.exit(1);
+});
 
 /**
  * Download media dari Baileys

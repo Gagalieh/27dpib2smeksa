@@ -21,6 +21,7 @@
     "@whiskeysockets/baileys": "^6.3.0",
     "pino": "^8.14.1",
     "pino-pretty": "^10.2.0",
+    "qrcode": "^1.5.3",
     "dotenv": "^16.3.1",
     "sharp": "^0.32.6",
     "axios": "^1.6.2"
