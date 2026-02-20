@@ -1,6 +1,7 @@
 const { default: makeWASocket, useMultiFileAuthState, DisconnectReason, isJidBroadcast } = require('@whiskeysockets/baileys');
 const path = require('path');
 const fs = require('fs');
+const axios = require('axios');
 const { downloadMedia, uploadPhotoToWebsite } = require('./commands/handler');
 
 console.log('====================================');
