@@ -5,4 +5,4 @@ Disallow: /admin.js
 Disallow: /config.js
 Disallow: /script.js
 
-Sitemap: https://kelas11dpib2.com/sitemap.xml
+Sitemap: https://sebelasdpib2smeksa.netlify.app/sitemap.xml
