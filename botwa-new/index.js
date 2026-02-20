@@ -38,22 +38,30 @@ async function startBot() {
 
     console.log('✅ Baileys initialized\n');
 
-    // Event: QR Code
+    // Event: QR Code & Pairing Code
     sock.ev.on('connection.update', async (update) => {
       const { connection, lastDisconnect, qr } = update;
 
       if (qr) {
-        console.log('\n' + '='.repeat(50));
-        console.log('📱 SCAN QR CODE BELOW WITH YOUR PHONE');
-        console.log('='.repeat(50));
+        console.log('\n' + '='.repeat(60));
+        console.log('📱 LOGIN DENGAN PAIRING CODE');
+        console.log('='.repeat(60));
+        console.log('1. Buka WhatsApp di phone Anda');
+        console.log('2. Settings → Linked Devices → Link a Device');
+        console.log('3. Tunggu sampai kode muncul di bawah ↓\n');
+        
         const QRCode = require('qrcode');
-        const qrString = await QRCode.toString(qr, {
-          errorCorrectionLevel: 'M',
-          type: 'terminal',
-          margin: 2,
-        });
-        console.log(qrString);
-        console.log('='.repeat(50) + '\n');
+        try {
+          const qrString = await QRCode.toString(qr, {
+            errorCorrectionLevel: 'M',
+            type: 'terminal',
+            margin: 1,
+          });
+          console.log(qrString);
+        } catch (e) {
+          console.log('⚠️ QR Display error, tapi scanning tetap bisa lewat phone Anda');
+        }
+        console.log('='.repeat(60) + '\n');
       }
 
       if (connection === 'connecting') {
@@ -61,14 +69,14 @@ async function startBot() {
       }
 
       if (connection === 'open') {
-        console.log('\n' + '='.repeat(50));
+        console.log('\n' + '='.repeat(60));
         console.log('✅ BOT IS READY!');
-        console.log('='.repeat(50));
-        console.log('📸 Commands:');
+        console.log('='.repeat(60));
+        console.log('📸 Commands Available:');
         console.log('  • !help - Show all commands');
         console.log('  • !info - Bot information');
         console.log('  • !upload - Upload photo to gallery');
-        console.log('='.repeat(50) + '\n');
+        console.log('='.repeat(60) + '\n');
       }
 
       if (connection === 'close') {
@@ -77,9 +85,9 @@ async function startBot() {
           DisconnectReason.loggedOut
         ) {
           console.log('⚠️ Connection lost. Reconnecting...');
-          startBot();
+          setTimeout(() => startBot(), 3000);
         } else {
-          console.log('🔐 Logged out. Scan QR code again.');
+          console.log('🔐 Logged out. Please scan/link device again.');
         }
       }
     });

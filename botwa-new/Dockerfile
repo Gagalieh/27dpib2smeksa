@@ -1,25 +1,30 @@
-# Dockerfile untuk deploy ke container (Railway, Render, Docker)
-
-FROM node:18-alpine
+# Use Node 18 slim image
+FROM node:18-slim
 
 # Set working directory
-WORKDIR /app
-
-# Copy package files
-COPY package.json package-lock.json ./
+WORKDIR /app/botwa-new
 
 # Install dependencies
-RUN npm ci --only=production
+RUN apt-get update && apt-get install -y \
+    ffmpeg \
+    imagemagick \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy package files from botwa-new
+COPY botwa-new/package*.json ./
+
+# Install npm dependencies
+RUN npm install --production
 
 # Copy bot files
-COPY . .
+COPY botwa-new/ ./
 
-# Create photos-upload directory
-RUN mkdir -p photos-upload
+# Create photos directory
+RUN mkdir -p ../photos-upload
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-  CMD node -e "console.log('healthy')" || exit 1
+  CMD node -e "console.log('ok')" || exit 1
 
 # Run bot
-CMD ["node", "index.js"]
+CMD ["npm", "start"]
