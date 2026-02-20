@@ -5,6 +5,7 @@ WORKDIR /app/botwa-new
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ffmpeg \
+    git \
     imagemagick \
     && rm -rf /var/lib/apt/lists/*
 
