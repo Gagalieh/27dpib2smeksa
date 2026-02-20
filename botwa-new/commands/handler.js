@@ -62,45 +62,28 @@ async function uploadPhotoToWebsite(photoPath, sender) {
     console.log('📤 Processing image...');
     console.log('📊 Original file size:', filedata.length, 'bytes');
 
+    // Gunakan raw buffer (tidak perlu optimize jika Cloudinary bisa handle)
     let uploadBuffer = filedata;
-
-    // Coba optimize dengan sharp, tapi jika gagal gunakan raw buffer
-    try {
-      console.log('🔧 Attempting to optimize with sharp...');
-      const optimized = await sharp(filedata, { failOnError: false })
-        .rotate()
-        .resize(2000, 2000, {
-          fit: 'inside',
-          withoutEnlargement: true,
-        })
-        .jpeg({ quality: 80 })
-        .toBuffer()
-        .catch(() => filedata); // Jika error, gunakan original
-
-      uploadBuffer = optimized;
-      console.log('✅ Image optimized - size:', uploadBuffer.length, 'bytes');
-    } catch (e) {
-      console.log('⚠️ Sharp optimization skipped, using raw buffer');
-      uploadBuffer = filedata;
-    }
 
     // Verify buffer
     if (!uploadBuffer || uploadBuffer.length === 0) {
       throw new Error('Upload buffer is empty');
     }
 
-    // Upload ke Cloudinary
-    console.log('📤 Uploading to Cloudinary...');
+    // Create FormData - simple approach
     const formData = new FormData();
-    formData.append('file', uploadBuffer, {
-      filename: filename,
-      contentType: 'image/jpeg'
-    });
+    
+    // Append file as Buffer
+    formData.append('file', Buffer.from(uploadBuffer), filename);
     formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
     formData.append('folder', 'kelas-11-dpib2');
-    formData.append('tags', 'whatsapp-bot');
 
     const cloudinaryUrl = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`;
+
+    console.log('📤 Uploading to Cloudinary...');
+    console.log('   URL:', cloudinaryUrl);
+    console.log('   Preset:', CLOUDINARY_UPLOAD_PRESET);
+    console.log('   File size:', uploadBuffer.length, 'bytes');
 
     const cloudResponse = await axios.post(cloudinaryUrl, formData, {
       headers: formData.getHeaders(),
