@@ -1,48 +1,85 @@
-const { Client, MessageMedia } = require('whatsapp-web.js');
-const qrcode = require('qrcode-terminal');
+const { default: makeWASocket, useMultiFileAuthState, DisconnectReason, isJidBroadcast } = require('@whiskeysockets/baileys');
+const { Boom } = require('@hapi/boom');
 const path = require('path');
 const fs = require('fs');
 const { downloadMedia, uploadPhotoToWebsite } = require('./commands/handler');
 
-// Inisialisasi WhatsApp Client
-const client = new Client({
-  puppeteer: {
-    headless: true,
-    args: ['--no-sandbox', '--disable-setuid-sandbox'],
-  },
-});
+console.log('🚀 Bot WhatsApp dimulai...');
 
-// Event: QR Code untuk login
-client.on('qr', (qr) => {
-  console.log('QR Code muncul. Scan dengan WhatsApp Anda:');
-  qrcode.generate(qr, { small: true });
-});
+const SESSION_PATH = path.join(__dirname, '.session');
 
-// Event: Client siap
-client.on('ready', () => {
-  console.log('✅ Bot WhatsApp siap digunakan!');
-  console.log('📸 Gunakan command: !upload untuk kirim foto ke website');
-});
+if (!fs.existsSync(SESSION_PATH)) {
+  fs.mkdirSync(SESSION_PATH, { recursive: true });
+}
 
-// Event: Terima pesan
-client.on('message', async (msg) => {
-  const sender = msg.from;
-  const text = msg.body.toLowerCase().trim();
-
+async function startBot() {
   try {
-    // Command: !upload - untuk menerima foto
-    if (text === '!upload' || text.startsWith('!upload ')) {
-      if (msg.hasMedia) {
-        await handlePhotoUpload(msg, sender, client);
-      } else {
-        msg.reply('❌ Pesan ini tidak mengandung media. Kirim foto terlebih dahulu!');
-      }
-    }
+    const { state, saveCreds } = await useMultiFileAuthState(SESSION_PATH);
 
-    // Command: !help - tampilkan bantuan
-    if (text === '!help' || text === '!bantuan') {
-      const helpText = `
-📸 *Perintah Bot Kelas 11 DPIB 2* 📸
+    const sock = makeWASocket({
+      auth: state,
+      printQRInTerminal: true,
+      browser: ['Ubuntu', 'Chrome', '121.0'],
+      syncFullHistory: false,
+      shouldIgnoreJid: (jid) => isJidBroadcast(jid),
+    });
+
+    // Event: QR Code
+    sock.ev.on('connection.update', async (update) => {
+      const { connection, lastDisconnect, qr } = update;
+
+      if (qr) {
+        console.log('\n📱 Scan QR Code dengan WhatsApp Anda:');
+        console.log('Atau gunakan WhatsApp Web di perangkat lain untuk login.\n');
+      }
+
+      if (connection === 'connecting') {
+        console.log('⏳ Connecting to WhatsApp...');
+      }
+
+      if (connection === 'open') {
+        console.log('✅ Bot WhatsApp siap digunakan!');
+        console.log('📸 Gunakan command: !upload untuk kirim foto ke website');
+        console.log('Gunakan: !help untuk melihat semua command\n');
+      }
+
+      if (connection === 'close') {
+        if (
+          lastDisconnect?.error?.output?.statusCode !==
+          DisconnectReason.loggedOut
+        ) {
+          startBot();
+        } else {
+          console.log('⚠️ Connection closed. Please scan QR code again.');
+        }
+      }
+    });
+
+    // Event: Credentials update
+    sock.ev.on('creds.update', saveCreds);
+
+    // Event: Messages
+    sock.ev.on('messages.upsert', async (m) => {
+      console.log('📨 Message received');
+
+      const msg = m.messages[0];
+      if (!msg.message || msg.key.fromMe || msg.key.remoteJid === 'status@broadcast')
+        return;
+
+      const sender = msg.key.remoteJid;
+      const text = (
+        msg.message.conversation ||
+        msg.message.extendedTextMessage?.text ||
+        ''
+      ).toLowerCase().trim();
+
+      console.log(`👤 From: ${sender}`);
+      console.log(`💬 Text: ${text}`);
+
+      try {
+        // Command: !help
+        if (text === '!help' || text === '!bantuan') {
+          const helpText = `📸 *Perintah Bot Kelas 11 DPIB 2* 📸
 
 🔹 *!upload* - Upload foto ke galeri website
    Balas pesan foto dengan "!upload"
@@ -56,88 +93,156 @@ Contoh:
 2. Balas dengan pesan "!upload"
 3. Foto akan otomatis terupload ke galeri kelas
 
-📌 Pastikan kualitas foto bagus agar tampilan website lebih baik!
-      `;
-      msg.reply(helpText);
-    }
+📌 Pastikan kualitas foto bagus!`;
 
-    // Command: !info
-    if (text === '!info') {
-      const infoText = `
-ℹ️ *Tentang Bot Ini*
+          await sock.sendMessage(sender, { text: helpText });
+          return;
+        }
+
+        // Command: !info
+        if (text === '!info') {
+          const infoText = `ℹ️ *Tentang Bot Ini*
 
 Bot WhatsApp Kelas 11 DPIB 2 SMKN 1 Kota Kediri
 Untuk upload dan dokumentasi kenangan kelas secara otomatis.
 
 Website: https://sebelasdpib2smeksa.netlify.app
 
-Dikembangkan dengan cinta untuk kelas tercinta 💜
-      `;
-      msg.reply(infoText);
-    }
+Dikembangkan dengan cinta untuk kelas tercinta 💜`;
 
-  } catch (error) {
-    console.error('Error handling message:', error);
-    msg.reply('❌ Terjadi error. Coba lagi nanti.');
-  }
-});
+          await sock.sendMessage(sender, { text: infoText });
+          return;
+        }
 
-// Fungsi: Handle upload foto
-async function handlePhotoUpload(msg, sender, client) {
-  try {
-    // Cek apakah media adalah foto
-    const media = await msg.downloadMedia();
-    
-    if (!media || !media.mimetype.includes('image')) {
-      msg.reply('❌ File ini bukan foto. Kirim foto JPG atau PNG!');
-      return;
-    }
+        // Command: !upload
+        if (text === '!upload') {
+          // Cek apakah pesan sebelumnya adalah foto
+          const quotedMsg = msg.message.extendedTextMessage?.contextInfo?.quotedMessage;
 
-    msg.react('⏳'); // Tampilkan animasi loading
+          if (!quotedMsg) {
+            await sock.sendMessage(sender, {
+              text: '❌ Balas pesan foto dengan "!upload"!\n\nContoh:\n1. Kirim foto\n2. Balas foto dengan: !upload',
+            });
+            return;
+          }
 
-    // Download dan simpan foto
-    const photoPath = await downloadMedia(media, sender);
+          const imageMsg = quotedMsg.imageMessage || quotedMsg.videoMessage;
 
-    // Upload ke website
-    const uploadResult = await uploadPhotoToWebsite(photoPath, sender);
+          if (!imageMsg) {
+            await sock.sendMessage(sender, {
+              text: '❌ Pesan yang dibales bukan foto/video!\n\nKirim foto dulu, terus balas dengan: !upload',
+            });
+            return;
+          }
 
-    if (uploadResult.success) {
-      msg.react('✅'); // Tampilkan checkmark
-      msg.reply(`
-✅ *Foto berhasil diupload!*
+          try {
+            await sock.sendMessage(sender, { text: '⏳ Sedang upload foto...' });
+
+            // Download media
+            const media = await downloadMediaBaileys(sock, msg.key, quotedMsg);
+
+            if (!media) {
+              await sock.sendMessage(sender, {
+                text: '❌ Gagal download foto. Coba lagi!',
+              });
+              return;
+            }
+
+            // Upload ke website
+            const result = await uploadPhotoToWebsite(media, sender);
+
+            if (result.success) {
+              await sock.sendMessage(sender, {
+                text: `✅ *Foto berhasil diupload!*
 
 📸 Foto Anda sekarang ada di galeri kelas.
 
 🔗 Lihat di: https://sebelasdpib2smeksa.netlify.app/#galeri
 
-Terima kasih atas kontribusimu! 💜
-      `);
-      console.log(`✅ Foto dari ${sender} berhasil diupload`);
-    } else {
-      msg.react('❌');
-      msg.reply(`❌ Gagal upload foto.\n\nError: ${uploadResult.error}`);
-    }
+Terima kasih atas kontribusimu! 💜`,
+              });
+              console.log(`✅ Foto dari ${sender} berhasil diupload`);
+            } else {
+              await sock.sendMessage(sender, {
+                text: `❌ Gagal upload foto.\n\nError: ${result.error}`,
+              });
+            }
+          } catch (error) {
+            console.error('Error uploading photo:', error);
+            await sock.sendMessage(sender, {
+              text: '❌ Terjadi error saat upload. Coba lagi nanti.',
+            });
+          }
 
+          return;
+        }
+
+        // Default: unknown command
+        if (text.startsWith('!')) {
+          await sock.sendMessage(sender, {
+            text: `❓ Command "${text}" tidak diketahui.\n\nKetik: *!help* untuk melihat daftar command`,
+          });
+        }
+      } catch (error) {
+        console.error('Error handling message:', error);
+        await sock.sendMessage(sender, {
+          text: '❌ Terjadi error. Coba lagi nanti.',
+        });
+      }
+    });
   } catch (error) {
-    console.error('Error uploading photo:', error);
-    msg.react('❌');
-    msg.reply('❌ Terjadi error saat upload. Coba lagi nanti.');
+    console.error('❌ Fatal error:', error);
+    console.log('Restarting in 5 seconds...');
+    setTimeout(startBot, 5000);
   }
 }
 
-// Event: Client disconnect
-client.on('disconnected', () => {
-  console.log('⚠️ Bot terputus. Restart bot...');
-});
+/**
+ * Download media dari Baileys
+ */
+async function downloadMediaBaileys(sock, msgKey, quotedMsg) {
+  try {
+    const imageMsg = quotedMsg.imageMessage;
+    if (!imageMsg) return null;
 
-// Jalankan client
-client.initialize();
+    // Get stream
+    const stream = await sock.downloadMediaMessage(quotedMsg);
+    
+    if (!stream) return null;
+
+    // Save to file
+    const timestamp = new Date().getTime();
+    const senderName = msgKey.participant
+      .split('@')[0]
+      .replace(/[^a-z0-9]/gi, '-')
+      .toLowerCase();
+    const filename = `${timestamp}-${senderName}.jpg`;
+    const filepath = path.join(__dirname, '../photos-upload', filename);
+
+    // Create directory if not exists
+    if (!fs.existsSync(path.dirname(filepath))) {
+      fs.mkdirSync(path.dirname(filepath), { recursive: true });
+    }
+
+    // Save file
+    fs.writeFileSync(filepath, stream);
+    console.log(`📸 Foto tersimpan: ${filepath}`);
+
+    return filepath;
+  } catch (error) {
+    console.error('Error downloading media:', error);
+    return null;
+  }
+}
 
 // Graceful shutdown
-process.on('SIGINT', async () => {
+process.on('SIGINT', () => {
   console.log('\n🛑 Shutting down bot...');
-  await client.destroy();
   process.exit(0);
 });
 
-console.log('🚀 Bot WhatsApp dimulai...');
+// Start bot
+startBot().catch((err) => {
+  console.error('Failed to start bot:', err);
+  process.exit(1);
+});
