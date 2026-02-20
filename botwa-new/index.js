@@ -29,7 +29,6 @@ async function startBot() {
 
     const sock = makeWASocket({
       auth: state,
-      printQRInTerminal: true,
       browser: ['Ubuntu', 'Chrome', '121.0'],
       syncFullHistory: false,
       shouldIgnoreJid: (jid) => isJidBroadcast(jid),
@@ -44,22 +43,25 @@ async function startBot() {
 
       if (qr) {
         console.log('\n' + '='.repeat(60));
-        console.log('📱 LOGIN DENGAN PAIRING CODE');
+        console.log('📱 SCAN QR CODE DENGAN WHATSAPP');
         console.log('='.repeat(60));
         console.log('1. Buka WhatsApp di phone Anda');
         console.log('2. Settings → Linked Devices → Link a Device');
-        console.log('3. Tunggu sampai kode muncul di bawah ↓\n');
+        console.log('3. Scan QR Code di bawah ini ↓\n');
         
         const QRCode = require('qrcode');
         try {
           const qrString = await QRCode.toString(qr, {
-            errorCorrectionLevel: 'M',
+            errorCorrectionLevel: 'L',
             type: 'terminal',
-            margin: 1,
+            margin: 2,
+            width: 10
           });
           console.log(qrString);
+          console.log('\n✅ QR Code ditampilkan di atas. Scan dengan ponsel Anda!');
         } catch (e) {
-          console.log('⚠️ QR Display error, tapi scanning tetap bisa lewat phone Anda');
+          console.log('⚠️ Buka WhatsApp → Settings → Linked Devices → Link a Device');
+          console.log('QR Code string:', qr);
         }
         console.log('='.repeat(60) + '\n');
       }
