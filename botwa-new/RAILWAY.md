@@ -1,130 +1,64 @@
-# Railway.app Deployment Guide
+# Railway Deployment Guide (Production Hardened)
 
-## 🚀 Deploy ke Railway (Gratis & Mudah)
+Guide ini untuk deploy bot `botwa-new` dengan konfigurasi:
+- Cloudinary signed upload
+- Supabase service role
+- Session WhatsApp persisten via Railway Volume
+- Healthcheck `/health`
 
-Railway adalah platform cloud yang bagus untuk host bot 24/7. Berikut caranya:
+## 1. Deploy Service
+1. Push repo ke GitHub.
+2. Buat project di Railway dari repo ini.
+3. Pastikan `railway.json` terbaca (builder Dockerfile + watch pattern `botwa-new/**`).
 
-### Step 1: Persiapan
+## 2. Tambah Volume (Wajib untuk session WA)
+1. Di service Railway, tambahkan volume.
+2. Mount path: `/data`.
+3. Session akan disimpan di `/data/session` agar tidak scan QR ulang setiap restart.
 
-1. **Buat akun Railway**
-   - Kunjungi: https://railway.app
-   - Daftar dengan GitHub (lebih mudah)
+## 3. Set Environment Variables
+Isi semua variabel berikut di tab Variables Railway:
 
-2. **Setup Git Repository**
-   ```bash
-   git add .
-   git commit -m "Add cloud deployment config"
-   git push
-   ```
+```env
+NODE_ENV=production
+PORT=3000
+WEBSITE_URL=https://sebelasdpib2smeksa.netlify.app/#galeri
 
-### Step 2: Deploy Project
+CLOUDINARY_CLOUD_NAME=...
+CLOUDINARY_API_KEY=...
+CLOUDINARY_API_SECRET=...
+CLOUDINARY_FOLDER=kelas-11-dpib2
 
-1. **Login ke Railway.app**
+SUPABASE_URL=https://...supabase.co
+SUPABASE_SERVICE_ROLE_KEY=...
 
-2. **Klik "New Project"** → "Deploy from GitHub"
+BAILEYS_SESSION_DIR=/data/session
+SAVE_LOCAL_INDEX=false
+LOCAL_INDEX_DIR=/data/photos-upload
+```
 
-3. **Pilih repository:** `10dpib2smekas/27dpib2smeksa`
+## 4. First Login WhatsApp
+1. Buka Logs deployment.
+2. Scan QR pertama dari logs.
+3. Setelah connect, cek readiness:
+   - `/health` harus `200`
+   - `/ready` harus `200`
 
-4. **Select "botwa-new" folder as root** (jika diminta)
+## 5. Runtime Behavior
+- `restartPolicyType=ALWAYS`
+- `numReplicas=1` (hindari konflik session WA)
+- `requiredMountPath=/data`
+- `healthcheckPath=/health`
 
-5. **Railway akan otomatis detect & deploy**
+## 6. Verification Checklist
+1. Startup tanpa env wajib -> gagal (expected fail-fast).
+2. Bot connect dan bisa `!help`.
+3. Reply foto + `!upload` -> sukses.
+4. Row baru masuk tabel `gallery` Supabase.
+5. Foto terlihat di website (yang membaca `gallery` dari Supabase).
+6. Restart deployment -> session tetap login (tanpa scan QR lagi).
 
-### Step 3: Login WhatsApp (First Time Only)
-
-1. **Buka Railway Dashboard** → Pilih project → View Logs
-2. **Cari QR Code** di terminal output
-3. **Scan QR Code dengan WhatsApp ponsel Anda** (sama seperti login lokal)
-4. **Setelah login, bot siap berjalan 24/7** ✅
-
-### Step 4: Monitor Bot
-
-**Cek status di Railway Dashboard:**
-- Logs → Lihat output & error
-- Environment → Set variables (jika perlu)
-- Deployments → Riwayat deploy
-
----
-
-## ⚙️ Konfigurasi Environment (Optional)
-
-Jika ingin set environment variables di Railway:
-
-1. **Di Railway Dashboard**, klik project
-2. **Tab "Variables"**
-3. **Add:**
-   ```
-   WEBSITE_URL=https://sebelasdpib2smeksa.netlify.app
-   PHOTOS_FOLDER=photos-upload
-   ```
-
----
-
-## 💾 Persistent Storage (Penting!)
-
-Karena Railway menggunakan ephemeral storage, folder photos-upload akan hilang setiap restart.
-
-**Solusi:**
-- **Option 1:** Upload foto ke cloud storage (Google Drive, AWS S3, Cloudinary)
-- **Option 2:** Gunakan Railway Database
-- **Option 3:** Sync ke GitHub setiap upload (advanced)
-
-Untuk sekarang, foto disimpan di container dan akan reset saat Railway restart (jarang terjadi).
-
----
-
-## 🔄 Auto-Restart & Monitoring
-
-Railway otomatis restart bot jika crash. Untuk monitoring lebih baik:
-
-1. **Set Health Check** (sudah ada di Dockerfile)
-2. **Enable restart policy** (default di Railway)
-3. **Monitor di logs secara berkala**
-
----
-
-## 💰 Biaya Railway
-
-- **Free tier:** 5 GB / bulan (cukup untuk bot)
-- **Paid:** $5/bulan untuk unlimited
-
----
-
-## Alternatif: Deploy ke Render.com
-
-Sama seperti Railway, tapi interface berbeda:
-
-1. Kunjungi: https://render.com
-2. Connect GitHub
-3. Create "New Web Service"
-4. Select repository
-5. Build command: `npm install`
-6. Start command: `node index.js`
-7. Deploy!
-
----
-
-## Troubleshooting
-
-### Bot tidak auto-restart
-- Cek Railway logs untuk error
-- Pastikan `index.js` tidak crash
-
-### QR Code tidak muncul
-- Cek Railway logs (biasanya ada)
-- Restart deployment dari Railway dashboard
-
-### Foto tidak tersimpan
-- Normal untuk Railway ephemeral storage
-- Upload ke cloud storage untuk persistent
-
----
-
-## Next: Upload Foto ke Cloud Storage
-
-Jika mau foto persistent, update `commands/handler.js` untuk upload ke:
-- **Google Drive**
-- **Cloudinary** (free tier 25GB)
-- **AWS S3**
-- **Supabase Storage**
-
-Mau saya bantu setup salah satu? 🚀
+## 7. Security Post-Deploy (Wajib)
+1. Rotate key lama yang pernah hardcoded.
+2. Jangan expose `SUPABASE_SERVICE_ROLE_KEY` ke frontend.
+3. Batasi akses Cloudinary API key/secret hanya di Railway.

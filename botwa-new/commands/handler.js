@@ -1,48 +1,112 @@
+require('dotenv').config();
+
 const path = require('path');
 const fs = require('fs');
+const os = require('os');
 const sharp = require('sharp');
-const axios = require('axios');
-const FormData = require('form-data');
+const { v2: cloudinary } = require('cloudinary');
+const { createClient } = require('@supabase/supabase-js');
 
-// Cloudinary config
-const CLOUDINARY_CLOUD_NAME = 'dlwrrojjw';
-const CLOUDINARY_UPLOAD_PRESET = 'kelas-unsigned';
+const REQUIRED_ENV_VARS = [
+  'CLOUDINARY_CLOUD_NAME',
+  'CLOUDINARY_API_KEY',
+  'CLOUDINARY_API_SECRET',
+  'CLOUDINARY_FOLDER',
+  'SUPABASE_URL',
+  'SUPABASE_SERVICE_ROLE_KEY',
+  'SAVE_LOCAL_INDEX',
+  'LOCAL_INDEX_DIR',
+];
 
-// Supabase config
-const SUPABASE_URL = 'https://rsbeptndwdramrcegwhs.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJzYmVwdG5kd2RyYW1yY2Vnd2hzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjcxNzg1NjgsImV4cCI6MjA4Mjc1NDU2OH0.ClELgv6nOMOdaI2EZWu-zmG19FAlx7iXDujMSCWHkU4';
+const missingEnvVars = REQUIRED_ENV_VARS.filter(
+  (key) => !process.env[key] || !process.env[key].trim()
+);
 
-// Path untuk menyimpan foto lokal (backup)
-const PHOTOS_DIR = path.join(__dirname, '../../photos-upload');
-
-// Pastikan folder ada
-if (!fs.existsSync(PHOTOS_DIR)) {
-  fs.mkdirSync(PHOTOS_DIR, { recursive: true });
+if (missingEnvVars.length > 0) {
+  throw new Error(
+    `Missing required environment variables in handler: ${missingEnvVars.join(', ')}`
+  );
 }
 
-/**
- * Download media dari WhatsApp dan simpan ke folder lokal
- */
+function parseBoolean(input) {
+  const normalized = String(input || '')
+    .trim()
+    .toLowerCase();
+  return normalized === 'true' || normalized === '1' || normalized === 'yes';
+}
+
+const CLOUDINARY_CLOUD_NAME = process.env.CLOUDINARY_CLOUD_NAME;
+const CLOUDINARY_API_KEY = process.env.CLOUDINARY_API_KEY;
+const CLOUDINARY_API_SECRET = process.env.CLOUDINARY_API_SECRET;
+const CLOUDINARY_FOLDER = process.env.CLOUDINARY_FOLDER;
+const SUPABASE_URL = process.env.SUPABASE_URL;
+const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const SAVE_LOCAL_INDEX = parseBoolean(process.env.SAVE_LOCAL_INDEX);
+const LOCAL_INDEX_DIR = path.resolve(process.env.LOCAL_INDEX_DIR);
+const TEMP_WORK_DIR = path.join(os.tmpdir(), 'botwa-new-media');
+
+if (!fs.existsSync(TEMP_WORK_DIR)) {
+  fs.mkdirSync(TEMP_WORK_DIR, { recursive: true });
+}
+if (SAVE_LOCAL_INDEX && !fs.existsSync(LOCAL_INDEX_DIR)) {
+  fs.mkdirSync(LOCAL_INDEX_DIR, { recursive: true });
+}
+
+cloudinary.config({
+  cloud_name: CLOUDINARY_CLOUD_NAME,
+  api_key: CLOUDINARY_API_KEY,
+  api_secret: CLOUDINARY_API_SECRET,
+  secure: true,
+});
+
+const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
+  auth: {
+    persistSession: false,
+    autoRefreshToken: false,
+  },
+});
+
+function localIndexPath() {
+  return path.join(LOCAL_INDEX_DIR, 'index.json');
+}
+
+function sanitizeForFilename(input) {
+  return String(input || 'unknown')
+    .replace(/[^a-z0-9]/gi, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '')
+    .toLowerCase();
+}
+
+function removeFileIfExists(filePath) {
+  if (!filePath) {
+    return;
+  }
+  try {
+    if (fs.existsSync(filePath)) {
+      fs.unlinkSync(filePath);
+    }
+  } catch (error) {
+    console.warn(`Failed deleting file ${filePath}:`, error.message);
+  }
+}
+
 async function downloadMedia(media, sender) {
   try {
-    const timestamp = new Date().getTime();
-    const senderName = sender.replace(/[^a-z0-9]/gi, '-').toLowerCase();
+    const timestamp = Date.now();
+    const senderName = sanitizeForFilename(sender);
     const filename = `${timestamp}-${senderName}.jpg`;
-    const filepath = path.join(PHOTOS_DIR, filename);
+    const filepath = path.join(TEMP_WORK_DIR, filename);
 
-    // Decode base64 dan simpan
     const buffer = Buffer.from(media.data, 'base64');
-    
-    // Compress foto dengan sharp
     await sharp(buffer)
       .resize(1920, 1080, {
         fit: 'inside',
         withoutEnlargement: true,
       })
-      .jpeg({ quality: 85 })
+      .jpeg({ quality: 85, progressive: true })
       .toFile(filepath);
 
-    console.log(`📸 Foto tersimpan: ${filepath}`);
     return filepath;
   } catch (error) {
     console.error('Error downloading media:', error);
@@ -50,157 +114,216 @@ async function downloadMedia(media, sender) {
   }
 }
 
-/**
- * Upload foto ke Cloudinary
- */
-async function uploadPhotoToWebsite(photoPath, sender) {
+async function optimizeImageBuffer(photoPath) {
+  const sourceBuffer = fs.readFileSync(photoPath);
+
   try {
-    console.log('📤 Processing image dengan Sharp...');
-    
-    const fileBuffer = fs.readFileSync(photoPath);
-    console.log('📊 Original size:', fileBuffer.length, 'bytes');
-    
-    // Convert dengan Sharp - auto-detect format dan convert ke JPEG
-    let jpegBuffer;
-    try {
-      jpegBuffer = await sharp(fileBuffer)
-        .toFormat('jpeg', { quality: 85, progressive: true })
-        .toBuffer();
-      console.log('✅ Converted to JPEG:', jpegBuffer.length, 'bytes');
-    } catch (sharpErr) {
-      console.error('⚠️ Sharp conversion failed:', sharpErr.message);
-      // Fallback ke buffer original jika sharp gagal
-      jpegBuffer = fileBuffer;
-      console.log('⚠️ Using original buffer as fallback');
-    }
-    
-    // Upload ke Cloudinary menggunakan FormData + Stream
-    console.log('📤 Uploading to Cloudinary...');
-    
-    // Simpan JPEG ke temp file untuk streaming
-    const tempPath = photoPath + '.temp.jpg';
-    fs.writeFileSync(tempPath, jpegBuffer);
-    
-    const form = new FormData();
-    form.append('file', fs.createReadStream(tempPath));
-    form.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
-    form.append('folder', 'kelas-11-dpib2');
-    
-    const url = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`;
-    
-    const response = await axios.post(url, form, {
-      headers: form.getHeaders(),
-      timeout: 60000,
-      maxContentLength: Infinity,
-      maxBodyLength: Infinity,
-    });
-    
-    const result = response.data;
-    
-    // Cleanup temp file
-    try {
-      fs.unlinkSync(tempPath);
-    } catch (e) {
-      console.warn('Could not delete temp file');
-    }
-    
-    console.log('✅ UPLOAD BERHASIL KE CLOUDINARY!');
-    console.log('🔗 URL:', result.secure_url);
-    
-    updatePhotosIndex(path.basename(photoPath), sender, result.secure_url);
-    
-    return {
-      success: true,
-      message: 'Foto berhasil diupload',
-      url: result.secure_url,
-      cloudinary_id: result.public_id,
-    };
+    return await sharp(sourceBuffer)
+      .resize(1920, 1080, {
+        fit: 'inside',
+        withoutEnlargement: true,
+      })
+      .toFormat('jpeg', { quality: 85, progressive: true })
+      .toBuffer();
   } catch (error) {
-    console.error('❌ Upload error:', error.message);
-    if (error.response?.data) {
-      console.error('Response:', error.response.data);
-    }
-    return {
-      success: false,
-      error: error.response?.data?.error?.message || error.message,
-    };
+    console.warn('Sharp optimization failed, using source buffer:', error.message);
+    return sourceBuffer;
   }
 }
 
-/**
- * Update file index JSON untuk tracking foto
- */
-function updatePhotosIndex(filename, sender, url) {
-  try {
-    const indexPath = path.join(PHOTOS_DIR, 'index.json');
-    let photos = [];
+async function rollbackCloudinaryUpload(publicId) {
+  if (!publicId) {
+    return;
+  }
 
-    if (fs.existsSync(indexPath)) {
-      const data = fs.readFileSync(indexPath, 'utf8');
-      photos = JSON.parse(data);
+  try {
+    const result = await cloudinary.uploader.destroy(publicId, {
+      resource_type: 'image',
+      invalidate: true,
+    });
+
+    if (result?.result !== 'ok' && result?.result !== 'not found') {
+      console.warn('Unexpected Cloudinary rollback response:', result);
+    }
+  } catch (error) {
+    console.error('Cloudinary rollback failed:', error.message);
+  }
+}
+
+function buildGalleryPayload(sender, cloudinaryResult, fileSize, context = {}) {
+  const senderShort = String(sender || '').split('@')[0] || 'unknown';
+  const today = new Date().toISOString().split('T')[0];
+  const quotedShort = context.quoted_participant
+    ? String(context.quoted_participant).split('@')[0]
+    : null;
+  const defaultCaption = quotedShort
+    ? `Dikirim via WhatsApp oleh ${senderShort} (quoted: ${quotedShort})`
+    : `Dikirim via WhatsApp oleh ${senderShort}`;
+
+  return {
+    image_url: cloudinaryResult.secure_url,
+    title: context.title || `Kiriman WhatsApp ${today}`,
+    caption: context.caption || defaultCaption,
+    status: 'public',
+    file_size: Number(cloudinaryResult.bytes || fileSize || 0),
+  };
+}
+
+function updatePhotosIndex(entry) {
+  if (!SAVE_LOCAL_INDEX) {
+    return;
+  }
+
+  const indexPath = localIndexPath();
+  let photos = [];
+
+  if (!fs.existsSync(LOCAL_INDEX_DIR)) {
+    fs.mkdirSync(LOCAL_INDEX_DIR, { recursive: true });
+  }
+
+  if (fs.existsSync(indexPath)) {
+    try {
+      photos = JSON.parse(fs.readFileSync(indexPath, 'utf8'));
+      if (!Array.isArray(photos)) {
+        photos = [];
+      }
+    } catch (error) {
+      console.warn('Failed reading existing local index, recreating file.');
+      photos = [];
+    }
+  }
+
+  photos.push(entry);
+  fs.writeFileSync(indexPath, JSON.stringify(photos, null, 2));
+}
+
+async function uploadPhotoToWebsite(photoPath, sender, context = {}) {
+  let tempPath = null;
+  let cloudinaryResult = null;
+
+  try {
+    const jpegBuffer = await optimizeImageBuffer(photoPath);
+    tempPath = `${photoPath}.upload.jpg`;
+    fs.writeFileSync(tempPath, jpegBuffer);
+
+    cloudinaryResult = await cloudinary.uploader.upload(tempPath, {
+      folder: CLOUDINARY_FOLDER,
+      resource_type: 'image',
+      overwrite: false,
+      unique_filename: true,
+      use_filename: false,
+    });
+
+    const payload = buildGalleryPayload(sender, cloudinaryResult, jpegBuffer.length, context);
+    const { data, error } = await supabase
+      .from('gallery')
+      .insert(payload)
+      .select('id, created_at')
+      .single();
+
+    if (error) {
+      await rollbackCloudinaryUpload(cloudinaryResult.public_id);
+      return {
+        success: false,
+        error: `Supabase insert failed: ${error.message}`,
+      };
     }
 
-    photos.push({
-      id: filename,
-      filename: filename,
-      sender: sender,
-      url: url || `/${filename}`,
-      uploadedAt: new Date().toISOString(),
+    const uploadedAt = data?.created_at || new Date().toISOString();
+
+    updatePhotosIndex({
+      id: data?.id || cloudinaryResult.public_id,
+      filename: path.basename(photoPath),
+      sender,
+      url: cloudinaryResult.secure_url,
+      cloudinary_public_id: cloudinaryResult.public_id,
+      gallery_id: data?.id || null,
+      uploadedAt,
       source: 'whatsapp-bot',
     });
 
-    fs.writeFileSync(indexPath, JSON.stringify(photos, null, 2));
-    console.log(`✅ Index diupdate. Total foto: ${photos.length}`);
+    return {
+      success: true,
+      message: 'Foto berhasil diupload',
+      image_url: cloudinaryResult.secure_url,
+      url: cloudinaryResult.secure_url,
+      cloudinary_public_id: cloudinaryResult.public_id,
+      gallery_id: data?.id || null,
+      uploaded_at: uploadedAt,
+    };
   } catch (error) {
-    console.error('Error updating index:', error);
+    console.error('Upload error:', error.message);
+
+    if (cloudinaryResult?.public_id) {
+      await rollbackCloudinaryUpload(cloudinaryResult.public_id);
+    }
+
+    return {
+      success: false,
+      error: error.message,
+    };
+  } finally {
+    removeFileIfExists(tempPath);
   }
 }
 
-/**
- * Get semua foto untuk ditampilkan di website
- */
 function getAllPhotos() {
-  try {
-    const indexPath = path.join(PHOTOS_DIR, 'index.json');
+  if (!SAVE_LOCAL_INDEX) {
+    return [];
+  }
 
+  try {
+    const indexPath = localIndexPath();
     if (!fs.existsSync(indexPath)) {
       return [];
     }
 
     const data = fs.readFileSync(indexPath, 'utf8');
-    return JSON.parse(data);
+    const parsed = JSON.parse(data);
+    return Array.isArray(parsed) ? parsed : [];
   } catch (error) {
-    console.error('Error reading photos:', error);
+    console.error('Error reading local photos index:', error);
     return [];
   }
 }
 
-/**
- * Delete foto tertentu
- */
-function deletePhoto(filename) {
+function deletePhoto(identifier) {
+  if (!SAVE_LOCAL_INDEX) {
+    return { success: true, message: 'Local index is disabled.' };
+  }
+
   try {
-    const filepath = path.join(PHOTOS_DIR, filename);
-    const webPath = path.join(__dirname, `../../${PHOTOS_WEB_DIR}/${filename}`);
-
-    if (fs.existsSync(filepath)) {
-      fs.unlinkSync(filepath);
-    }
-    if (fs.existsSync(webPath)) {
-      fs.unlinkSync(webPath);
+    const indexPath = localIndexPath();
+    if (!fs.existsSync(indexPath)) {
+      return { success: true };
     }
 
-    // Update index
-    const indexPath = path.join(PHOTOS_DIR, 'index.json');
-    if (fs.existsSync(indexPath)) {
-      let photos = JSON.parse(fs.readFileSync(indexPath, 'utf8'));
-      photos = photos.filter((p) => p.filename !== filename);
-      fs.writeFileSync(indexPath, JSON.stringify(photos, null, 2));
-    }
+    const photos = getAllPhotos();
+    const removed = photos.filter(
+      (photo) =>
+        photo.filename === identifier ||
+        String(photo.id) === String(identifier) ||
+        photo.cloudinary_public_id === identifier
+    );
 
+    const kept = photos.filter(
+      (photo) =>
+        photo.filename !== identifier &&
+        String(photo.id) !== String(identifier) &&
+        photo.cloudinary_public_id !== identifier
+    );
+
+    removed.forEach((photo) => {
+      if (photo?.filename) {
+        const localFilePath = path.join(LOCAL_INDEX_DIR, photo.filename);
+        removeFileIfExists(localFilePath);
+      }
+    });
+
+    fs.writeFileSync(indexPath, JSON.stringify(kept, null, 2));
     return { success: true };
   } catch (error) {
-    console.error('Error deleting photo:', error);
+    console.error('Error deleting local photo index entry:', error);
     return { success: false, error: error.message };
   }
 }
