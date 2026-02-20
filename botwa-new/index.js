@@ -82,14 +82,15 @@ async function startBot() {
       }
 
       if (connection === 'close') {
-        if (
-          lastDisconnect?.error?.output?.statusCode !==
-          DisconnectReason.loggedOut
-        ) {
-          console.log('⚠️ Connection lost. Reconnecting...');
-          setTimeout(() => startBot(), 3000);
+        const shouldReconnect = lastDisconnect?.error?.output?.statusCode !== DisconnectReason.loggedOut;
+        
+        if (shouldReconnect) {
+          console.log('⚠️ Connection lost. Reconnecting in 10 seconds...');
+          // Delay lebih lama untuk menghindari infinite reconnect
+          setTimeout(() => startBot(), 10000);
         } else {
           console.log('🔐 Logged out. Please scan/link device again.');
+          process.exit(0);
         }
       }
     });
