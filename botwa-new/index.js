@@ -274,20 +274,42 @@ startBot().catch((err) => {
  */
 async function downloadMediaBaileys(sock, msgKey, quotedMsg) {
   try {
-    const imageMsg = quotedMsg.imageMessage || quotedMsg.videoMessage;
-    if (!imageMsg) {
-      console.error('No image or video message found');
+    console.log('🔍 Checking quoted message structure...');
+    console.log('quotedMsg keys:', Object.keys(quotedMsg || {}));
+
+    // Handle berbagai tipe media
+    let mediaMsg = null;
+    
+    if (quotedMsg.imageMessage) {
+      console.log('📷 Found imageMessage');
+      mediaMsg = quotedMsg.imageMessage;
+    } else if (quotedMsg.videoMessage) {
+      console.log('🎥 Found videoMessage');
+      mediaMsg = quotedMsg.videoMessage;
+    } else if (quotedMsg.documentMessage) {
+      console.log('📄 Found documentMessage');
+      mediaMsg = quotedMsg.documentMessage;
+    } else {
+      console.error('❌ No media message found. Available:', Object.keys(quotedMsg));
       return null;
     }
 
-    console.log('📥 Downloading media...');
-    // Get stream
-    const stream = await sock.downloadMediaMessage(quotedMsg);
+    console.log('📥 Downloading media from WhatsApp servers...');
     
-    if (!stream) {
-      console.error('Stream is null or undefined');
+    // Download dengan timeout
+    const stream = await Promise.race([
+      sock.downloadMediaMessage(quotedMsg),
+      new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Download timeout after 30s')), 30000)
+      )
+    ]);
+    
+    if (!stream || stream.length === 0) {
+      console.error('❌ Stream is empty or null');
       return null;
     }
+
+    console.log('✅ Downloaded, size:', stream.length, 'bytes');
 
     // Save to file
     const timestamp = new Date().getTime();
@@ -307,12 +329,14 @@ async function downloadMediaBaileys(sock, msgKey, quotedMsg) {
 
     // Save file
     fs.writeFileSync(filepath, stream);
-    console.log(`✅ Foto tersimpan: ${filepath}`);
+    const fileSize = fs.statSync(filepath).size;
+    console.log(`✅ File saved: ${filepath} (${fileSize} bytes)`);
 
     return filepath;
   } catch (error) {
-    console.error('❌ Error downloading media:', error.message);
-    console.error(error);
+    console.error('❌ Download error details:');
+    console.error('  Message:', error.message);
+    console.error('  Stack:', error.stack);
     return null;
   }
 }
