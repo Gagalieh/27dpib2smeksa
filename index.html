@@ -16,9 +16,11 @@
   <meta name="twitter:title" content="Digital Kenangan Kelas 11 DPIB 2">
   <meta name="twitter:description" content="Jelajahi memories, galeri foto, dan cerita indah Kelas 11 DPIB 2.">
   <link rel="canonical" href="https://sebelasdpib2smeksa.netlify.app">
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='75' font-size='75'>💎</text></svg>">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0%25' stop-color='%2392a5ff'/%3E%3Cstop offset='100%25' stop-color='%23698bff'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect x='6' y='6' width='52' height='52' rx='14' fill='%230b1220'/%3E%3Cpath d='M32 15l14 10-5 17H23l-5-17 14-10z' fill='url(%23g)'/%3E%3C/svg%3E">
   <!-- feather icons loaded via script at bottom -->
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap');
+
     * {
       margin: 0;
       padding: 0;
@@ -27,9 +29,9 @@
 
     :root {
       /* Theme Variables - Default Dark */
-      --primary: #7c3aed;
-      --primary-rgb: 124,58,237;
-      --secondary: #0ea5e9;
+      --primary: #7d8cff;
+      --primary-rgb: 125,140,255;
+      --secondary: #7ab8ff;
       --success: #10b981;
       --danger: #ef4444;
       --text-primary: #f1f5f9;
@@ -164,7 +166,7 @@
     }
 
     body {
-      font-family: 'Arial', sans-serif;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
       background: linear-gradient(135deg, var(--bg-dark) 0%, var(--bg-dark) 100%);
       color: var(--text-primary);
       line-height: 1.6;
@@ -174,8 +176,8 @@
 
     /* NAVBAR - Starts in header, becomes sticky on scroll */
     nav {
-      position: absolute;
-      top: 28px;
+      position: fixed;
+      top: 12px;
       left: 50%;
       transform: translateX(-50%);
       max-width: 90%;
@@ -193,47 +195,30 @@
       transition: all 0.32s ease;
     }
 
-    /* When scrolled past the hero, make the nav sticky and show only icons */
+    /* Keep navbar floating style even when scrolled */
     nav.scrolled {
       position: fixed;
       top: 12px;
       left: 50%;
       transform: translateX(-50%);
-      width: auto;
-      padding: 0.5rem 0.75rem;
-      border-radius: 40px;
-      justify-content: center;
-      box-shadow: 0 10px 40px rgba(0,0,0,0.25);
-      backdrop-filter: blur(10px);
-    }
-
-    /* Hide text in nav links when scrolled */
-    nav.scrolled .nav-logo {
-      display: none;
-    }
-
-    nav.scrolled .nav-menu a {
-      font-size: 0;
-      gap: 0;
-    }
-
-    nav.scrolled .nav-menu svg {
-      width: 20px;
-      height: 20px;
-    }
-
-    nav.scrolled .theme-switcher {
-      border-left: none;
-      padding-left: 0;
+      width: fit-content;
+      padding: 0.75rem 1.25rem;
+      border-radius: 50px;
+      justify-content: flex-start;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
+      backdrop-filter: blur(18px);
     }
 
     .nav-logo {
-      font-size: 1.05rem;
-      font-weight: 700;
-      background: linear-gradient(135deg, var(--primary), var(--secondary));
-      background-clip: text;
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      display: grid;
+      place-items: center;
+      color: #dbe7ff;
+      background: linear-gradient(145deg, rgba(125,140,255,0.3), rgba(122,184,255,0.18));
+      border: 1px solid rgba(148,163,184,0.35);
+      box-shadow: inset 0 1px 1px rgba(255,255,255,0.18), 0 8px 18px rgba(15,23,42,0.45);
       white-space: nowrap;
       flex-shrink: 0;
     }
@@ -682,6 +667,7 @@
     }
 
     .hero h1 {
+      font-family: "Plus Jakarta Sans", "Inter", sans-serif;
       font-size: 3rem;
       margin-bottom: 0.5rem;
       background: linear-gradient(135deg, var(--primary), var(--secondary));
@@ -702,23 +688,153 @@
       font-style: italic;
     }
 
-    @media (max-width: 768px) {
-      main {
-        margin-top: 100px;
-      }
+    /* DEFAULT DARK THEME - cinematic animated experience */
+    body.theme-dark::before {
+      content: '';
+      position: fixed;
+      inset: -15% -10% -10% -10%;
+      z-index: -3;
+      pointer-events: none;
+      background:
+        radial-gradient(circle at 12% 18%, rgba(125, 140, 255, 0.26), transparent 34%),
+        radial-gradient(circle at 82% 12%, rgba(122, 184, 255, 0.18), transparent 30%),
+        radial-gradient(circle at 52% 82%, rgba(124, 58, 237, 0.14), transparent 36%);
+      filter: blur(4px);
+      animation: aurora-drift 18s ease-in-out infinite alternate;
+    }
 
-      .hero {
-        padding: 2rem 1rem;
-        margin-bottom: 2rem;
-      }
+    body.theme-dark::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: -2;
+      opacity: 0.3;
+      background-image: radial-gradient(rgba(255,255,255,0.08) 0.8px, transparent 0.8px);
+      background-size: 3px 3px;
+      mask-image: linear-gradient(180deg, rgba(0,0,0,0.2), rgba(0,0,0,0.9));
+    }
 
-      .hero h1 {
-        font-size: 2rem;
-      }
+    body.theme-dark section {
+      --parallax-y: 0px;
+      --parallax-r: 0deg;
+      background: linear-gradient(150deg, rgba(15, 23, 42, 0.66), rgba(4, 10, 24, 0.52));
+      border: 1px solid rgba(125, 140, 255, 0.2);
+      border-radius: 24px;
+      padding: 2rem 1.25rem;
+      box-shadow: 0 16px 38px rgba(2, 6, 23, 0.45);
+      transform: translate3d(0, var(--parallax-y), 0) rotateX(var(--parallax-r));
+      transform-style: preserve-3d;
+      transition: transform 0.22s linear;
+    }
 
-      .hero p {
-        font-size: 1rem;
-      }
+    body.theme-dark .hero {
+      position: relative;
+      overflow: hidden;
+      isolation: isolate;
+      background: linear-gradient(130deg, rgba(15,23,42,0.9), rgba(30,41,59,0.65));
+    }
+
+    body.theme-dark .hero::before {
+      content: '';
+      position: absolute;
+      inset: -20% -20% auto -20%;
+      height: 60%;
+      background: radial-gradient(circle at 50% 0%, rgba(124,58,237,0.35), transparent 60%);
+      animation: pulse-glow 8s ease-in-out infinite;
+      pointer-events: none;
+      z-index: -1;
+    }
+
+
+    body.theme-dark .hero::after {
+      content: '';
+      position: absolute;
+      inset: auto -20% -28% -20%;
+      height: 220px;
+      background: radial-gradient(circle at 50% 0%, rgba(122,184,255,0.28), transparent 65%);
+      animation: pulse-glow 9s ease-in-out infinite reverse;
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    .parallax-orb {
+      position: fixed;
+      border-radius: 999px;
+      pointer-events: none;
+      filter: blur(1px);
+      opacity: 0.4;
+      z-index: 0;
+      transform: translate3d(var(--x,0px), var(--y,0px), 0);
+      transition: transform 0.18s linear;
+    }
+
+    .parallax-orb.orb-a {
+      width: 280px;
+      height: 280px;
+      top: 16%;
+      left: -80px;
+      background: radial-gradient(circle at 35% 35%, rgba(125,140,255,0.75), rgba(125,140,255,0));
+    }
+
+    .parallax-orb.orb-b {
+      width: 240px;
+      height: 240px;
+      top: 62%;
+      right: -70px;
+      background: radial-gradient(circle at 50% 50%, rgba(122,184,255,0.7), rgba(122,184,255,0));
+    }
+
+    .parallax-orb.orb-c {
+      width: 180px;
+      height: 180px;
+      top: 42%;
+      left: 18%;
+      background: radial-gradient(circle at 50% 50%, rgba(124,58,237,0.55), rgba(124,58,237,0));
+    }
+
+    body.theme-dark .class-profile,
+    body.theme-dark .guestbook-section,
+    body.theme-dark .stat-card,
+    body.theme-dark .event-card,
+    body.theme-dark .gallery-item,
+    body.theme-dark .timeline-info {
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(148,163,184,0.2);
+      box-shadow: 0 12px 28px rgba(2,6,23,0.45);
+      transition: transform 0.35s ease, box-shadow 0.35s ease, border-color 0.35s ease;
+    }
+
+    body.theme-dark .gallery-item:hover,
+    body.theme-dark .timeline-info:hover,
+    body.theme-dark .event-card:hover,
+    body.theme-dark .stat-card:hover {
+      transform: translateY(-8px) scale(1.01);
+      border-color: rgba(14,165,233,0.45);
+      box-shadow: 0 24px 38px rgba(15,23,42,0.55), 0 0 18px rgba(124,58,237,0.2);
+    }
+
+    .fx-reveal {
+      opacity: 0;
+      transform: translateY(34px) scale(0.985);
+      transition: opacity 0.8s ease, transform 0.8s ease;
+      will-change: transform, opacity;
+    }
+
+    .fx-reveal.is-visible {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+
+    @keyframes aurora-drift {
+      0% { transform: translate3d(0, 0, 0) scale(1); }
+      50% { transform: translate3d(1.2%, 1.5%, 0) scale(1.04); }
+      100% { transform: translate3d(-1.5%, -1%, 0) scale(1.02); }
+    }
+
+    @keyframes pulse-glow {
+      0%, 100% { opacity: 0.45; transform: translateY(0) scale(1); }
+      50% { opacity: 0.85; transform: translateY(8px) scale(1.08); }
     }
 
     /* CLASS PROFILE */
@@ -2524,6 +2640,7 @@
     }
 
     .section-title {
+      font-family: "Plus Jakarta Sans", "Inter", sans-serif;
       font-size: 2.2rem;
       margin-bottom: 2rem;
       text-align: center;
@@ -2542,13 +2659,27 @@
       height: 2.2rem;
       filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
     }
+
+    .section-title i,
+    .section-title svg {
+      padding: 0.4rem;
+      border-radius: 10px;
+      background: linear-gradient(145deg, rgba(125,140,255,0.25), rgba(122,184,255,0.12));
+      border: 1px solid rgba(148,163,184,0.3);
+    }
   </style>
+  <link rel="stylesheet" href="style-parallax.css">
 </head>
 <body class="theme-dark">
   <a href="#main" class="skip-link">Lanjut ke konten</a>
   <!-- NAVBAR -->
   <nav>
-    <div class="nav-logo" id="navLogo">💎</div>
+    <div class="nav-logo" id="navLogo" aria-label="DPIB Premium Logo">
+      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M12 3l7 5-3 10H8L5 8l7-5z"></path>
+        <path d="M9 8h6"></path>
+      </svg>
+    </div>
     <ul class="nav-menu">
       <li><a href="#profil" data-section="profil" aria-label="Profil"><i data-feather="user"></i> Profil</a></li>
       <li><a href="#galeri" data-section="galeri" aria-label="Galeri"><i data-feather="image"></i> Galeri</a></li>
@@ -2557,7 +2688,7 @@
       <li><a href="#guestbook" data-section="guestbook" aria-label="Buku Tamu"><i data-feather="message-circle"></i> Tamu</a></li>
     </ul>
     <div class="theme-switcher">
-      <button class="theme-toggle" id="themeToggle" title="Tema">🎨</button>
+      <button class="theme-toggle" id="themeToggle" title="Tema">✦</button>
       <div class="theme-panel" id="themePanel" aria-hidden="true">
         <button class="theme-btn" data-theme="dark" title="Dark"><i data-feather="moon"></i></button>
         <button class="theme-btn" data-theme="light" title="Light"><i data-feather="sun"></i></button>
@@ -3264,18 +3395,6 @@
     }
 
     // ============================================
-    // NAVBAR SCROLL EFFECT
-    // ============================================
-    window.addEventListener('scroll', () => {
-      const nav = $('nav')
-      if(window.scrollY > 50) {
-        nav.classList.add('scrolled')
-      } else {
-        nav.classList.remove('scrolled')
-      }
-    })
-
-    // ============================================
     // LOAD DATA
     // ============================================
     async function loadAllData() {
@@ -3853,9 +3972,79 @@
       })
     }
 
+
+    function initDefaultThemeCinematic() {
+      const addOrbs = () => {
+        if(document.querySelector('.parallax-orb')) return
+        ;['orb-a','orb-b','orb-c'].forEach(name => {
+          const orb = document.createElement('div')
+          orb.className = `parallax-orb ${name}`
+          orb.dataset.speed = name === 'orb-a' ? '0.16' : name === 'orb-b' ? '0.24' : '0.2'
+          document.body.appendChild(orb)
+        })
+      }
+
+      addOrbs()
+      const revealTargets = document.querySelectorAll('section, .gallery-item, .timeline-info, .event-card, .guest-message, .stat-card')
+      revealTargets.forEach(el => el.classList.add('fx-reveal'))
+
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if(entry.isIntersecting) entry.target.classList.add('is-visible')
+        })
+      }, { threshold: 0.15, rootMargin: '0px 0px -5% 0px' })
+
+      revealTargets.forEach(el => observer.observe(el))
+
+      const depthSections = document.querySelectorAll('main section')
+      const parallaxTick = () => {
+        const orbs = document.querySelectorAll('.parallax-orb')
+        if(!document.body.classList.contains('theme-dark')) {
+          depthSections.forEach(sec => {
+            sec.style.setProperty("--parallax-y", "0px")
+            sec.style.setProperty("--parallax-r", "0deg")
+          })
+          orbs.forEach(orb => {
+            orb.style.setProperty("--x", "0px")
+            orb.style.setProperty("--y", "0px")
+          })
+          return
+        }
+        depthSections.forEach((sec, idx) => {
+          const rect = sec.getBoundingClientRect()
+          const progress = (window.innerHeight - rect.top) / (window.innerHeight + rect.height)
+          const depth = ((idx % 3) + 1) * 16
+          const y = (progress - 0.5) * depth
+          const rot = (progress - 0.5) * 0.6
+          sec.style.setProperty("--parallax-y", `${y}px`)
+          sec.style.setProperty("--parallax-r", `${rot}deg`)
+        })
+
+        const sc = window.scrollY || window.pageYOffset || 0
+        orbs.forEach((orb, i) => {
+          const sp = parseFloat(orb.dataset.speed || '0.2')
+          const y = (sc * sp * 0.18) % 40
+          const x = Math.sin(sc * 0.001 + i) * 16 * sp
+          orb.style.setProperty("--x", `${x}px`)
+          orb.style.setProperty("--y", `${y}px`)
+        })
+      }
+
+      let raf = null
+      const onScroll = () => {
+        if(raf) cancelAnimationFrame(raf)
+        raf = requestAnimationFrame(parallaxTick)
+      }
+
+      window.addEventListener('scroll', onScroll, { passive: true })
+      window.addEventListener('resize', onScroll)
+      parallaxTick()
+    }
+
     // ============================================
     // INIT
     // ============================================
+    initDefaultThemeCinematic()
     loadAllData()
     feather.replace()
   </script>
@@ -3923,5 +4112,6 @@
     })()
   </script>
 
+  <script src="js/parallax-engine.js" defer></script>
 </body>
 </html>
