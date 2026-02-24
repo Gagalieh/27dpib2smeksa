@@ -16,9 +16,11 @@
   <meta name="twitter:title" content="Digital Kenangan Kelas 11 DPIB 2">
   <meta name="twitter:description" content="Jelajahi memories, galeri foto, dan cerita indah Kelas 11 DPIB 2.">
   <link rel="canonical" href="https://sebelasdpib2smeksa.netlify.app">
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='75' font-size='75'>💎</text></svg>">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0%25' stop-color='%2392a5ff'/%3E%3Cstop offset='100%25' stop-color='%23698bff'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect x='6' y='6' width='52' height='52' rx='14' fill='%230b1220'/%3E%3Cpath d='M32 15l14 10-5 17H23l-5-17 14-10z' fill='url(%23g)'/%3E%3C/svg%3E">
   <!-- feather icons loaded via script at bottom -->
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap');
+
     * {
       margin: 0;
       padding: 0;
@@ -27,9 +29,9 @@
 
     :root {
       /* Theme Variables - Default Dark */
-      --primary: #7c3aed;
-      --primary-rgb: 124,58,237;
-      --secondary: #0ea5e9;
+      --primary: #7d8cff;
+      --primary-rgb: 125,140,255;
+      --secondary: #7ab8ff;
       --success: #10b981;
       --danger: #ef4444;
       --text-primary: #f1f5f9;
@@ -164,7 +166,7 @@
     }
 
     body {
-      font-family: 'Arial', sans-serif;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
       background: linear-gradient(135deg, var(--bg-dark) 0%, var(--bg-dark) 100%);
       color: var(--text-primary);
       line-height: 1.6;
@@ -228,12 +230,15 @@
     }
 
     .nav-logo {
-      font-size: 1.05rem;
-      font-weight: 700;
-      background: linear-gradient(135deg, var(--primary), var(--secondary));
-      background-clip: text;
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      display: grid;
+      place-items: center;
+      color: #dbe7ff;
+      background: linear-gradient(145deg, rgba(125,140,255,0.3), rgba(122,184,255,0.18));
+      border: 1px solid rgba(148,163,184,0.35);
+      box-shadow: inset 0 1px 1px rgba(255,255,255,0.18), 0 8px 18px rgba(15,23,42,0.45);
       white-space: nowrap;
       flex-shrink: 0;
     }
@@ -682,6 +687,7 @@
     }
 
     .hero h1 {
+      font-family: "Plus Jakarta Sans", "Inter", sans-serif;
       font-size: 3rem;
       margin-bottom: 0.5rem;
       background: linear-gradient(135deg, var(--primary), var(--secondary));
@@ -710,9 +716,9 @@
       z-index: -3;
       pointer-events: none;
       background:
-        radial-gradient(circle at 12% 18%, rgba(124, 58, 237, 0.28), transparent 34%),
-        radial-gradient(circle at 82% 12%, rgba(14, 165, 233, 0.22), transparent 30%),
-        radial-gradient(circle at 52% 82%, rgba(16, 185, 129, 0.16), transparent 36%);
+        radial-gradient(circle at 12% 18%, rgba(125, 140, 255, 0.26), transparent 34%),
+        radial-gradient(circle at 82% 12%, rgba(122, 184, 255, 0.18), transparent 30%),
+        radial-gradient(circle at 52% 82%, rgba(124, 58, 237, 0.14), transparent 36%);
       filter: blur(4px);
       animation: aurora-drift 18s ease-in-out infinite alternate;
     }
@@ -730,11 +736,16 @@
     }
 
     body.theme-dark section {
-      background: linear-gradient(150deg, rgba(15, 23, 42, 0.68), rgba(2, 6, 23, 0.52));
-      border: 1px solid rgba(124, 58, 237, 0.22);
+      --parallax-y: 0px;
+      --parallax-r: 0deg;
+      background: linear-gradient(150deg, rgba(15, 23, 42, 0.66), rgba(4, 10, 24, 0.52));
+      border: 1px solid rgba(125, 140, 255, 0.2);
       border-radius: 24px;
       padding: 2rem 1.25rem;
       box-shadow: 0 16px 38px rgba(2, 6, 23, 0.45);
+      transform: translate3d(0, var(--parallax-y), 0) rotateX(var(--parallax-r));
+      transform-style: preserve-3d;
+      transition: transform 0.22s linear;
     }
 
     body.theme-dark .hero {
@@ -2602,6 +2613,7 @@
     }
 
     .section-title {
+      font-family: "Plus Jakarta Sans", "Inter", sans-serif;
       font-size: 2.2rem;
       margin-bottom: 2rem;
       text-align: center;
@@ -2620,13 +2632,26 @@
       height: 2.2rem;
       filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
     }
+
+    .section-title i,
+    .section-title svg {
+      padding: 0.4rem;
+      border-radius: 10px;
+      background: linear-gradient(145deg, rgba(125,140,255,0.25), rgba(122,184,255,0.12));
+      border: 1px solid rgba(148,163,184,0.3);
+    }
   </style>
 </head>
 <body class="theme-dark">
   <a href="#main" class="skip-link">Lanjut ke konten</a>
   <!-- NAVBAR -->
   <nav>
-    <div class="nav-logo" id="navLogo">💎</div>
+    <div class="nav-logo" id="navLogo" aria-label="DPIB Premium Logo">
+      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M12 3l7 5-3 10H8L5 8l7-5z"></path>
+        <path d="M9 8h6"></path>
+      </svg>
+    </div>
     <ul class="nav-menu">
       <li><a href="#profil" data-section="profil" aria-label="Profil"><i data-feather="user"></i> Profil</a></li>
       <li><a href="#galeri" data-section="galeri" aria-label="Galeri"><i data-feather="image"></i> Galeri</a></li>
@@ -2635,7 +2660,7 @@
       <li><a href="#guestbook" data-section="guestbook" aria-label="Buku Tamu"><i data-feather="message-circle"></i> Tamu</a></li>
     </ul>
     <div class="theme-switcher">
-      <button class="theme-toggle" id="themeToggle" title="Tema">🎨</button>
+      <button class="theme-toggle" id="themeToggle" title="Tema">✦</button>
       <div class="theme-panel" id="themePanel" aria-hidden="true">
         <button class="theme-btn" data-theme="dark" title="Dark"><i data-feather="moon"></i></button>
         <button class="theme-btn" data-theme="light" title="Light"><i data-feather="sun"></i></button>
@@ -3946,13 +3971,21 @@
 
       const depthSections = document.querySelectorAll('main section')
       const parallaxTick = () => {
-        if(!document.body.classList.contains('theme-dark')) return
+        if(!document.body.classList.contains('theme-dark')) {
+          depthSections.forEach(sec => {
+            sec.style.setProperty("--parallax-y", "0px")
+            sec.style.setProperty("--parallax-r", "0deg")
+          })
+          return
+        }
         depthSections.forEach((sec, idx) => {
           const rect = sec.getBoundingClientRect()
           const progress = (window.innerHeight - rect.top) / (window.innerHeight + rect.height)
-          const depth = ((idx % 3) + 1) * 4
+          const depth = ((idx % 3) + 1) * 16
           const y = (progress - 0.5) * depth
-          sec.style.transform = `translate3d(0, ${y}px, 0)`
+          const rot = (progress - 0.5) * 0.6
+          sec.style.setProperty("--parallax-y", `${y}px`)
+          sec.style.setProperty("--parallax-r", `${rot}deg`)
         })
       }
 
