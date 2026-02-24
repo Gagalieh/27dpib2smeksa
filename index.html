@@ -176,8 +176,8 @@
 
     /* NAVBAR - Starts in header, becomes sticky on scroll */
     nav {
-      position: absolute;
-      top: 28px;
+      position: fixed;
+      top: 12px;
       left: 50%;
       transform: translateX(-50%);
       max-width: 90%;
@@ -195,38 +195,18 @@
       transition: all 0.32s ease;
     }
 
-    /* When scrolled past the hero, make the nav sticky and show only icons */
+    /* Keep navbar floating style even when scrolled */
     nav.scrolled {
       position: fixed;
       top: 12px;
       left: 50%;
       transform: translateX(-50%);
-      width: auto;
-      padding: 0.5rem 0.75rem;
-      border-radius: 40px;
-      justify-content: center;
-      box-shadow: 0 10px 40px rgba(0,0,0,0.25);
-      backdrop-filter: blur(10px);
-    }
-
-    /* Hide text in nav links when scrolled */
-    nav.scrolled .nav-logo {
-      display: none;
-    }
-
-    nav.scrolled .nav-menu a {
-      font-size: 0;
-      gap: 0;
-    }
-
-    nav.scrolled .nav-menu svg {
-      width: 20px;
-      height: 20px;
-    }
-
-    nav.scrolled .theme-switcher {
-      border-left: none;
-      padding-left: 0;
+      width: fit-content;
+      padding: 0.75rem 1.25rem;
+      border-radius: 50px;
+      justify-content: flex-start;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
+      backdrop-filter: blur(18px);
     }
 
     .nav-logo {
@@ -764,6 +744,53 @@
       animation: pulse-glow 8s ease-in-out infinite;
       pointer-events: none;
       z-index: -1;
+    }
+
+
+    body.theme-dark .hero::after {
+      content: '';
+      position: absolute;
+      inset: auto -20% -28% -20%;
+      height: 220px;
+      background: radial-gradient(circle at 50% 0%, rgba(122,184,255,0.28), transparent 65%);
+      animation: pulse-glow 9s ease-in-out infinite reverse;
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    .parallax-orb {
+      position: fixed;
+      border-radius: 999px;
+      pointer-events: none;
+      filter: blur(1px);
+      opacity: 0.4;
+      z-index: 0;
+      transform: translate3d(var(--x,0px), var(--y,0px), 0);
+      transition: transform 0.18s linear;
+    }
+
+    .parallax-orb.orb-a {
+      width: 280px;
+      height: 280px;
+      top: 16%;
+      left: -80px;
+      background: radial-gradient(circle at 35% 35%, rgba(125,140,255,0.75), rgba(125,140,255,0));
+    }
+
+    .parallax-orb.orb-b {
+      width: 240px;
+      height: 240px;
+      top: 62%;
+      right: -70px;
+      background: radial-gradient(circle at 50% 50%, rgba(122,184,255,0.7), rgba(122,184,255,0));
+    }
+
+    .parallax-orb.orb-c {
+      width: 180px;
+      height: 180px;
+      top: 42%;
+      left: 18%;
+      background: radial-gradient(circle at 50% 50%, rgba(124,58,237,0.55), rgba(124,58,237,0));
     }
 
     body.theme-dark .class-profile,
@@ -3367,18 +3394,6 @@
     }
 
     // ============================================
-    // NAVBAR SCROLL EFFECT
-    // ============================================
-    window.addEventListener('scroll', () => {
-      const nav = $('nav')
-      if(window.scrollY > 50) {
-        nav.classList.add('scrolled')
-      } else {
-        nav.classList.remove('scrolled')
-      }
-    })
-
-    // ============================================
     // LOAD DATA
     // ============================================
     async function loadAllData() {
@@ -3958,6 +3973,17 @@
 
 
     function initDefaultThemeCinematic() {
+      const addOrbs = () => {
+        if(document.querySelector('.parallax-orb')) return
+        ;['orb-a','orb-b','orb-c'].forEach(name => {
+          const orb = document.createElement('div')
+          orb.className = `parallax-orb ${name}`
+          orb.dataset.speed = name === 'orb-a' ? '0.16' : name === 'orb-b' ? '0.24' : '0.2'
+          document.body.appendChild(orb)
+        })
+      }
+
+      addOrbs()
       const revealTargets = document.querySelectorAll('section, .gallery-item, .timeline-info, .event-card, .guest-message, .stat-card')
       revealTargets.forEach(el => el.classList.add('fx-reveal'))
 
@@ -3971,10 +3997,15 @@
 
       const depthSections = document.querySelectorAll('main section')
       const parallaxTick = () => {
+        const orbs = document.querySelectorAll('.parallax-orb')
         if(!document.body.classList.contains('theme-dark')) {
           depthSections.forEach(sec => {
             sec.style.setProperty("--parallax-y", "0px")
             sec.style.setProperty("--parallax-r", "0deg")
+          })
+          orbs.forEach(orb => {
+            orb.style.setProperty("--x", "0px")
+            orb.style.setProperty("--y", "0px")
           })
           return
         }
@@ -3986,6 +4017,15 @@
           const rot = (progress - 0.5) * 0.6
           sec.style.setProperty("--parallax-y", `${y}px`)
           sec.style.setProperty("--parallax-r", `${rot}deg`)
+        })
+
+        const sc = window.scrollY || window.pageYOffset || 0
+        orbs.forEach((orb, i) => {
+          const sp = parseFloat(orb.dataset.speed || '0.2')
+          const y = (sc * sp * 0.18) % 40
+          const x = Math.sin(sc * 0.001 + i) * 16 * sp
+          orb.style.setProperty("--x", `${x}px`)
+          orb.style.setProperty("--y", `${y}px`)
         })
       }
 
