@@ -1,14 +1,14 @@
 /* Global parallax/cinematic layer pack */
 body.theme-dark {
-  --px-accent: rgba(186, 122, 255, 0.46);
-  --primary: #b284ff;
-  --primary-rgb: 178,132,255;
-  --secondary: #d8b4fe;
-  --bg-dark: #140a22;
-  --bg-card: #241237;
-  --border: #4a2a67;
-  --text-primary: #f5edff;
-  --text-secondary: #d9c8ef;
+  --px-accent: rgba(110, 170, 255, 0.42);
+  --primary: #7bb8ff;
+  --primary-rgb: 123,184,255;
+  --secondary: #9fd8ff;
+  --bg-dark: #060d1b;
+  --bg-card: #0d1a2d;
+  --border: #23466c;
+  --text-primary: #eaf4ff;
+  --text-secondary: #b8d1ea;
   font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
 }
 
@@ -24,6 +24,7 @@ body.theme-dark .parallax-stage {
 .parallax-layer-grid,
 .parallax-layer-noise,
 .parallax-layer-glow,
+.parallax-layer-stars,
 .parallax-layer-orbs {
   position: absolute;
   inset: -8%;
@@ -32,16 +33,16 @@ body.theme-dark .parallax-stage {
 
 .parallax-layer-bg {
   background:
-    radial-gradient(circle at 18% 14%, rgba(186,122,255,.30), transparent 38%),
-    radial-gradient(circle at 80% 10%, rgba(236,179,255,.24), transparent 34%),
-    radial-gradient(circle at 50% 88%, rgba(124,58,237,.22), transparent 45%),
-    linear-gradient(145deg, #12061e, #1a0b2d 48%, #1f0f33 75%, #150824);
+    radial-gradient(circle at 18% 14%, rgba(92,160,255,.28), transparent 38%),
+    radial-gradient(circle at 80% 10%, rgba(86,198,255,.2), transparent 34%),
+    radial-gradient(circle at 50% 88%, rgba(58,130,214,.18), transparent 45%),
+    linear-gradient(145deg, #040a16, #0a1b31 46%, #112a49 75%, #071225);
 }
 
 .parallax-layer-grid {
   background: url('./assets/parallax/grid.svg') center/cover no-repeat;
-  opacity: .28;
-  filter: hue-rotate(24deg) saturate(1.2);
+  opacity: .32;
+  filter: hue-rotate(-8deg) saturate(1.1);
 }
 
 .parallax-layer-noise {
@@ -50,10 +51,23 @@ body.theme-dark .parallax-stage {
   mix-blend-mode: soft-light;
 }
 
+
+
+.parallax-layer-stars {
+  background-image:
+    radial-gradient(circle at 8% 14%, rgba(255,255,255,.95) 0 1px, transparent 1.6px),
+    radial-gradient(circle at 22% 64%, rgba(210,235,255,.85) 0 1px, transparent 1.8px),
+    radial-gradient(circle at 47% 22%, rgba(255,255,255,.9) 0 1.1px, transparent 1.9px),
+    radial-gradient(circle at 66% 72%, rgba(190,225,255,.8) 0 1.1px, transparent 2px),
+    radial-gradient(circle at 83% 36%, rgba(255,255,255,.88) 0 1px, transparent 1.7px),
+    radial-gradient(circle at 92% 82%, rgba(205,235,255,.8) 0 1.1px, transparent 2px);
+  opacity: .55;
+}
+
 .parallax-layer-glow {
   background: url('./assets/parallax/glow.svg') center/cover no-repeat;
-  opacity: .6;
-  filter: hue-rotate(20deg) saturate(1.3);
+  opacity: .62;
+  filter: hue-rotate(-14deg) saturate(1.15);
 }
 
 .parallax-layer-orbs::before,
@@ -69,7 +83,7 @@ body.theme-dark .parallax-stage {
   height: 360px;
   left: -80px;
   top: 16%;
-  background: radial-gradient(circle, rgba(186,122,255,.62), transparent 70%);
+  background: radial-gradient(circle, rgba(110,170,255,.52), transparent 70%);
 }
 
 .parallax-layer-orbs::after {
@@ -77,15 +91,15 @@ body.theme-dark .parallax-stage {
   height: 300px;
   right: -80px;
   top: 58%;
-  background: radial-gradient(circle, rgba(236,179,255,.48), transparent 72%);
+  background: radial-gradient(circle, rgba(122,220,255,.42), transparent 72%);
 }
 
 body.theme-dark .hero,
 body.theme-dark section {
-  background: linear-gradient(150deg, rgba(39, 21, 60, 0.72), rgba(22, 10, 35, 0.6));
+  background: linear-gradient(150deg, rgba(10, 24, 44, 0.72), rgba(7, 18, 34, 0.62));
   backdrop-filter: blur(16px);
-  border: 1px solid rgba(202, 152, 255, .24);
-  box-shadow: 0 20px 44px rgba(12, 4, 24, .48), inset 0 1px 0 rgba(255,255,255,.06);
+  border: 1px solid rgba(119, 178, 255, .24);
+  box-shadow: 0 20px 44px rgba(2, 10, 20, .55), inset 0 1px 0 rgba(255,255,255,.06);
 }
 
 body.theme-dark .hero h1,
@@ -95,7 +109,7 @@ body.theme-dark .section-title {
 }
 
 body.theme-dark nav {
-  background: rgba(30, 13, 49, 0.62);
-  border-color: rgba(202, 152, 255, .34);
-  box-shadow: 0 14px 36px rgba(9, 2, 18, .45);
+  background: rgba(7, 22, 42, 0.64);
+  border-color: rgba(119, 178, 255, .34);
+  box-shadow: 0 14px 36px rgba(2, 9, 18, .52);
 }

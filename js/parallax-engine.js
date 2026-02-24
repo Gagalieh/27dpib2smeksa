@@ -10,6 +10,7 @@
       <div class="parallax-layer-bg" data-depth="0.06"></div>
       <div class="parallax-layer-grid" data-depth="0.12"></div>
       <div class="parallax-layer-glow" data-depth="0.18"></div>
+      <div class="parallax-layer-stars" data-depth="0.09"></div>
       <div class="parallax-layer-orbs" data-depth="0.24"></div>
       <div class="parallax-layer-noise" data-depth="0.04"></div>
     `;
