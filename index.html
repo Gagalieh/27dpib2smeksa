@@ -702,6 +702,126 @@
       font-style: italic;
     }
 
+    .parallax-showcase {
+      position: relative;
+      min-height: 75vh;
+      padding: 2rem;
+      border-radius: 28px;
+      overflow: hidden;
+      border: 1px solid rgba(var(--primary-rgb), 0.35);
+      background:
+        radial-gradient(circle at 20% 20%, rgba(var(--primary-rgb), 0.32), transparent 30%),
+        radial-gradient(circle at 80% 10%, rgba(14, 165, 233, 0.22), transparent 28%),
+        linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(2, 6, 23, 0.8));
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.28);
+      isolation: isolate;
+    }
+
+    .parallax-layer {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(0.5px);
+      opacity: 0.6;
+      pointer-events: none;
+      transition: transform 0.15s linear;
+    }
+
+    .parallax-layer.layer-a {
+      width: 320px;
+      height: 320px;
+      top: -70px;
+      left: -80px;
+      background: radial-gradient(circle at 30% 30%, #a855f7, transparent 72%);
+    }
+
+    .parallax-layer.layer-b {
+      width: 240px;
+      height: 240px;
+      bottom: 10%;
+      right: 8%;
+      background: radial-gradient(circle at 50% 50%, #22d3ee, transparent 70%);
+    }
+
+    .parallax-layer.layer-c {
+      width: 180px;
+      height: 180px;
+      top: 38%;
+      left: 14%;
+      background: radial-gradient(circle at 50% 50%, #f97316, transparent 65%);
+    }
+
+    .parallax-content {
+      position: relative;
+      z-index: 2;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      align-items: center;
+      gap: 1.5rem;
+      min-height: 70vh;
+    }
+
+    .parallax-copy h2 {
+      font-size: clamp(2rem, 4vw, 3.1rem);
+      line-height: 1.15;
+      margin-bottom: 1rem;
+      color: #fff;
+    }
+
+    .parallax-copy p {
+      color: rgba(241, 245, 249, 0.85);
+      max-width: 48ch;
+      margin-bottom: 1.5rem;
+    }
+
+    .premium-badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.7rem;
+    }
+
+    .premium-badges span {
+      border: 1px solid rgba(255, 255, 255, 0.24);
+      background: rgba(15, 23, 42, 0.42);
+      color: #f8fafc;
+      border-radius: 999px;
+      font-size: 0.85rem;
+      padding: 0.4rem 0.8rem;
+      backdrop-filter: blur(10px);
+    }
+
+    .parallax-cards {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(120px, 1fr));
+      gap: 1rem;
+    }
+
+    .premium-card {
+      min-height: 140px;
+      border-radius: 18px;
+      padding: 1rem;
+      color: white;
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      background: linear-gradient(160deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0.05));
+      backdrop-filter: blur(10px);
+      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.24);
+      animation: float-card 6s ease-in-out infinite;
+    }
+
+    .premium-card:nth-child(2) { animation-delay: 0.8s; }
+    .premium-card:nth-child(3) { animation-delay: 1.4s; }
+    .premium-card:nth-child(4) { animation-delay: 2.1s; }
+
+    .premium-card strong {
+      display: block;
+      margin-top: 0.3rem;
+      font-size: 1.2rem;
+    }
+
+    @keyframes float-card {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-10px); }
+    }
+
     @media (max-width: 768px) {
       main {
         margin-top: 100px;
@@ -718,6 +838,20 @@
 
       .hero p {
         font-size: 1rem;
+      }
+
+      .parallax-showcase {
+        min-height: auto;
+        padding: 1.25rem;
+      }
+
+      .parallax-content {
+        grid-template-columns: 1fr;
+        min-height: auto;
+      }
+
+      .parallax-cards {
+        grid-template-columns: 1fr 1fr;
       }
     }
 
@@ -2589,6 +2723,35 @@
       <p class="motto">💫 Bersama Menggapai Mimpi 💫</p>
     </section>
 
+    <section class="parallax-showcase" id="parallaxShowcase">
+      <div class="parallax-layer layer-a" data-speed="0.2"></div>
+      <div class="parallax-layer layer-b" data-speed="0.45"></div>
+      <div class="parallax-layer layer-c" data-speed="0.32"></div>
+
+      <div class="parallax-content">
+        <div class="parallax-copy" data-speed="0.15">
+          <h2>Nuansa Website Lebih Meriah, Unik, dan Berasa Premium ✨</h2>
+          <p>
+            Sekarang halaman kamu punya parallax scrolling multi-layer, floating glass cards,
+            dan visual animasi yang bikin pengalaman lihat galeri jadi lebih hidup.
+          </p>
+          <div class="premium-badges">
+            <span>Parallax Multi Layer</span>
+            <span>Glassmorphism UI</span>
+            <span>Animasi Cinematic</span>
+            <span>Modern Story Feel</span>
+          </div>
+        </div>
+
+        <div class="parallax-cards">
+          <article class="premium-card" data-speed="0.55">🎬<strong>Story Mode</strong><p>Gerak halus waktu scroll.</p></article>
+          <article class="premium-card" data-speed="0.7">🌌<strong>Depth Effect</strong><p>Layer depan-belakang terasa nyata.</p></article>
+          <article class="premium-card" data-speed="0.4">💎<strong>Premium Mood</strong><p>Visual glow + blur modern.</p></article>
+          <article class="premium-card" data-speed="0.6">🚀<strong>Interactive</strong><p>Responsif dengan gerakan kursor.</p></article>
+        </div>
+      </div>
+    </section>
+
     <!-- CLASS PROFILE SECTION -->
     <section id="profil">
       <h2 class="section-title"><i data-feather="users"></i> Profil Kelas</h2>
@@ -3853,9 +4016,55 @@
       })
     }
 
+
+    function initParallaxShowcase() {
+      const showcase = document.getElementById('parallaxShowcase')
+      if(!showcase) return
+      const items = showcase.querySelectorAll('[data-speed]')
+      const state = { offsetX: 0, offsetY: 0 }
+
+      const draw = () => {
+        const rect = showcase.getBoundingClientRect()
+        const scrollDepth = (window.innerHeight - rect.top) * 0.12
+
+        items.forEach(el => {
+          const speed = parseFloat(el.dataset.speed || '0.2')
+          const baseY = scrollDepth * speed
+          const dx = state.offsetX * speed * 30
+          const dy = state.offsetY * speed * 18
+          el.style.transform = `translate3d(${dx}px, ${baseY + dy}px, 0)`
+        })
+      }
+
+      let rafId = null
+      const tick = () => {
+        if(rafId) cancelAnimationFrame(rafId)
+        rafId = requestAnimationFrame(draw)
+      }
+
+      window.addEventListener('scroll', tick, { passive: true })
+      window.addEventListener('resize', tick)
+
+      showcase.addEventListener('mousemove', (e) => {
+        const rect = showcase.getBoundingClientRect()
+        state.offsetX = (e.clientX - rect.left) / rect.width - 0.5
+        state.offsetY = (e.clientY - rect.top) / rect.height - 0.5
+        tick()
+      })
+
+      showcase.addEventListener('mouseleave', () => {
+        state.offsetX = 0
+        state.offsetY = 0
+        tick()
+      })
+
+      draw()
+    }
+
     // ============================================
     // INIT
     // ============================================
+    initParallaxShowcase()
     loadAllData()
     feather.replace()
   </script>
