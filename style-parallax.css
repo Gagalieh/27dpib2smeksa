@@ -1,0 +1,79 @@
+/* Global parallax/cinematic layer pack */
+body.theme-dark {
+  --px-accent: rgba(138, 160, 255, 0.36);
+}
+
+body.theme-dark .parallax-stage {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: -1;
+  overflow: hidden;
+}
+
+.parallax-layer-bg,
+.parallax-layer-grid,
+.parallax-layer-noise,
+.parallax-layer-glow,
+.parallax-layer-orbs {
+  position: absolute;
+  inset: -8%;
+  will-change: transform;
+}
+
+.parallax-layer-bg {
+  background: radial-gradient(circle at 18% 14%, rgba(138,160,255,.18), transparent 38%),
+              radial-gradient(circle at 80% 10%, rgba(126,200,255,.15), transparent 34%),
+              linear-gradient(140deg, #070c19, #0d1527 55%, #0b1220);
+}
+
+.parallax-layer-grid {
+  background: url('./assets/parallax/grid.svg') center/cover no-repeat;
+  opacity: .35;
+}
+
+.parallax-layer-noise {
+  background: url('./assets/parallax/noise.svg') repeat;
+  opacity: .42;
+  mix-blend-mode: soft-light;
+}
+
+.parallax-layer-glow {
+  background: url('./assets/parallax/glow.svg') center/cover no-repeat;
+  opacity: .55;
+}
+
+.parallax-layer-orbs::before,
+.parallax-layer-orbs::after {
+  content: '';
+  position: absolute;
+  border-radius: 999px;
+  filter: blur(4px);
+}
+
+.parallax-layer-orbs::before {
+  width: 320px;
+  height: 320px;
+  left: -70px;
+  top: 20%;
+  background: radial-gradient(circle, rgba(138,160,255,.5), transparent 68%);
+}
+
+.parallax-layer-orbs::after {
+  width: 280px;
+  height: 280px;
+  right: -80px;
+  top: 58%;
+  background: radial-gradient(circle, rgba(126,200,255,.45), transparent 72%);
+}
+
+body.theme-dark section {
+  backdrop-filter: blur(14px);
+  border-color: rgba(138,160,255,.24);
+}
+
+body.theme-dark nav {
+  background: rgba(11, 18, 32, 0.66);
+  border-color: rgba(138, 160, 255, 0.34);
+  box-shadow: 0 14px 36px rgba(0,0,0,.35);
+}
